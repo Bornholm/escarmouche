@@ -1,0 +1,36 @@
+{
+  "name": "escarmouche",
+  "version": "0.0.0",
+  "description": "> ⚠️ **Disclaimer** > > Escarmouche is currently under active development and should be considered a work in progress.",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Bornholm/escarmouche.git"
+  },
+  "author": "Bornholm",
+  "license": "CC-BY-SA-4.0",
+  "bugs": {
+    "url": "https://github.com/Bornholm/escarmouche/issues"
+  },
+  "homepage": "https://github.com/Bornholm/escarmouche#readme",
+  "devDependencies": {
+    "@parcel/config-default": "^2.15.4",
+    "parcel-reporter-static-files-copy": "^1.5.3",
+    "parcel-resolver-ignore": "^2.2.0"
+  },
+  "parcelIgnore": [
+    "wasm_exec.js"
+  ],
+  "staticFiles": {
+    "staticPath": "barracks/static"
+  },
+  "dependencies": {
+    "@picocss/pico": "^2.1.1",
+    "@types/react": "^19.1.13",
+    "@types/react-dom": "^19.1.9",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1"
+  }
+}

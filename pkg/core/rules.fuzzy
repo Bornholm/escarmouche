@@ -1,0 +1,35 @@
+DEFINE cost (
+  TERM very_low LINEAR (10, 0),
+  TERM low TRIANGULAR (0, 10, 15),
+  TERM mid TRIANGULAR (10, 15, 20),
+  TERM high TRIANGULAR (15, 20, 25),
+  TERM very_high LINEAR (20, 30)
+);
+
+DEFINE expertise (
+	TERM novice LINEAR (1, 0),
+  TERM seasoned TRIANGULAR (0, 1, 2),
+  TERM master LINEAR (1, 2)
+);
+
+DEFINE rank (
+  TERM trooper LINEAR (10, 0),
+  TERM veteran TRIANGULAR (0, 10, 20),
+  TERM elite TRIANGULAR (10, 20, 30),
+  TERM champion TRIANGULAR (20, 30, 40),
+  TERM paragon LINEAR (30, 40),
+);
+
+IF cost IS very_low OR cost IS low THEN rank IS trooper;
+
+IF cost IS low AND expertise IS seasoned THEN rank IS veteran;
+
+IF cost IS mid THEN rank IS veteran;
+IF cost IS mid AND expertise IS seasoned THEN rank IS elite;
+
+IF cost IS high THEN rank IS elite;
+IF cost IS high AND expertise IS seasoned THEN rank IS champion;
+
+IF cost IS very_high THEN rank IS champion;
+
+IF cost IS very_high AND ( expertise IS seasoned OR expertise IS master ) THEN rank IS paragon;
