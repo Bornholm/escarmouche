@@ -55,22 +55,33 @@
 <p>Les compositions des escouades sont décidées par les joueurs qui peuvent créer autant de combinaisons qu'il est possible d'imaginer tout en maintenant un équilibrage entre les adversaires, et ce grâce à la <a href="file:///home/runner/work/escarmouche/escarmouche/rules/fr-FR/%23">Caserne</a>.</p>
 <p>Les règles ont été inspirées par celles du jeu <a href="https://www.youtube.com/watch?v=wD2rijeN2Bg">&quot;Motley Crew&quot; du Youtuber _nubmark</a>.</p>
 <h3 id="les-rgles">Les règles</h3>
+<h4 id="les-escouades">Les escouades</h4>
+<p>Chaque escouade est composée d'une à six figurines, chacune accompagnée d'une carte de caractéristiques et de zéro à deux cartes de capacité.</p>
+<h4 id="objectif">Objectif</h4>
+<p>En dehors des parties scénarisées (<code>TODO</code>), l'objectif d'un joueur est d'éliminer l'ensemble de l'escouade ennemie.</p>
 <h4 id="plateau-de-jeu">Plateau de jeu</h4>
 <p>Une partie se déroule sur un plateau de 8x8 cases (échiquier), comme celui des échecs.</p>
-<p>En dehors des parties scénarisées (<code>TODO</code>), l'objectif d'un joueur est d'éliminer l'ensemble de l'escouade ennemie.</p>
-<p>Chaque escouade est composée d'une à six figurines, chacune accompagnée d'une carte de caractéristiques et de zéro à deux cartes de capacité spéciale.</p>
 <h4 id="caractristiques">Caractéristiques</h4>
 <p>Chaque carte de figurine présente plusieurs caractéristiques définissant le profil de celle-ci:</p>
 <ul>
 <li><code>Santé</code>: Nombre de blessures que la figurine peut endurer au maximum avant de mourir;</li>
 <li><code>Portée</code>: Distance à laquelle la figurine peut attaquer une figurine adverse;</li>
 <li><code>Puissance</code>: Nombre de blessures infligées à chaque attaque de la figurine.</li>
-<li><code>Déplacement</code>: Nombre de cases qu'une figurine</li>
+<li><code>Déplacement</code>: Nombre de cases qu'une figurine (les déplacements en diagonale sont autorisés).</li>
 </ul>
 <h4 id="dmarrage-dune-partie">Démarrage d'une partie</h4>
-<p>Chaque joueur positionne les figurines de son escouade sur les deux lignes face à lui.</p>
+<p>Chaque joueur positionne les figurines de son escouade sur les deux lignes face à lui. Le joueur qui débute la partie est tiré au sort.</p>
 <h4 id="tour-de-jeu">Tour de jeu</h4>
-<p>Chaque joueur</p>
+<p>Chaque joueur peut, à tour de rôle, réaliser 2 actions:</p>
+<ul>
+<li>Mouvement: déplacer une figurine de sa valeur de déplacement;</li>
+<li>Attaque ou Capacité: attaquer une figurine adverse à portée et visible (voir la règle du &quot;couvert&quot;) ou déclencher une capacité.</li>
+</ul>
+<p>Ces deux actions peuvent être réparties sur 2 figurines différentes ou réalisées par la même figurine lors du même tour.</p>
+<h4 id="attaque">Attaque</h4>
+<p>Sauf effet contraire provenant d'une capacité, une attaque réussie automatiquement après avoir été déclarée. La puissance de la figurine à l'origine de l'attaque est retranchée à la santé de la figurine ciblée. Si la santé de celle ci tombe à zéro ou en dessous, elle est déclarée morte et retirée du plateau.</p>
+<h4 id="couvert">Couvert</h4>
+<p>Une figurine ne peut attaquer une cible que si les cases entre elle et sa cible peuvent être reliée par une ligne ininterrompue par un obstacle (une autre figurine par exemple). Cette ligne peut prendre pour origine n'importe lequel des 4 coins de la case de départ de l'attaque.</p>
 </div>
           </section>
         </div>
