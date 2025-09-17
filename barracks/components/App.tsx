@@ -250,16 +250,16 @@ export const App: React.FC = () => {
                   <button
                     onClick={() => handleEditUnit(unit)}
                     style={editButtonStyle}
-                    title="Edit unit"
+                    title="Modifier l'unité"
                   >
-                    Edit
+                    Modifier
                   </button>
                   <button
                     onClick={() => handleDeleteUnit(unit.id)}
                     style={deleteButtonStyle}
-                    title="Delete unit"
+                    title="Supprimer l'unité"
                   >
-                    Delete
+                    Supprimer
                   </button>
                 </div>
               </div>
