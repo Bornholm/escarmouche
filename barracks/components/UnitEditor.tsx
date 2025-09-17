@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Unit } from "../types";
+import { Unit, Rank, Archetype, GeneratedUnit } from "../types";
 import { Card } from "./Card";
 import { generateId } from "./storage";
 
@@ -25,6 +25,12 @@ export const UnitEditor: React.FC<UnitEditorProps> = ({
     attack: 1,
     imageUrl: "templar_knight.png",
   });
+
+  const [selectedRank, setSelectedRank] = useState<Rank>(Rank.Trooper);
+  const [selectedArchetype, setSelectedArchetype] = useState<Archetype>(
+    Archetype.Balanced
+  );
+  const [isGenerating, setIsGenerating] = useState(false);
 
   // Initialize form data when unit prop changes
   useEffect(() => {
@@ -60,6 +66,51 @@ export const UnitEditor: React.FC<UnitEditorProps> = ({
 
   const handleCancel = () => {
     onClose();
+  };
+
+  const handleGenerateRandomUnit = async () => {
+    setIsGenerating(true);
+    try {
+      const generatedUnit: GeneratedUnit = await Barracks.generateUnit(
+        selectedRank,
+        selectedArchetype
+      );
+
+      // Convert GeneratedUnit to Unit format
+      const newUnit: Unit = {
+        id: formData.id || generateId(),
+        name: `${generatedUnit.rank} ${generatedUnit.archetype}`.replace(
+          /^\w/,
+          (c) => c.toUpperCase()
+        ),
+        health: generatedUnit.health,
+        move: generatedUnit.move,
+        reach: generatedUnit.reach,
+        attack: generatedUnit.attack,
+        imageUrl: getImageForArchetype(generatedUnit.archetype),
+      };
+
+      setFormData(newUnit);
+    } catch (error) {
+      console.error("Failed to generate unit:", error);
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const getImageForArchetype = (archetype: Archetype): string => {
+    switch (archetype) {
+      case Archetype.Tank:
+      case Archetype.Bruiser:
+        return "templar_knight.png";
+      case Archetype.Sniper:
+      case Archetype.Skirmisher:
+        return "elven_archer.png";
+      case Archetype.GlassCannon:
+        return "fire_mage.png";
+      default:
+        return "templar_knight.png";
+    }
   };
 
   if (!isOpen) return null;
@@ -102,6 +153,51 @@ export const UnitEditor: React.FC<UnitEditorProps> = ({
         </header>
         <div style={sideBySideStyle}>
           <div style={formSectionStyle}>
+            {/* Random Unit Generation Section */}
+            <fieldset>
+              <legend>Génération aléatoire</legend>
+              <div className="grid">
+                <div>
+                  <label>Rang:</label>
+                  <select
+                    value={selectedRank}
+                    onChange={(e) => setSelectedRank(e.target.value as Rank)}
+                  >
+                    <option value={Rank.Trooper}>Trooper</option>
+                    <option value={Rank.Veteran}>Veteran</option>
+                    <option value={Rank.Elite}>Elite</option>
+                    <option value={Rank.Champion}>Champion</option>
+                    <option value={Rank.Paragon}>Paragon</option>
+                  </select>
+                </div>
+                <div>
+                  <label>Archétype:</label>
+                  <select
+                    value={selectedArchetype}
+                    onChange={(e) =>
+                      setSelectedArchetype(e.target.value as Archetype)
+                    }
+                  >
+                    <option value={Archetype.Balanced}>Balanced</option>
+                    <option value={Archetype.Tank}>Tank</option>
+                    <option value={Archetype.Sniper}>Sniper</option>
+                    <option value={Archetype.Skirmisher}>Skirmisher</option>
+                    <option value={Archetype.Bruiser}>Bruiser</option>
+                    <option value={Archetype.GlassCannon}>Glass Cannon</option>
+                  </select>
+                </div>
+              </div>
+              <button
+                type="button"
+                className="outline"
+                onClick={handleGenerateRandomUnit}
+                disabled={isGenerating}
+                aria-busy={isGenerating}
+              >
+                {isGenerating ? "Génération..." : "Générer une unité aléatoire"}
+              </button>
+            </fieldset>
+
             <div>
               <label>Nom:</label>
               <input
