@@ -10,14 +10,32 @@
 
 ## Composition des escouades
 
-Chaque joueur assemble son escouade selon les règles de la [**Caserne**](https://bornholm.github.io/escarmouche/barracks/). Une escouade comprend :
+Chaque joueur assemble son escouade en respectant les contraintes suivantes :
 
 - **1 à 6 unités** maximum
-- **1 carte descriptive** par unité
+- **30 points de rang (RP)** cumulés maximum (voir ci dessous)
+
+Chaque unité a un rang, représentant sa puissance globale, identifié sur sa carte descriptive. Les rangs sont les suivants:
+
+- **Soldat**: 1 RP
+- **Vétéran**: 3 RP
+- **Élite**: 6 RP
+- **Champion**: 10 RP
+- **Parangon**: 15 RP
+
+Une escouade peut ainsi donc être composée:
+
+- De 2 Parangons;
+- De 2 Champions, 1 Élite, 1 Vétéran et 1 Soldat;
+- Etc
+
+Pour faciliter la création et la composition de vos escouades, une application est disponible en ligne, [**la Caserne**](https://bornholm.github.io/escarmouche/barracks/).
+
+> Le calcul du rang de chaque unité est basé sur une formule complexe mais permettant d'équilibrer les escouades, quelles que soient les combinaisons utilisées par le joueur.
 
 ## Caractéristiques des unités
 
-Chaque unité possède 4 caractéristiques principales :
+Chaque unité possède également 4 caractéristiques principales :
 
 | Caractéristique | Description                                                     |
 | --------------- | --------------------------------------------------------------- |
