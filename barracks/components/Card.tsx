@@ -37,8 +37,11 @@ export const Card: React.FC<CardProps> = ({
     padding: "10px",
   };
 
+  // Use custom image if available, otherwise use preset image
+  const imageSource = unit.customImage || unit.imageUrl;
+
   const cardBackgroundStyle: React.CSSProperties = {
-    backgroundImage: `url(${unit.imageUrl})`,
+    backgroundImage: imageSource ? `url(${imageSource})` : undefined,
     backgroundRepeat: "no-repeat",
     backgroundSize: "contain",
     backgroundPositionX: "50px",

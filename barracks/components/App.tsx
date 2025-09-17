@@ -16,6 +16,7 @@ const defaultUnits = [
     move: 1,
     attack: 1,
     imageUrl: "templar_knight.png",
+    customImage: undefined,
   },
   {
     id: "archer",
@@ -25,6 +26,7 @@ const defaultUnits = [
     move: 3,
     attack: 1,
     imageUrl: "elven_archer.png",
+    customImage: undefined,
   },
   {
     id: "mage",
@@ -34,6 +36,7 @@ const defaultUnits = [
     move: 2,
     attack: 3,
     imageUrl: "fire_mage.png",
+    customImage: undefined,
   },
 ];
 

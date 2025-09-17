@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Unit, Rank, Archetype, GeneratedUnit } from "../types";
 import { Card } from "./Card";
 import { generateId } from "./storage";
+import { fileToBase64, validateImageFile, resizeImage } from "./imageUtils";
 
 interface UnitEditorProps {
   isOpen: boolean;
@@ -24,6 +25,7 @@ export const UnitEditor: React.FC<UnitEditorProps> = ({
     reach: 1,
     attack: 1,
     imageUrl: "templar_knight.png",
+    customImage: undefined,
   });
 
   const [selectedRank, setSelectedRank] = useState<Rank>(Rank.Trooper);
@@ -31,6 +33,9 @@ export const UnitEditor: React.FC<UnitEditorProps> = ({
     Archetype.Balanced
   );
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Initialize form data when unit prop changes
   useEffect(() => {
@@ -45,6 +50,7 @@ export const UnitEditor: React.FC<UnitEditorProps> = ({
         reach: 1,
         attack: 1,
         imageUrl: "templar_knight.png",
+        customImage: undefined,
       });
     }
   }, [unit, isOpen]);
@@ -88,6 +94,7 @@ export const UnitEditor: React.FC<UnitEditorProps> = ({
         reach: generatedUnit.reach,
         attack: generatedUnit.attack,
         imageUrl: getImageForArchetype(generatedUnit.archetype),
+        customImage: undefined,
       };
 
       setFormData(newUnit);
@@ -111,6 +118,64 @@ export const UnitEditor: React.FC<UnitEditorProps> = ({
       default:
         return "templar_knight.png";
     }
+  };
+
+  const handleImageUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setIsUploadingImage(true);
+    setUploadError(null);
+
+    try {
+      // Validate the file
+      const validation = validateImageFile(file);
+      if (!validation.isValid) {
+        setUploadError(validation.error || "Fichier invalide");
+        return;
+      }
+
+      // Convert to base64
+      const base64 = await fileToBase64(file);
+
+      // Resize the image to optimize storage
+      const resizedBase64 = await resizeImage(base64, 400, 400);
+
+      // Update form data with custom image
+      setFormData((prev) => ({
+        ...prev,
+        customImage: resizedBase64,
+        imageUrl: undefined, // Clear the preset image when using custom
+      }));
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      setUploadError("Erreur lors du téléchargement de l'image");
+    } finally {
+      setIsUploadingImage(false);
+      // Clear the file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
+  };
+
+  const handleRemoveCustomImage = () => {
+    setFormData((prev) => ({
+      ...prev,
+      customImage: undefined,
+      imageUrl: "templar_knight.png", // Reset to default
+    }));
+    setUploadError(null);
+  };
+
+  const handlePresetImageChange = (imageUrl: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      imageUrl,
+      customImage: undefined, // Clear custom image when selecting preset
+    }));
   };
 
   if (!isOpen) return null;
@@ -267,14 +332,90 @@ export const UnitEditor: React.FC<UnitEditorProps> = ({
 
             <div>
               <label>Illustration:</label>
-              <select
-                value={formData.imageUrl || "templar_knight.png"}
-                onChange={(e) => handleInputChange("imageUrl", e.target.value)}
-              >
-                <option value="templar_knight.png">Templar Knight</option>
-                <option value="elven_archer.png">Elven Archer</option>
-                <option value="fire_mage.png">Fire Mage</option>
-              </select>
+
+              {/* Custom Image Upload Section */}
+              {formData.customImage ? (
+                <div style={{ marginBottom: "1rem" }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "1rem",
+                      padding: "0.5rem",
+                      border: "1px solid #ddd",
+                      borderRadius: "4px",
+                      backgroundColor: "#f8f9fa",
+                    }}
+                  >
+                    <span style={{ color: "#28a745", fontSize: "0.9rem" }}>
+                      ✓ Image personnalisée téléchargée
+                    </span>
+                    <button
+                      type="button"
+                      onClick={handleRemoveCustomImage}
+                      style={{
+                        padding: "0.25rem 0.5rem",
+                        fontSize: "0.8rem",
+                        backgroundColor: "#dc3545",
+                        color: "white",
+                        border: "none",
+                        borderRadius: "3px",
+                        cursor: "pointer",
+                      }}
+                    >
+                      Supprimer
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  {/* File Upload */}
+                  <div style={{ marginBottom: "1rem" }}>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      disabled={isUploadingImage}
+                      style={{ marginBottom: "0.5rem" }}
+                    />
+                    {isUploadingImage && (
+                      <div style={{ color: "#007bff", fontSize: "0.9rem" }}>
+                        Téléchargement en cours...
+                      </div>
+                    )}
+                    {uploadError && (
+                      <div style={{ color: "#dc3545", fontSize: "0.9rem" }}>
+                        {uploadError}
+                      </div>
+                    )}
+                    <div style={{ fontSize: "0.8rem", color: "#6c757d" }}>
+                      Formats supportés: JPG, PNG, GIF, WebP (max 5MB)
+                    </div>
+                  </div>
+
+                  {/* Preset Images */}
+                  <div>
+                    <label
+                      style={{
+                        fontSize: "0.9rem",
+                        marginBottom: "0.5rem",
+                        display: "block",
+                      }}
+                    >
+                      Ou choisir une illustration prédéfinie:
+                    </label>
+                    <select
+                      value={formData.imageUrl || "templar_knight.png"}
+                      onChange={(e) => handlePresetImageChange(e.target.value)}
+                    >
+                      <option value="templar_knight.png">Templar Knight</option>
+                      <option value="elven_archer.png">Elven Archer</option>
+                      <option value="fire_mage.png">Fire Mage</option>
+                    </select>
+                  </div>
+                </>
+              )}
             </div>
           </div>
 
