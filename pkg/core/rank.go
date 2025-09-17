@@ -32,3 +32,13 @@ func (r Rank) String() string {
 		panic(errors.Errorf("unknown rank '%d'", r))
 	}
 }
+
+func ParseRank(str string) (Rank, error) {
+	for _, r := range Ranks {
+		if r.String() == str {
+			return r, nil
+		}
+	}
+
+	return -1, errors.Errorf("unknown rank '%s'", str)
+}

@@ -1,5 +1,7 @@
 package core
 
+import "math"
+
 type Costs struct {
 	HealthFactor float64
 	ReachFactor  float64
@@ -28,7 +30,7 @@ func CalculateTotalCost(stats Stats, capacities []Capacity, costs Costs) float64
 		capacitiesCost += c.Cost(stats, capacities)
 	}
 
-	return healthCost + reachCost + moveCost + attackCost + synergyBonus + capacitiesCost
+	return math.Ceil(healthCost + reachCost + moveCost + attackCost + synergyBonus + capacitiesCost)
 }
 
 func CalculateSimpleCost(value int, costFactor float64) float64 {

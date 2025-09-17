@@ -2,8 +2,10 @@ import React, { useEffect, useState } from "react";
 import "@picocss/pico";
 import { Card } from "./Card";
 import { UnitEditor } from "./UnitEditor";
-import { Unit } from "./types";
-import { loadUnits, saveUnits } from "./storage";
+import { SquadEditor } from "./SquadEditor";
+import { SquadCard } from "./SquadCard";
+import { Unit, Squad } from "../types";
+import { loadUnits, saveUnits, loadSquads, saveSquads } from "./storage";
 
 const defaultUnits = [
   {
@@ -37,6 +39,7 @@ const defaultUnits = [
 
 export const App: React.FC = () => {
   const [units, setUnits] = useState<Unit[]>([]);
+  const [squads, setSquads] = useState<Squad[]>([]);
 
   useEffect(() => {
     let units = loadUnits();
@@ -47,11 +50,22 @@ export const App: React.FC = () => {
   }, []);
 
   useEffect(() => {
+    const squads = loadSquads();
+    setSquads(squads);
+  }, []);
+
+  useEffect(() => {
     saveUnits(units);
   }, [units]);
 
+  useEffect(() => {
+    saveSquads(squads);
+  }, [squads]);
+
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [editingUnit, setEditingUnit] = useState<Unit | null>(null);
+  const [isSquadEditorOpen, setIsSquadEditorOpen] = useState(false);
+  const [editingSquad, setEditingSquad] = useState<Squad | null>(null);
 
   const handleCreateUnit = () => {
     setEditingUnit(null);
@@ -75,6 +89,37 @@ export const App: React.FC = () => {
 
   const handleDeleteUnit = (unitId: string) => {
     setUnits((prev) => prev.filter((u) => u.id !== unitId));
+    // Also remove the unit from any squads
+    setSquads((prev) =>
+      prev.map((squad) => ({
+        ...squad,
+        units: squad.units.filter((u) => u.id !== unitId),
+      }))
+    );
+  };
+
+  const handleCreateSquad = () => {
+    setEditingSquad(null);
+    setIsSquadEditorOpen(true);
+  };
+
+  const handleEditSquad = (squad: Squad) => {
+    setEditingSquad(squad);
+    setIsSquadEditorOpen(true);
+  };
+
+  const handleSaveSquad = (squad: Squad) => {
+    if (editingSquad) {
+      // Update existing squad
+      setSquads((prev) => prev.map((s) => (s.id === squad.id ? squad : s)));
+    } else {
+      // Add new squad
+      setSquads((prev) => [...prev, squad]);
+    }
+  };
+
+  const handleDeleteSquad = (squadId: string) => {
+    setSquads((prev) => prev.filter((s) => s.id !== squadId));
   };
 
   const headerStyle: React.CSSProperties = {
@@ -108,11 +153,6 @@ export const App: React.FC = () => {
     transition: "opacity 0.2s",
   };
 
-  const cardOverlayVisibleStyle: React.CSSProperties = {
-    ...cardOverlayStyle,
-    opacity: 1,
-  };
-
   const smallButtonStyle: React.CSSProperties = {
     padding: "0.25rem 0.5rem",
     fontSize: "0.8rem",
@@ -135,58 +175,97 @@ export const App: React.FC = () => {
 
   return (
     <main className="container-fluid" style={{ padding: "1rem" }}>
-      <div style={headerStyle}>
-        <h1>La Caserne</h1>
-        <button onClick={handleCreateUnit} style={buttonStyle}>
-          Create New Unit
-        </button>
-      </div>
+      <h1>La Caserne</h1>
 
-      <div
-        className="grid"
-        style={{
-          display: "flex",
-          flexWrap: "wrap",
-          justifyContent: "start",
-          gap: "1rem",
-        }}
-      >
-        {units.map((unit) => (
+      <div className="grid">
+        <div>
+          <div style={headerStyle}>
+            <h2>Escouades</h2>
+            <button onClick={handleCreateSquad} style={buttonStyle}>
+              Nouvelle escouade
+            </button>
+          </div>
           <div
-            key={unit.id}
-            style={cardContainerStyle}
-            onMouseEnter={(e) => {
-              const overlay = e.currentTarget.querySelector(
-                ".card-overlay"
-              ) as HTMLElement;
-              if (overlay) overlay.style.opacity = "1";
-            }}
-            onMouseLeave={(e) => {
-              const overlay = e.currentTarget.querySelector(
-                ".card-overlay"
-              ) as HTMLElement;
-              if (overlay) overlay.style.opacity = "0";
+            className="grid"
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              justifyContent: "start",
+              gap: "1rem",
+              marginBottom: "2rem",
             }}
           >
-            <Card unit={unit} />
-            <div className="card-overlay" style={cardOverlayStyle}>
-              <button
-                onClick={() => handleEditUnit(unit)}
-                style={editButtonStyle}
-                title="Edit unit"
-              >
-                Edit
-              </button>
-              <button
-                onClick={() => handleDeleteUnit(unit.id)}
-                style={deleteButtonStyle}
-                title="Delete unit"
-              >
-                Delete
-              </button>
-            </div>
+            {squads.length === 0 ? (
+              <p style={{ color: "#6c757d", fontStyle: "italic" }}>
+                Aucune escouade créée. Cliquez sur "Nouvelle escouade" pour
+                commencer.
+              </p>
+            ) : (
+              squads.map((squad) => (
+                <SquadCard
+                  key={squad.id}
+                  squad={squad}
+                  onEdit={() => handleEditSquad(squad)}
+                  onDelete={() => handleDeleteSquad(squad.id)}
+                />
+              ))
+            )}
           </div>
-        ))}
+        </div>
+        <div>
+          <div style={headerStyle}>
+            <h2>Unités</h2>
+            <button onClick={handleCreateUnit} style={buttonStyle}>
+              Nouvelle unité
+            </button>
+          </div>
+          <div
+            className="grid"
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              justifyContent: "start",
+              gap: "1rem",
+            }}
+          >
+            {units.map((unit) => (
+              <div
+                key={unit.id}
+                style={cardContainerStyle}
+                onMouseEnter={(e) => {
+                  const overlay = e.currentTarget.querySelector(
+                    ".card-overlay"
+                  ) as HTMLElement;
+                  if (overlay) overlay.style.opacity = "1";
+                }}
+                onMouseLeave={(e) => {
+                  const overlay = e.currentTarget.querySelector(
+                    ".card-overlay"
+                  ) as HTMLElement;
+                  if (overlay) overlay.style.opacity = "0";
+                }}
+              >
+                <Card unit={unit} />
+                <div className="card-overlay" style={cardOverlayStyle}>
+                  <button
+                    onClick={() => handleEditUnit(unit)}
+                    style={editButtonStyle}
+                    title="Edit unit"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => handleDeleteUnit(unit.id)}
+                    style={deleteButtonStyle}
+                    title="Delete unit"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
 
       <UnitEditor
@@ -194,6 +273,14 @@ export const App: React.FC = () => {
         onClose={() => setIsEditorOpen(false)}
         onSave={handleSaveUnit}
         unit={editingUnit}
+      />
+
+      <SquadEditor
+        isOpen={isSquadEditorOpen}
+        onClose={() => setIsSquadEditorOpen(false)}
+        onSave={handleSaveSquad}
+        squad={editingSquad}
+        availableUnits={units}
       />
     </main>
   );

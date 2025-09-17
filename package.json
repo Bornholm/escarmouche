@@ -28,6 +28,7 @@
   },
   "dependencies": {
     "@picocss/pico": "^2.1.1",
+    "@tsconfig/recommended": "^1.0.10",
     "@types/react": "^19.1.13",
     "@types/react-dom": "^19.1.9",
     "react": "^19.1.1",

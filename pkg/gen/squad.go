@@ -7,7 +7,10 @@ import (
 	"github.com/pkg/errors"
 )
 
-const DefaultMaxSquadSize = 6
+const (
+	DefaultMaxSquadSize  = 6
+	DefaultMaxRankPoints = 30
+)
 
 func RandomSquad(maxRankPoints int, maxSquadSize int, archetypes []Archetype, rankPointCosts map[core.Rank]int, rankCostRanges map[core.Rank][2]float64, costs core.Costs) ([]*GeneratedUnit, error) {
 	var squad []*GeneratedUnit

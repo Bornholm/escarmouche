@@ -1,4 +1,4 @@
-import { Squad, Unit } from './types';
+import { Squad, Unit } from '../types';
 
 const SQUADS_STORAGE_KEY = 'escarmouche-squads';
 const UNITS_STORAGE_KEY = 'escarmouche-units'

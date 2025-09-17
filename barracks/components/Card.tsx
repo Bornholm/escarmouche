@@ -1,12 +1,10 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { Evaluation, Unit } from "./types";
-
-declare namespace Barracks {
-  function evaluate(unit: Unit): Evaluation;
-}
+import React from "react";
+import { Evaluation, Unit } from "../types";
+import { useAsyncMemo } from "../hooks/useAsyncMemo";
 
 interface CardProps {
   unit?: Unit;
+  style?: React.CSSProperties;
 }
 
 export const Card: React.FC<CardProps> = ({
@@ -18,24 +16,10 @@ export const Card: React.FC<CardProps> = ({
     move: 2,
     attack: 25,
   },
+  style,
 }) => {
-  const [evaluation, setEvaluation] = useState<null | Evaluation>(null);
-
-  useEffect(() => {
-    let active = true;
-    load();
-    return () => {
-      active = false;
-    };
-
-    async function load() {
-      setEvaluation(null);
-      const evaluation: Evaluation = await Barracks.evaluate(unit);
-      if (!active) {
-        return;
-      }
-      setEvaluation(evaluation);
-    }
+  const evaluation = useAsyncMemo<Evaluation>(() => {
+    return Barracks.evaluateUnit(unit);
   }, [unit]);
 
   const cardContainerStyle: React.CSSProperties = {
@@ -100,15 +84,13 @@ export const Card: React.FC<CardProps> = ({
   };
 
   return (
-    <div style={cardContainerStyle}>
+    <div style={{ ...cardContainerStyle, ...(style ?? {}) }}>
       <div style={cardStyle}>
         <div style={cardBackgroundStyle}>
           <div style={cardHeaderStyle}>
             <span style={cardTitleStyle}>{unit.name}</span>
             <br />
-            <span style={cardSubtitleStyle}>
-              {evaluation?.rank} ({evaluation?.cost})
-            </span>
+            <span style={cardSubtitleStyle}>{evaluation?.rank}</span>
           </div>
           <div style={cardCharacteristicStyle}>
             <span style={cardCharacteristicLabelStyle}>Health</span>
