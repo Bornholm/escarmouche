@@ -76,7 +76,20 @@ func RandomUnit(targetRank core.Rank, archetype Archetype, costs core.Costs) (*G
 				return nil, errors.WithStack(err)
 			}
 
-			if evaluation.Rank >= targetRank {
+			if evaluation.Cost > costs.MaxTotal || evaluation.Rank > targetRank {
+				switch statToUpgrade {
+				case 0:
+					stats.Health--
+				case 1:
+					stats.Reach--
+				case 2:
+					stats.Move--
+				case 3:
+					stats.Attack--
+				}
+			}
+
+			if evaluation.Rank == targetRank {
 				break
 			}
 		}
