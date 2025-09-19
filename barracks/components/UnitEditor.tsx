@@ -108,11 +108,13 @@ export const UnitEditor: React.FC<UnitEditorProps> = ({
   const getImageForArchetype = (archetype: Archetype): string => {
     switch (archetype) {
       case Archetype.Tank:
-      case Archetype.Bruiser:
         return "templar_knight.png";
+      case Archetype.Bruiser:
+        return "orc_warrior.png";
       case Archetype.Sniper:
-      case Archetype.Skirmisher:
         return "elven_archer.png";
+      case Archetype.Skirmisher:
+        return "orc_javelin.png";
       case Archetype.GlassCannon:
         return "fire_mage.png";
       default:
@@ -412,6 +414,9 @@ export const UnitEditor: React.FC<UnitEditorProps> = ({
                       <option value="templar_knight.png">Templar Knight</option>
                       <option value="elven_archer.png">Elven Archer</option>
                       <option value="fire_mage.png">Fire Mage</option>
+                      <option value="orc_javelin.png">Orc Skirmisher</option>
+                      <option value="orc_shaman.png">Orc Shaman</option>
+                      <option value="orc_warrior.png">Orc Warrior</option>
                     </select>
                   </div>
                 </>

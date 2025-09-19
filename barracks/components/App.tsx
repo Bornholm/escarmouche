@@ -10,8 +10,8 @@ import { loadUnits, saveUnits, loadSquads, saveSquads } from "./storage";
 const defaultUnits = [
   {
     id: "knight",
-    name: "Knight Templar",
-    health: 3,
+    name: "Templier",
+    health: 2,
     reach: 1,
     move: 1,
     attack: 1,
@@ -20,22 +20,32 @@ const defaultUnits = [
   },
   {
     id: "archer",
-    name: "Elven Archer",
-    health: 2,
-    reach: 3,
-    move: 3,
-    attack: 1,
+    name: "Archer elfe",
+    health: 1,
+    reach: 2,
+    move: 1,
+    attack: 2,
     imageUrl: "elven_archer.png",
     customImage: undefined,
   },
   {
     id: "mage",
-    name: "Fire Mage",
+    name: "Sorcier crépusculaire",
     health: 1,
     reach: 3,
     move: 2,
     attack: 3,
     imageUrl: "fire_mage.png",
+    customImage: undefined,
+  },
+  {
+    id: "bruiser",
+    name: "Guerrier orc",
+    health: 3,
+    reach: 1,
+    move: 1,
+    attack: 3,
+    imageUrl: "orc_warrior.png",
     customImage: undefined,
   },
 ];
@@ -45,10 +55,15 @@ export const App: React.FC = () => {
   const [squads, setSquads] = useState<Squad[]>([]);
 
   useEffect(() => {
-    let units = loadUnits();
-    if (units.length === 0) {
-      units = [...defaultUnits];
-    }
+    const units = loadUnits();
+    defaultUnits.forEach((u, i) => {
+      const index = units.findIndex((l) => l.id === u.id);
+      if (index === -1) {
+        units.push(u);
+      } else {
+        units[index] = { ...u };
+      }
+    });
     setUnits(units);
   }, []);
 
@@ -132,16 +147,6 @@ export const App: React.FC = () => {
     marginBottom: "2rem",
   };
 
-  const buttonStyle: React.CSSProperties = {
-    padding: "0.75rem 1.5rem",
-    backgroundColor: "#007bff",
-    color: "white",
-    border: "none",
-    borderRadius: "4px",
-    cursor: "pointer",
-    fontSize: "1rem",
-  };
-
   const cardContainerStyle: React.CSSProperties = {
     position: "relative",
   };
@@ -184,16 +189,13 @@ export const App: React.FC = () => {
         <div>
           <div style={headerStyle}>
             <h2>Escouades</h2>
-            <button onClick={handleCreateSquad} style={buttonStyle}>
-              Nouvelle escouade
-            </button>
+            <button onClick={handleCreateSquad}>Nouvelle escouade</button>
           </div>
           <div
-            className="grid"
             style={{
               display: "flex",
               flexWrap: "wrap",
-              justifyContent: "start",
+              justifyContent: "center",
               gap: "1rem",
               marginBottom: "2rem",
             }}
@@ -218,55 +220,58 @@ export const App: React.FC = () => {
         <div>
           <div style={headerStyle}>
             <h2>Unités</h2>
-            <button onClick={handleCreateUnit} style={buttonStyle}>
-              Nouvelle unité
-            </button>
+            <button onClick={handleCreateUnit}>Nouvelle unité</button>
           </div>
           <div
-            className="grid"
             style={{
               display: "flex",
               flexWrap: "wrap",
-              justifyContent: "start",
+              justifyContent: "center",
               gap: "1rem",
             }}
           >
-            {units.map((unit) => (
-              <div
-                key={unit.id}
-                style={cardContainerStyle}
-                onMouseEnter={(e) => {
-                  const overlay = e.currentTarget.querySelector(
-                    ".card-overlay"
-                  ) as HTMLElement;
-                  if (overlay) overlay.style.opacity = "1";
-                }}
-                onMouseLeave={(e) => {
-                  const overlay = e.currentTarget.querySelector(
-                    ".card-overlay"
-                  ) as HTMLElement;
-                  if (overlay) overlay.style.opacity = "0";
-                }}
-              >
-                <Card unit={unit} />
-                <div className="card-overlay" style={cardOverlayStyle}>
-                  <button
-                    onClick={() => handleEditUnit(unit)}
-                    style={editButtonStyle}
-                    title="Modifier l'unité"
-                  >
-                    Modifier
-                  </button>
-                  <button
-                    onClick={() => handleDeleteUnit(unit.id)}
-                    style={deleteButtonStyle}
-                    title="Supprimer l'unité"
-                  >
-                    Supprimer
-                  </button>
+            {units.length === 0 ? (
+              <p style={{ color: "#6c757d", fontStyle: "italic" }}>
+                Aucune unité créée. Cliquez sur "Nouvelle unité" pour commencer.
+              </p>
+            ) : (
+              units.map((unit) => (
+                <div
+                  key={unit.id}
+                  style={cardContainerStyle}
+                  onMouseEnter={(e) => {
+                    const overlay = e.currentTarget.querySelector(
+                      ".card-overlay"
+                    ) as HTMLElement;
+                    if (overlay) overlay.style.opacity = "1";
+                  }}
+                  onMouseLeave={(e) => {
+                    const overlay = e.currentTarget.querySelector(
+                      ".card-overlay"
+                    ) as HTMLElement;
+                    if (overlay) overlay.style.opacity = "0";
+                  }}
+                >
+                  <Card unit={unit} />
+                  <div className="card-overlay" style={cardOverlayStyle}>
+                    <button
+                      onClick={() => handleEditUnit(unit)}
+                      style={editButtonStyle}
+                      title="Modifier l'unité"
+                    >
+                      Modifier
+                    </button>
+                    <button
+                      onClick={() => handleDeleteUnit(unit.id)}
+                      style={deleteButtonStyle}
+                      title="Supprimer l'unité"
+                    >
+                      Supprimer
+                    </button>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </div>
       </div>

@@ -22,6 +22,8 @@ export const Card: React.FC<CardProps> = ({
     return Barracks.evaluateUnit(unit);
   }, [unit]);
 
+  console.log(unit, evaluation);
+
   const cardContainerStyle: React.CSSProperties = {
     width: "300px",
     height: "420px",
