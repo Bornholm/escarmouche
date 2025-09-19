@@ -15,14 +15,6 @@ var DefaultRankPointCosts = map[core.Rank]int{
 	core.RankParagon:  15,
 }
 
-var DefaultRankCostRanges = map[core.Rank][2]float64{
-	core.RankTrooper:  {8, 12},
-	core.RankVeteran:  {10, 18},
-	core.RankElite:    {16, 23},
-	core.RankChampion: {22, 30},
-	core.RankParagon:  {28, 40},
-}
-
 type GeneratedUnit struct {
 	Stats     core.Stats
 	TotalCost float64
@@ -30,21 +22,22 @@ type GeneratedUnit struct {
 	Archetype Archetype
 }
 
-func RandomUnit(targetRank core.Rank, archetype Archetype, rankCostRanges map[core.Rank][2]float64, costs core.Costs) (*GeneratedUnit, error) {
+func RandomUnit(targetRank core.Rank, archetype Archetype, costs core.Costs) (*GeneratedUnit, error) {
 	capacities := []core.Capacity{}
 
-	costRange := rankCostRanges[targetRank]
-	targetCost := costRange[0] + rand.Float64()*(costRange[1]-costRange[0])
-
 	var stats core.Stats
-	remainingCost := targetCost
 
 	hasMinimalHealth := false
 	hasMinimalMove := false
 	hasMinimalAttack := false
 	hasMinimalReach := false
 
-	for remainingCost > 0 {
+	var (
+		evaluation *core.Evaluation
+		err        error
+	)
+
+	for {
 		var statToUpgrade int
 
 		switch {
@@ -75,25 +68,18 @@ func RandomUnit(targetRank core.Rank, archetype Archetype, rankCostRanges map[co
 			stats.Attack++
 		}
 
-		remainingCost = targetCost - core.CalculateTotalCost(stats, capacities, costs)
-		// Rollback last increase of value
-		if remainingCost < 0 {
-			switch statToUpgrade {
-			case 0:
-				stats.Health--
-			case 1:
-				stats.Reach--
-			case 2:
-				stats.Move--
-			case 3:
-				stats.Attack--
+		hasMinimal := hasMinimalHealth && hasMinimalReach && hasMinimalMove && hasMinimalAttack
+
+		if hasMinimal {
+			evaluation, err = core.Evaluate(stats, capacities, costs)
+			if err != nil {
+				return nil, errors.WithStack(err)
+			}
+
+			if evaluation.Rank >= targetRank {
+				break
 			}
 		}
-	}
-
-	evaluation, err := core.Evaluate(stats, capacities, costs)
-	if err != nil {
-		return nil, errors.WithStack(err)
 	}
 
 	return &GeneratedUnit{

@@ -12,7 +12,7 @@ const (
 	DefaultMaxRankPoints = 30
 )
 
-func RandomSquad(maxRankPoints int, maxSquadSize int, archetypes []Archetype, rankPointCosts map[core.Rank]int, rankCostRanges map[core.Rank][2]float64, costs core.Costs) ([]*GeneratedUnit, error) {
+func RandomSquad(maxRankPoints int, maxSquadSize int, archetypes []Archetype, rankPointCosts map[core.Rank]int, costs core.Costs) ([]*GeneratedUnit, error) {
 	var squad []*GeneratedUnit
 	remainingPoints := maxRankPoints
 
@@ -26,7 +26,7 @@ func RandomSquad(maxRankPoints int, maxSquadSize int, archetypes []Archetype, ra
 
 		chosenArchetype := archetypes[rand.Intn(len(archetypes))]
 
-		newUnit, err := RandomUnit(chosenRank, chosenArchetype, rankCostRanges, costs)
+		newUnit, err := RandomUnit(chosenRank, chosenArchetype, costs)
 		if err != nil {
 			return nil, errors.WithStack(err)
 		}

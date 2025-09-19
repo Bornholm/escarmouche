@@ -53,7 +53,7 @@ func evaluateUnit(this js.Value, args []js.Value) any {
 
 func generateSquad(this js.Value, args []js.Value) any {
 	return withPromise(func() ([]map[string]any, error) {
-		squad, err := gen.RandomSquad(gen.DefaultMaxRankPoints, gen.DefaultMaxSquadSize, gen.DefaultArchetypes, gen.DefaultRankPointCosts, gen.DefaultRankCostRanges, core.DefaultCosts)
+		squad, err := gen.RandomSquad(gen.DefaultMaxRankPoints, gen.DefaultMaxSquadSize, gen.DefaultArchetypes, gen.DefaultRankPointCosts, core.DefaultCosts)
 		if err != nil {
 			return nil, errors.WithStack(err)
 		}
@@ -91,7 +91,7 @@ func generateUnit(this js.Value, args []js.Value) any {
 			return nil, errors.WithStack(err)
 		}
 
-		unit, err := gen.RandomUnit(rank, archetype, gen.DefaultRankCostRanges, core.DefaultCosts)
+		unit, err := gen.RandomUnit(rank, archetype, core.DefaultCosts)
 		if err != nil {
 			return nil, errors.WithStack(err)
 		}

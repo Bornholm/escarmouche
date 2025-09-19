@@ -12,14 +12,14 @@ import (
 )
 
 func TestSimulation(t *testing.T) {
-	playerOne, err := gen.RandomSquad(30, gen.DefaultMaxSquadSize, gen.DefaultArchetypes, gen.DefaultRankPointCosts, gen.DefaultRankCostRanges, core.DefaultCosts)
+	playerOne, err := gen.RandomSquad(30, gen.DefaultMaxSquadSize, gen.DefaultArchetypes, gen.DefaultRankPointCosts, core.DefaultCosts)
 	if err != nil {
 		t.Logf("%+v", errors.WithStack(err))
 	}
 
 	t.Logf("Player One Squad: %s", spew.Sdump(playerOne))
 
-	playerTwo, err := gen.RandomSquad(30, gen.DefaultMaxSquadSize, gen.DefaultArchetypes, gen.DefaultRankPointCosts, gen.DefaultRankCostRanges, core.DefaultCosts)
+	playerTwo, err := gen.RandomSquad(30, gen.DefaultMaxSquadSize, gen.DefaultArchetypes, gen.DefaultRankPointCosts, core.DefaultCosts)
 	if err != nil {
 		t.Logf("%+v", errors.WithStack(err))
 	}
