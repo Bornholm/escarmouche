@@ -20,12 +20,19 @@ export interface UnitStats {
   reach: number;
   move: number;
   attack: number;
+  abilities: Ability[]
 }
 
 export interface GeneratedUnit extends UnitStats {
   cost: number;
   rank: Rank;
   archetype: Archetype;
+}
+
+export interface Ability {
+  id: string;
+  label: string;
+  description: string;
 }
 
 export interface Unit extends UnitStats {

@@ -1,0 +1,15 @@
+label:
+  fr-FR: Posture Défensive
+  en-EN: Defensive Stance
+  es-ES: Postura Defensiva
+description:
+  fr-FR: |-
+    Le prochain point de dégat infligé à cette unité est annulé.
+    L'effet ne peut pas être cumulé plusieurs fois.
+  en-EN: |-
+    The next point of damage dealt to this unit is canceled.
+    This effect cannot be stacked multiple times.
+  es-ES: |-
+    El siguiente punto de daño infligido a esta unidad es anulado.
+    Este efecto no puede acumularse varias veces.
+cost: 3

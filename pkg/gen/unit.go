@@ -2,6 +2,7 @@ package gen
 
 import (
 	"math/rand"
+	"slices"
 
 	"github.com/bornholm/escarmouche/pkg/core"
 	"github.com/pkg/errors"
@@ -17,13 +18,16 @@ var DefaultRankPointCosts = map[core.Rank]int{
 
 type GeneratedUnit struct {
 	Stats     core.Stats
+	Abilities []core.Ability
 	TotalCost float64
 	Rank      core.Rank
 	Archetype Archetype
 }
 
 func RandomUnit(targetRank core.Rank, archetype Archetype, costs core.Costs) (*GeneratedUnit, error) {
-	capacities := []core.Capacity{}
+	availableAbilities := append([]core.Ability{}, archetype.Abilities...)
+
+	abilities := []core.Ability{}
 
 	var stats core.Stats
 
@@ -70,8 +74,17 @@ func RandomUnit(targetRank core.Rank, archetype Archetype, costs core.Costs) (*G
 
 		hasMinimal := hasMinimalHealth && hasMinimalReach && hasMinimalMove && hasMinimalAttack
 
+		if hasMinimal && len(availableAbilities) > 0 && len(abilities) < 2 {
+			newAbility := rand.Intn(100) < archetype.WeightAbility
+			if newAbility {
+				index := rand.Intn(len(availableAbilities))
+				abilities = append(abilities, availableAbilities[index])
+				availableAbilities = slices.Delete(availableAbilities, index, index+1)
+			}
+		}
+
 		if hasMinimal {
-			evaluation, err = core.Evaluate(stats, capacities, costs)
+			evaluation, err = core.Evaluate(stats, abilities, costs)
 			if err != nil {
 				return nil, errors.WithStack(err)
 			}
@@ -97,6 +110,7 @@ func RandomUnit(targetRank core.Rank, archetype Archetype, costs core.Costs) (*G
 
 	return &GeneratedUnit{
 		Stats:     stats,
+		Abilities: abilities,
 		TotalCost: evaluation.Cost,
 		Rank:      evaluation.Rank,
 		Archetype: archetype,
@@ -104,7 +118,8 @@ func RandomUnit(targetRank core.Rank, archetype Archetype, costs core.Costs) (*G
 }
 
 func chooseWeightedStat(archetype Archetype) int {
-	totalWeight := archetype.WeightHealth + archetype.WeightReach + archetype.WeightMovement + archetype.WeightAttack
+	totalWeight := archetype.WeightHealth + archetype.WeightReach + archetype.WeightMove + archetype.WeightAttack
+
 	r := rand.Intn(totalWeight)
 
 	if r < archetype.WeightHealth {
@@ -115,7 +130,8 @@ func chooseWeightedStat(archetype Archetype) int {
 		return 1 // Reach
 	}
 	r -= archetype.WeightReach
-	if r < archetype.WeightMovement {
+
+	if r < archetype.WeightMove {
 		return 2 // Movement
 	}
 	return 3 // Attack

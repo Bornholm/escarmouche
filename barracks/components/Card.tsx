@@ -15,6 +15,7 @@ export const Card: React.FC<CardProps> = ({
     reach: 3,
     move: 2,
     attack: 25,
+    abilities: [],
   },
   style,
 }) => {
@@ -37,6 +38,7 @@ export const Card: React.FC<CardProps> = ({
     background:
       "linear-gradient(340deg, rgba(255, 247, 217, 1) 0%, rgba(247, 247, 247, 1) 100%)",
     padding: "10px",
+    position: "relative",
   };
 
   // Use custom image if available, otherwise use preset image
@@ -88,6 +90,20 @@ export const Card: React.FC<CardProps> = ({
     display: "inline-block",
   };
 
+  const cardAbilityStyle: React.CSSProperties = {
+    backgroundColor: "rgb(75, 67, 67)",
+    color: "rgb(247, 247, 247)",
+    position: "absolute",
+    padding: "5px 10px",
+    fontSize: "0.8em",
+    inset: "310px 10px 10px",
+    borderRadius: "5px",
+    display: "flex",
+    alignContent: "center",
+    justifyContent: "center",
+    alignItems: "center",
+  };
+
   return (
     <div style={{ ...cardContainerStyle, ...(style ?? {}) }}>
       <div style={cardStyle}>
@@ -113,6 +129,13 @@ export const Card: React.FC<CardProps> = ({
             <span style={cardCharacteristicLabelStyle}>Attack</span>
             <span style={cardCharacteristicValueStyle}>{unit.attack}</span>
           </div>
+          {unit.abilities?.length > 0 ? (
+            <div style={cardAbilityStyle}>
+              {unit.abilities?.map((a) => (
+                <span>{a.label}</span>
+              ))}
+            </div>
+          ) : null}
         </div>
       </div>
     </div>

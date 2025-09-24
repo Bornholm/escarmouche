@@ -31,10 +31,11 @@ type UnitStats struct {
 	Move   int
 }
 
-type Unit struct {
+type PlayerUnit struct {
+	Unit
+
 	ID      UnitID
 	OwnerID PlayerID
-	Stats   UnitStats
 }
 
 type GameState struct {
@@ -42,7 +43,7 @@ type GameState struct {
 	Healths         map[UnitID]int
 	Positions       map[UnitID]Position
 	Board           map[string]UnitID
-	Units           map[UnitID]*Unit
+	Units           map[UnitID]*PlayerUnit
 	CurrentPlayerID PlayerID
 	ActionsLeft     int
 }
@@ -53,7 +54,7 @@ func (s GameState) Copy() GameState {
 		Healths:         map[UnitID]int{},
 		Positions:       map[UnitID]Position{},
 		Board:           map[string]UnitID{},
-		Units:           map[UnitID]*Unit{},
+		Units:           map[UnitID]*PlayerUnit{},
 		CurrentPlayerID: s.CurrentPlayerID,
 		ActionsLeft:     s.ActionsLeft,
 	}
@@ -92,18 +93,4 @@ func (s GameState) Print(w io.Writer) {
 			fmt.Fprintln(w, "\n├────┼────┼────┼────┼────┼────┼────┼────┤")
 		}
 	}
-}
-
-type ActionType int
-
-const (
-	ActionMove ActionType = iota
-	ActionAttack
-)
-
-type Action struct {
-	Type      ActionType
-	UnitID    UnitID
-	TargetID  UnitID
-	TargetPos Position
 }

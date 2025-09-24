@@ -26,6 +26,7 @@ export const UnitEditor: React.FC<UnitEditorProps> = ({
     attack: 1,
     imageUrl: "templar_knight.png",
     customImage: undefined,
+    abilities: [],
   });
 
   const [selectedRank, setSelectedRank] = useState<Rank>(Rank.Trooper);
@@ -51,6 +52,7 @@ export const UnitEditor: React.FC<UnitEditorProps> = ({
         attack: 1,
         imageUrl: "templar_knight.png",
         customImage: undefined,
+        abilities: [],
       });
     }
   }, [unit, isOpen]);
@@ -82,6 +84,8 @@ export const UnitEditor: React.FC<UnitEditorProps> = ({
         selectedArchetype
       );
 
+      console.log(generatedUnit);
+
       // Convert GeneratedUnit to Unit format
       const newUnit: Unit = {
         id: formData.id || generateId(),
@@ -95,6 +99,7 @@ export const UnitEditor: React.FC<UnitEditorProps> = ({
         attack: generatedUnit.attack,
         imageUrl: getImageForArchetype(generatedUnit.archetype),
         customImage: undefined,
+        abilities: generatedUnit.abilities,
       };
 
       setFormData(newUnit);

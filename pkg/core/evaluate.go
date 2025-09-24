@@ -29,12 +29,12 @@ type Evaluation struct {
 	Rank Rank
 }
 
-func Evaluate(stats Stats, capacities []Capacity, costs Costs) (*Evaluation, error) {
-	cost := CalculateTotalCost(stats, capacities, costs)
+func Evaluate(stats Stats, abilities []Ability, costs Costs) (*Evaluation, error) {
+	cost := CalculateTotalCost(stats, abilities, costs)
 
 	values := fuzzy.Values{
 		"cost":      cost,
-		"expertise": float64(len(capacities)),
+		"expertise": float64(len(abilities)),
 	}
 
 	results, err := engine.Infer(values)

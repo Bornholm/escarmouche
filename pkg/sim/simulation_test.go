@@ -26,17 +26,23 @@ func TestSimulation(t *testing.T) {
 
 	t.Logf("Player Two Squad: %s", spew.Sdump(playerTwo))
 
-	playerOneUnits := slices.Collect(func(yield func(core.Stats) bool) {
+	playerOneUnits := slices.Collect(func(yield func(Unit) bool) {
 		for _, u := range playerOne {
-			if !yield(u.Stats) {
+			if !yield(Unit{
+				Stats:     u.Stats,
+				Abilities: u.Abilities,
+			}) {
 				return
 			}
 		}
 	})
 
-	playerTwoUnits := slices.Collect(func(yield func(core.Stats) bool) {
+	playerTwoUnits := slices.Collect(func(yield func(Unit) bool) {
 		for _, u := range playerTwo {
-			if !yield(u.Stats) {
+			if !yield(Unit{
+				Stats:     u.Stats,
+				Abilities: u.Abilities,
+			}) {
 				return
 			}
 		}
@@ -50,22 +56,18 @@ func TestSimulation(t *testing.T) {
 
 	for {
 		actions, isGameOver, winner := sim.Next()
+		currentPlayer := sim.State().CurrentPlayerID
 
 		sim.State().PrintConsole()
 
-		t.Logf("Turn: %d", sim.Turn())
+		t.Logf("[TURN] %d", sim.Turn())
 
 		for _, a := range actions {
-			switch a.Type {
-			case ActionMove:
-				t.Logf("Unit %d moved to %s", a.UnitID, a.TargetPos.String())
-			case ActionAttack:
-				t.Logf("Unit %d attacked unit %d", a.UnitID, a.TargetID)
-			}
+			t.Logf("[ACTION] P%d: %s", currentPlayer, a)
 		}
 
 		if isGameOver {
-			t.Logf("Game Over: winner %d", winner)
+			t.Logf("[GAME OVER] Winner %d", winner)
 			return
 		}
 

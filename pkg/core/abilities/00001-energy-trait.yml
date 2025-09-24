@@ -1,0 +1,12 @@
+label:
+  fr-FR: Trait d'Énergie
+  en-EN: Energy Trait
+  es-ES: Rasgo de Energía
+description:
+  fr-FR: |-
+    Effectuez une attaque de puissance 2 avec une portée 3.
+  en-EN: |-
+    Make a power 2 attack with range 3.
+  es-ES: |-
+    Realiza un ataque de poder 2 con alcance 3.
+cost: 3

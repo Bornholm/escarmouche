@@ -1,0 +1,12 @@
+label:
+  fr-FR: Charge
+  en-EN: Charge
+  es-ES: Carga
+description:
+  fr-FR: |-
+    Effectuez une action de mouvement gratuite puis une attaque de puissance 1.
+  en-EN: |-
+    Perform a free movement action, then make a power 1 attack.
+  es-ES: |-
+    Realiza una acción de movimiento gratuita, luego haz un ataque de poder 1.
+cost: 3

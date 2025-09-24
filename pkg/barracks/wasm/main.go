@@ -39,7 +39,20 @@ func evaluateUnit(this js.Value, args []js.Value) any {
 			Attack: args[0].Get("attack").Int(),
 		}
 
-		evaluation, err := core.Evaluate(stats, []core.Capacity{}, core.DefaultCosts)
+		abilities := []core.Ability{}
+
+		if jsAbilities := args[0].Get("abilities"); jsAbilities.Truthy() {
+			len := jsAbilities.Length()
+			ids := make([]string, 0, len)
+
+			for i := 0; i < len; i++ {
+				ids = append(ids, jsAbilities.Index(i).Get("id").String())
+			}
+
+			abilities = core.Abilities(ids...)
+		}
+
+		evaluation, err := core.Evaluate(stats, abilities, core.DefaultCosts)
 		if err != nil {
 			return nil, errors.Wrap(err, "could not evaluate unit")
 		}
@@ -96,6 +109,15 @@ func generateUnit(this js.Value, args []js.Value) any {
 			return nil, errors.WithStack(err)
 		}
 
+		abilities := make([]any, 0, len(unit.Abilities))
+		for _, a := range unit.Abilities {
+			abilities = append(abilities, map[string]any{
+				"id":          a.ID,
+				"description": a.Description.String(),
+				"label":       a.Label.String(),
+			})
+		}
+
 		return map[string]any{
 			"health":    unit.Stats.Health,
 			"move":      unit.Stats.Move,
@@ -104,6 +126,7 @@ func generateUnit(this js.Value, args []js.Value) any {
 			"cost":      unit.TotalCost,
 			"rank":      unit.Rank.String(),
 			"archetype": unit.Archetype.Name,
+			"abilities": abilities,
 		}, nil
 	})
 }

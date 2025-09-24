@@ -23,7 +23,6 @@ func RandomSquad(maxRankPoints int, maxSquadSize int, archetypes []Archetype, ra
 		}
 
 		chosenRank := affordableRanks[rand.Intn(len(affordableRanks))]
-
 		chosenArchetype := archetypes[rand.Intn(len(archetypes))]
 
 		newUnit, err := RandomUnit(chosenRank, chosenArchetype, costs)
