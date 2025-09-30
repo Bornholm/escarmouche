@@ -1,9 +1,5 @@
 package sim
 
-import (
-	"math"
-)
-
 type Strategy interface {
 	NextAction(state GameState, playerID PlayerID) Action
 }
@@ -61,9 +57,10 @@ func evaluateState(state GameState, playerID PlayerID) float64 {
 
 	for _, unit := range state.Units {
 		if unit.OwnerID == playerID {
-			myTotalHealth += state.Healths[unit.ID]
+			myTotalHealth += state.Get(unit.ID, CounterHealth, 0)
+			myTotalHealth += state.Get(unit.ID, CounterDefensiveStance, 0)
 		} else {
-			opponentTotalHealth += state.Healths[unit.ID]
+			opponentTotalHealth += state.Get(unit.ID, CounterHealth, 0)
 		}
 	}
 
@@ -95,114 +92,23 @@ func evaluateState(state GameState, playerID PlayerID) float64 {
 	return score
 }
 
-func getPossibleMoves(state GameState, unit *PlayerUnit) []Action {
-	moves := make([]Action, 0)
+// Helper function to determine if a unit is providing cover
+func isProvidingCover(coverUnit, protectedUnit, enemyUnit Position) bool {
+	// Check if cover unit is roughly between protected unit and enemy
+	distCoverToProtected := distance(coverUnit, protectedUnit)
+	distCoverToEnemy := distance(coverUnit, enemyUnit)
+	distProtectedToEnemy := distance(protectedUnit, enemyUnit)
 
-	// Get all positions within movement range using Manhattan distance
-	for dx := -unit.Stats.Move; dx <= unit.Stats.Move; dx++ {
-		for dy := -unit.Stats.Move; dy <= unit.Stats.Move; dy++ {
-			// Skip the current position
-			if dx == 0 && dy == 0 {
-				continue
-			}
-
-			// Check if the movement distance is within the unit's move range
-			manhattanDistance := abs(dx) + abs(dy)
-			if manhattanDistance > unit.Stats.Move {
-				continue
-			}
-
-			targetPos := Position{
-				X: state.Positions[unit.ID].X + dx,
-				Y: state.Positions[unit.ID].Y + dy,
-			}
-
-			// Check if target position is within board bounds (8x8 board)
-			if targetPos.X < 0 || targetPos.X >= 8 || targetPos.Y < 0 || targetPos.Y >= 8 {
-				continue
-			}
-
-			// Check if target position is not occupied
-			if _, exists := state.Board[targetPos.String()]; exists {
-				continue
-			}
-
-			// Create move action
-			moveAction := NewMoveAction(unit.ID, targetPos)
-
-			moves = append(moves, moveAction)
-		}
-	}
-
-	return moves
+	// Cover unit should be closer to enemy than protected unit
+	// and the total distance should be roughly equal to direct distance
+	return distCoverToEnemy < distProtectedToEnemy &&
+		(distCoverToProtected+distCoverToEnemy) <= (distProtectedToEnemy+1.5)
 }
 
-func getPossibleAttacks(state GameState, unit *PlayerUnit) []Action {
-	attacks := make([]Action, 0)
-
-	unitPos := state.Positions[unit.ID]
-
-	for dx := -unit.Stats.Reach; dx <= unit.Stats.Reach; dx++ {
-		for dy := -unit.Stats.Reach; dy <= unit.Stats.Reach; dy++ {
-			if dx == 0 && dy == 0 {
-				continue
-			}
-
-			targetPos := Position{
-				X: state.Positions[unit.ID].X + dx,
-				Y: state.Positions[unit.ID].Y + dy,
-			}
-
-			if targetPos.X < 0 || targetPos.X >= 8 || targetPos.Y < 0 || targetPos.Y >= 8 {
-				continue
-			}
-
-			targetUnitID, exists := state.Board[targetPos.String()]
-			if !exists || state.Units[targetUnitID].OwnerID == unit.OwnerID {
-				continue
-			}
-
-			dist := distance(unitPos, targetPos)
-			if int(dist) > unit.Stats.Reach {
-				continue
-			}
-
-			attackAction := NewAttackAction(unit.ID, targetUnitID)
-
-			attacks = append(attacks, attackAction)
-		}
+// Helper function to get opponent player ID
+func getOpponentPlayerID(playerID PlayerID) PlayerID {
+	if playerID == PlayerOne {
+		return PlayerTwo
 	}
-
-	return attacks
-}
-
-func getValidActions(state GameState, unit *PlayerUnit) []Action {
-	actions := make([]Action, 0)
-
-	// Add possible moves
-	moves := getPossibleMoves(state, unit)
-	actions = append(actions, moves...)
-
-	if total, exists := state.Attacks[unit.ID]; !exists || total == 0 {
-		attacks := getPossibleAttacks(state, unit)
-		actions = append(actions, attacks...)
-	}
-
-	return actions
-}
-
-// Helper function to calculate absolute value
-func abs(x int) int {
-	if x < 0 {
-		return -x
-	}
-	return x
-}
-
-// Helper function to calculate Manhattan distance between two positions
-func distance(pos1, pos2 Position) float64 {
-	return math.Sqrt(
-		math.Pow(float64(pos1.X-pos2.X), 2) +
-			math.Pow(float64(pos1.Y-pos2.Y), 2),
-	)
+	return PlayerOne
 }

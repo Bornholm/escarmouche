@@ -1,3 +1,0 @@
-function getValidUses() {}
-
-function applyAction() {}

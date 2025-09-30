@@ -2,6 +2,7 @@ package sim
 
 type Options struct {
 	Strategies map[PlayerID]StrategyFunc
+	MaxTurns   int
 }
 
 type OptionFunc func(opts *Options)
@@ -12,6 +13,7 @@ func NewOptions(funcs ...OptionFunc) *Options {
 			PlayerOne: DefaultStrategy,
 			PlayerTwo: DefaultStrategy,
 		},
+		MaxTurns: 100,
 	}
 	for _, fn := range funcs {
 		fn(opts)

@@ -1,6 +1,7 @@
 package sim
 
 import (
+	"context"
 	"slices"
 	"testing"
 	"time"
@@ -12,6 +13,9 @@ import (
 )
 
 func TestSimulation(t *testing.T) {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
 	playerOne, err := gen.RandomSquad(30, gen.DefaultMaxSquadSize, gen.DefaultArchetypes, gen.DefaultRankPointCosts, core.DefaultCosts)
 	if err != nil {
 		t.Logf("%+v", errors.WithStack(err))
@@ -50,28 +54,29 @@ func TestSimulation(t *testing.T) {
 
 	sim := NewSimulation(playerOneUnits, playerTwoUnits)
 
-	sim.State().PrintConsole()
-
-	time.Sleep(time.Second)
-
 	for {
-		actions, isGameOver, winner := sim.Next()
-		currentPlayer := sim.State().CurrentPlayerID
+		select {
+		case <-ctx.Done():
+			t.Fatalf("%+v", errors.WithStack(ctx.Err()))
+		default:
+			actions, isGameOver, winner := sim.Next()
+			currentPlayer := sim.State().CurrentPlayerID
 
-		sim.State().PrintConsole()
+			sim.State().PrintConsole()
 
-		t.Logf("[TURN] %d", sim.Turn())
+			t.Logf("[TURN] %d", sim.Turn())
 
-		for _, a := range actions {
-			t.Logf("[ACTION] P%d: %s", currentPlayer, a)
+			for _, a := range actions {
+				t.Logf("[ACTION] P%d: %s", currentPlayer, a)
+			}
+
+			if isGameOver {
+				t.Logf("[GAME OVER] Winner %d", winner)
+				return
+			}
+
+			time.Sleep(time.Millisecond)
 		}
-
-		if isGameOver {
-			t.Logf("[GAME OVER] Winner %d", winner)
-			return
-		}
-
-		time.Sleep(time.Second)
 	}
 
 }

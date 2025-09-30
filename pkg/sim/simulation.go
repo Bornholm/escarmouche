@@ -16,13 +16,14 @@ type Simulation struct {
 	players    []PlayerID
 	strategies map[PlayerID]StrategyFunc
 	state      GameState
+	maxTurns   int
 }
 
 func NewSimulation(player1 []Unit, player2 []Unit, funcs ...OptionFunc) *Simulation {
 	opts := NewOptions(funcs...)
 
 	gameState := GameState{
-		Healths:   map[UnitID]int{},
+		counters:  map[UnitID]map[string]int{},
 		Board:     map[string]UnitID{},
 		Positions: map[UnitID]Position{},
 		Units:     map[UnitID]*PlayerUnit{},
@@ -32,9 +33,11 @@ func NewSimulation(player1 []Unit, player2 []Unit, funcs ...OptionFunc) *Simulat
 
 	initSquad := func(playerID PlayerID, row int, units []Unit) {
 		availablePositions := []int{0, 1, 2, 3, 4, 5, 6, 7}
+
 		rand.Shuffle(len(availablePositions), func(i, j int) {
 			availablePositions[i], availablePositions[j] = availablePositions[j], availablePositions[i]
 		})
+
 		for i, u := range units {
 			pos := Position{X: availablePositions[i], Y: row}
 			unit := &PlayerUnit{
@@ -51,7 +54,8 @@ func NewSimulation(player1 []Unit, player2 []Unit, funcs ...OptionFunc) *Simulat
 				},
 			}
 
-			gameState.Healths[unit.ID] = u.Stats.Health
+			gameState.Set(unit.ID, CounterHealth, u.Stats.Health)
+
 			gameState.Board[pos.String()] = unit.ID
 			gameState.Positions[unit.ID] = pos
 			gameState.Units[unitID] = unit
@@ -76,6 +80,7 @@ func NewSimulation(player1 []Unit, player2 []Unit, funcs ...OptionFunc) *Simulat
 		players:    players,
 		turn:       0,
 		strategies: opts.Strategies,
+		maxTurns:   opts.MaxTurns, // Prevent infinite games
 	}
 }
 
@@ -88,12 +93,18 @@ func (s *Simulation) Turn() int {
 }
 
 func (s *Simulation) Next() ([]Action, bool, PlayerID) {
+	// Check for maximum turns reached
+	if s.turn >= s.maxTurns {
+		// Game ends in a draw - return the player with more total health
+		return []Action{}, true, s.getHealthWinner()
+	}
+
 	playerID := s.players[s.turn%len(s.players)]
 
 	s.state.CurrentPlayerID = PlayerID(playerID)
 	s.state.ActionsLeft = 2
 
-	s.state.Attacks = map[UnitID]int{}
+	s.state.DelAll(CounterRoundAttacks)
 
 	actions := make([]Action, 0)
 
@@ -102,9 +113,11 @@ func (s *Simulation) Next() ([]Action, bool, PlayerID) {
 
 		strategy := s.strategies[playerID]
 		action := strategy.NextAction(s.state.Copy(), playerID)
-		s.state = action.Apply(s.state)
 
-		actions = append(actions, action)
+		if action != nil {
+			s.state = action.Apply(s.state)
+			actions = append(actions, action)
+		}
 
 		if isOver, winner := isGameOver(s.state); isOver {
 			return actions, true, PlayerID(winner)
@@ -134,4 +147,25 @@ func isGameOver(state GameState) (bool, PlayerID) {
 	}
 
 	return false, -1
+}
+
+// getHealthWinner determines winner based on total remaining health
+func (s *Simulation) getHealthWinner() PlayerID {
+	healthTotals := map[PlayerID]int{}
+
+	for _, unit := range s.state.Units {
+		health := s.state.Get(unit.ID, CounterHealth, unit.Stats.Health)
+		healthTotals[unit.OwnerID] += health
+	}
+
+	var winner PlayerID
+	maxHealth := -1
+	for playerID, health := range healthTotals {
+		if health > maxHealth {
+			maxHealth = health
+			winner = playerID
+		}
+	}
+
+	return winner
 }

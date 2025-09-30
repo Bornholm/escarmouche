@@ -1,6 +1,8 @@
 package sim
 
-import "fmt"
+import (
+	"fmt"
+)
 
 type ActionType string
 
@@ -66,16 +68,12 @@ func NewAttackAction(unitID UnitID, targetID UnitID) *AttackAction {
 func (a *AttackAction) Apply(state GameState) GameState {
 	unit := state.Units[a.unitID]
 
-	state.Healths[a.targetID] -= unit.Stats.Attack
+	// Use the new applyDamage function that respects defensive stance
+	newState, _ := applyDamage(state, a.targetID, unit.Stats.Attack)
 
-	if state.Healths[a.targetID] <= 0 {
-		delete(state.Healths, a.targetID)
-		delete(state.Board, state.Positions[a.targetID].String())
-		delete(state.Positions, a.targetID)
-		delete(state.Units, a.targetID)
-	}
+	newState.Inc(a.unitID, CounterRoundAttacks, 1)
 
-	return state
+	return newState
 }
 
 // Type implements Action.
