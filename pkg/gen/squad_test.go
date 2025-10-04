@@ -9,7 +9,7 @@ import (
 )
 
 func TestRandomSquad(t *testing.T) {
-	squad, err := RandomSquad(30, DefaultMaxSquadSize, DefaultArchetypes, DefaultRankPointCosts, core.DefaultCosts)
+	squad, err := RandomSquad(30, DefaultMaxSquadSize, DefaultRankPointCosts, core.DefaultCosts)
 	if err != nil {
 		t.Fatalf("%+v", errors.WithStack(err))
 	}

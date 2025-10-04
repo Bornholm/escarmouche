@@ -12,7 +12,11 @@ const (
 	DefaultMaxRankPoints = 30
 )
 
-func RandomSquad(maxRankPoints int, maxSquadSize int, archetypes []Archetype, rankPointCosts map[core.Rank]int, costs core.Costs) ([]*GeneratedUnit, error) {
+func RandomSquad(maxRankPoints int, maxSquadSize int, rankPointCosts map[core.Rank]int, costs core.Costs, archetypes ...Archetype) ([]*GeneratedUnit, error) {
+	if len(archetypes) == 0 {
+		archetypes = DefaultArchetypes
+	}
+
 	var squad []*GeneratedUnit
 	remainingPoints := maxRankPoints
 

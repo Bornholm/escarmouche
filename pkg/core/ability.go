@@ -82,3 +82,14 @@ func Abilities(ids ...string) []Ability {
 
 	return selected
 }
+
+func AllAbilities() []Ability {
+	loadAbilities()
+
+	selected := make([]Ability, 0)
+	for _, ability := range abilities {
+		selected = append(selected, ability)
+	}
+
+	return selected
+}

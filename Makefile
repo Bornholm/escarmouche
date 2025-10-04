@@ -7,7 +7,12 @@ GOPHERJS_GO_VERSION := 1.19.13
 LATEST_VERSION ?= $(shell git describe --tags --abbrev=0)
 LANGUAGES := fr-FR
 
-build: website wasm-lib barracks-app
+build: website wasm-lib barracks-app cmd
+
+cmd: cmd-balancer
+
+cmd-%:
+	CGO_ENABLED=0 go build -o bin/$* ./cmd/$*
 
 wasm-lib:
 	mkdir -p dist/barracks

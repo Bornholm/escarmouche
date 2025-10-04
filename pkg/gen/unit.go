@@ -41,7 +41,10 @@ func RandomUnit(targetRank core.Rank, archetype Archetype, costs core.Costs) (*G
 		err        error
 	)
 
+	maxRounds := int(costs.MaxTotal)
+	round := 0
 	for {
+
 		var statToUpgrade int
 
 		switch {
@@ -105,6 +108,11 @@ func RandomUnit(targetRank core.Rank, archetype Archetype, costs core.Costs) (*G
 			if evaluation.Rank == targetRank {
 				break
 			}
+		}
+
+		round++
+		if round > maxRounds {
+			break
 		}
 	}
 
