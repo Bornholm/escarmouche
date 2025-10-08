@@ -76,7 +76,9 @@ func main() {
 			if generation == 0 || generation%2 == 0 {
 				fmt.Printf("Best costs for this generation: %v\n", stats.BestFitness)
 				printCosts(stats.BestCosts)
-				fmt.Println()
+				fmt.Printf("\nComparison with defaults:\n")
+				compareCosts(core.DefaultCosts, stats.BestCosts)
+				fmt.Printf("\n")
 			}
 
 			if stats.Converged {

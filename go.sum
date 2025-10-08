@@ -1,5 +1,7 @@
 github.com/bornholm/go-fuzzy v0.0.0-20250815131223-76b121e8632d h1:IUrWuFur+t1DKOMt49Np0vzF/9WcX1A1H9kWpiyMhPA=
 github.com/bornholm/go-fuzzy v0.0.0-20250815131223-76b121e8632d/go.mod h1:0qK9yh4PmCaXwWNvIYDJ9GGIZv/72b90QaSBti6ZZUs=
+github.com/cristalhq/istty v0.1.0 h1:HPJ+tZyFpzECNUn+0yLAQ5XwP6i88kR0uR5SMlMqRUg=
+github.com/cristalhq/istty v0.1.0/go.mod h1:cc4d2ypJ9lbCVRNQ1TDeVLbaYjpyWK4AVDckipOaeU8=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/dlclark/regexp2 v1.11.4 h1:rPYF9/LECdNymJufQKmri9gV604RvvABwgOA8un7yAo=

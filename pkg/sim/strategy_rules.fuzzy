@@ -1,0 +1,104 @@
+// Strategic fuzzy rules for more human-like AI behavior
+
+// Input variables for tactical decision making
+DEFINE health_ratio (
+  TERM critical LINEAR (0.3, 0),
+  TERM low TRIANGULAR (0.1, 0.3, 0.5),
+  TERM medium TRIANGULAR (0.3, 0.5, 0.8),
+  TERM high TRIANGULAR (0.5, 0.8, 1.0),
+  TERM full LINEAR (0.8, 1.0)
+);
+
+DEFINE distance_to_enemy (
+  TERM very_close LINEAR (2, 0),
+  TERM close TRIANGULAR (1, 2, 4),
+  TERM medium TRIANGULAR (3, 5, 7),
+  TERM far TRIANGULAR (6, 8, 10),
+  TERM very_far LINEAR (8, 12)
+);
+
+DEFINE enemy_threat (
+  TERM minimal LINEAR (0.2, 0),
+  TERM low TRIANGULAR (0.1, 0.3, 0.5),
+  TERM moderate TRIANGULAR (0.3, 0.5, 0.7),
+  TERM high TRIANGULAR (0.5, 0.7, 0.9),
+  TERM extreme LINEAR (0.7, 1.0)
+);
+
+DEFINE unit_value (
+  TERM expendable LINEAR (0.3, 0),
+  TERM regular TRIANGULAR (0.2, 0.4, 0.6),
+  TERM valuable TRIANGULAR (0.4, 0.6, 0.8),
+  TERM elite LINEAR (0.6, 1.0)
+);
+
+// Output variables for decision making
+DEFINE aggression (
+  TERM defensive LINEAR (0.3, 0),
+  TERM cautious TRIANGULAR (0.1, 0.3, 0.5),
+  TERM balanced TRIANGULAR (0.3, 0.5, 0.7),
+  TERM aggressive TRIANGULAR (0.5, 0.7, 0.9),
+  TERM reckless LINEAR (0.7, 1.0)
+);
+
+DEFINE positioning_preference (
+  TERM retreat LINEAR (0.3, 0),
+  TERM hold TRIANGULAR (0.2, 0.4, 0.6),
+  TERM advance TRIANGULAR (0.4, 0.6, 0.8),
+  TERM charge LINEAR (0.6, 1.0)
+);
+
+DEFINE risk_tolerance (
+  TERM risk_averse LINEAR (0.3, 0),
+  TERM conservative TRIANGULAR (0.1, 0.3, 0.5),
+  TERM moderate TRIANGULAR (0.3, 0.5, 0.7),
+  TERM bold TRIANGULAR (0.5, 0.7, 0.9),
+  TERM reckless LINEAR (0.7, 1.0)
+);
+
+// Strategic rules for human-like behavior
+
+// Health-based decision making
+IF health_ratio IS critical THEN aggression IS defensive;
+IF health_ratio IS critical THEN positioning_preference IS retreat;
+IF health_ratio IS critical THEN risk_tolerance IS risk_averse;
+
+IF health_ratio IS low THEN aggression IS cautious;
+IF health_ratio IS low THEN positioning_preference IS hold;
+IF health_ratio IS low THEN risk_tolerance IS conservative;
+
+IF health_ratio IS high THEN aggression IS aggressive;
+IF health_ratio IS high THEN positioning_preference IS advance;
+IF health_ratio IS high THEN risk_tolerance IS bold;
+
+IF health_ratio IS full THEN aggression IS balanced;
+IF health_ratio IS full THEN positioning_preference IS advance;
+IF health_ratio IS full THEN risk_tolerance IS moderate;
+
+// Distance-based tactical decisions
+IF distance_to_enemy IS very_close AND health_ratio IS high THEN aggression IS aggressive;
+IF distance_to_enemy IS very_close AND health_ratio IS low THEN positioning_preference IS retreat;
+
+IF distance_to_enemy IS close AND enemy_threat IS high THEN aggression IS cautious;
+IF distance_to_enemy IS close AND enemy_threat IS low THEN aggression IS aggressive;
+
+IF distance_to_enemy IS far THEN positioning_preference IS advance;
+IF distance_to_enemy IS very_far THEN positioning_preference IS charge;
+
+// Unit value considerations
+IF unit_value IS elite AND enemy_threat IS high THEN risk_tolerance IS conservative;
+IF unit_value IS elite AND health_ratio IS low THEN positioning_preference IS retreat;
+
+IF unit_value IS expendable AND enemy_threat IS moderate THEN aggression IS aggressive;
+IF unit_value IS expendable THEN risk_tolerance IS bold;
+
+// Threat response
+IF enemy_threat IS extreme THEN aggression IS defensive;
+IF enemy_threat IS extreme THEN positioning_preference IS retreat;
+
+IF enemy_threat IS minimal THEN aggression IS aggressive;
+IF enemy_threat IS minimal THEN positioning_preference IS charge;
+
+// Combined tactical decisions
+IF health_ratio IS medium AND distance_to_enemy IS close AND enemy_threat IS moderate THEN aggression IS balanced;
+IF unit_value IS valuable AND enemy_threat IS high THEN risk_tolerance IS conservative;

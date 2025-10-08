@@ -1,0 +1,15 @@
+label:
+  fr-FR: "Ordre : En Avant !"
+  en-EN: "Command: Forward!"
+  es-ES: "¡Orden: Adelante!"
+description:
+  fr-FR: |-
+    Choisissez jusqu'à 2 unités alliées à portée 3. Chacune effectue 
+    immédiatement une action de mouvement gratuite.
+  en-EN: |-
+    Choose up to 2 allied units within range 3. Each immediately 
+    performs a free movement action.
+  es-ES: |-
+    Elige hasta 2 unidades aliadas a alcance 3. Cada una realiza 
+    inmediatamente una acción de movimiento gratuita.
+cost: 5

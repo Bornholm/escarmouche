@@ -16,6 +16,8 @@ func TestSimulation(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 	defer cancel()
 
+	isVerbose := testing.Verbose()
+
 	playerOne, err := gen.RandomSquad(30, gen.DefaultMaxSquadSize, gen.DefaultRankPointCosts, core.DefaultCosts)
 	if err != nil {
 		t.Logf("%+v", errors.WithStack(err))
@@ -75,7 +77,9 @@ func TestSimulation(t *testing.T) {
 				return
 			}
 
-			time.Sleep(time.Second)
+			if isVerbose {
+				time.Sleep(time.Second)
+			}
 		}
 	}
 

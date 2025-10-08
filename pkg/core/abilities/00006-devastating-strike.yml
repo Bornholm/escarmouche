@@ -1,0 +1,15 @@
+label:
+  fr-FR: Frappe Dévastatrice
+  en-EN: Devastating Strike
+  es-ES: Golpe Devastador
+description:
+  fr-FR: |-
+    Effectuez une attaque de puissance 4 avec portée 1. Après cette attaque, 
+    cette unité perd 1 point de Santé.
+  en-EN: |-
+    Make a power 4 attack with range 1. After this attack, 
+    this unit loses 1 Health point.
+  es-ES: |-
+    Realiza un ataque de poder 4 con alcance 1. Después de este ataque, 
+    esta unidad pierde 1 punto de Salud.
+cost: 6

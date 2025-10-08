@@ -1,0 +1,15 @@
+label:
+  fr-FR: Feinte
+  en-EN: Feint
+  es-ES: Finta
+description:
+  fr-FR: |-
+    Échangez les positions de cette unité avec une unité alliée à portée 2. 
+    Les deux unités doivent avoir une ligne de vue dégagée l'une vers l'autre.
+  en-EN: |-
+    Swap the positions of this unit with an allied unit within range 2. 
+    Both units must have clear line of sight to each other.
+  es-ES: |-
+    Intercambia las posiciones de esta unidad con una unidad aliada a alcance 2. 
+    Ambas unidades deben tener línea de visión despejada entre sí.
+cost: 3

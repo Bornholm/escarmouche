@@ -1,0 +1,15 @@
+label:
+  fr-FR: Surcharge
+  en-EN: Overcharge
+  es-ES: Sobrecarga
+description:
+  fr-FR: |-
+    Cette unité peut effectuer une attaque supplémentaire ce tour-ci, 
+    mais elle ne pourra pas attaquer lors de son prochain tour.
+  en-EN: |-
+    This unit may make an additional attack this turn, 
+    but cannot attack during its next turn.
+  es-ES: |-
+    Esta unidad puede realizar un ataque adicional este turno, 
+    pero no puede atacar durante su próximo turno.
+cost: 3

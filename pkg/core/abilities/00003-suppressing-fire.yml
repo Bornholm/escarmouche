@@ -1,0 +1,15 @@
+label:
+  fr-FR: Tir de Suppression
+  en-EN: Suppressing Fire
+  es-ES: Fuego de Supresión
+description:
+  fr-FR: |-
+    Effectuez une attaque de puissance 1 avec portée 4. Si la cible survit, 
+    elle ne peut effectuer qu'1 seule action à son prochain tour.
+  en-EN: |-
+    Make a power 1 attack with range 4. If the target survives, 
+    it can only perform 1 action on its next turn.
+  es-ES: |-
+    Realiza un ataque de poder 1 con alcance 4. Si el objetivo sobrevive, 
+    solo puede realizar 1 acción en su próximo turno.
+cost: 4

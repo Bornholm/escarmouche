@@ -24,6 +24,8 @@ menu:
             href: "#conditions-de-victoire"
           - label: "Points de règles importantes"
             href: "#points-de-rgles-importantes"
+          - label: "Capacités"
+            href: "#capacits"
 ---
 
 <style>
@@ -43,3 +45,5 @@ menu:
 :include{url="../../../rules/fr-FR/introduction.md",shiftHeadings="2"}
 
 :include{url="../../../rules/fr-FR/rules.md",shiftHeadings="2"}
+
+:include{url="../../../rules/fr-FR/abilities.md",shiftHeadings="2"}

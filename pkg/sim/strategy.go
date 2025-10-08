@@ -11,6 +11,11 @@ func (fn StrategyFunc) NextAction(state GameState, playerID PlayerID) Action {
 }
 
 func DefaultStrategy(state GameState, playerID PlayerID) Action {
+	return FuzzyStrategy(state, playerID)
+}
+
+// LegacyStrategy is the original simple strategy for comparison
+func LegacyStrategy(state GameState, playerID PlayerID) Action {
 	return findBestAction(state, playerID)
 }
 

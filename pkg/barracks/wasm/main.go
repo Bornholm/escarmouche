@@ -66,7 +66,7 @@ func evaluateUnit(this js.Value, args []js.Value) any {
 
 func generateSquad(this js.Value, args []js.Value) any {
 	return withPromise(func() ([]map[string]any, error) {
-		squad, err := gen.RandomSquad(gen.DefaultMaxRankPoints, gen.DefaultMaxSquadSize, gen.DefaultArchetypes, gen.DefaultRankPointCosts, core.DefaultCosts)
+		squad, err := gen.RandomSquad(gen.DefaultMaxRankPoints, gen.DefaultMaxSquadSize, gen.DefaultRankPointCosts, core.DefaultCosts, gen.DefaultArchetypes...)
 		if err != nil {
 			return nil, errors.WithStack(err)
 		}

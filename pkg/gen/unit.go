@@ -77,12 +77,15 @@ func RandomUnit(targetRank core.Rank, archetype Archetype, costs core.Costs) (*G
 
 		hasMinimal := hasMinimalHealth && hasMinimalReach && hasMinimalMove && hasMinimalAttack
 
+		abilityAdded := false
+
 		if hasMinimal && len(availableAbilities) > 0 && len(abilities) < 2 {
 			newAbility := rand.Intn(100) < archetype.WeightAbility
 			if newAbility {
 				index := rand.Intn(len(availableAbilities))
 				abilities = append(abilities, availableAbilities[index])
 				availableAbilities = slices.Delete(availableAbilities, index, index+1)
+				abilityAdded = true
 			}
 		}
 
@@ -102,6 +105,11 @@ func RandomUnit(targetRank core.Rank, archetype Archetype, costs core.Costs) (*G
 					stats.Move--
 				case 3:
 					stats.Attack--
+				}
+
+				if abilityAdded {
+					availableAbilities = append(availableAbilities, abilities[len(abilities)-1])
+					abilities = abilities[:len(abilities)-1]
 				}
 			}
 
@@ -142,5 +150,6 @@ func chooseWeightedStat(archetype Archetype) int {
 	if r < archetype.WeightMove {
 		return 2 // Movement
 	}
+
 	return 3 // Attack
 }

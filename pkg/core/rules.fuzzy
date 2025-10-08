@@ -21,11 +21,12 @@ DEFINE rank (
 );
 
 IF cost IS very_low THEN rank IS trooper;
-
 IF cost IS low THEN rank IS veteran;
-
 IF cost IS mid THEN rank IS elite;
-
 IF cost IS high THEN rank IS champion;
-
 IF cost IS very_high THEN rank IS paragon;
+
+IF cost IS very_low AND ( expertise IS seasoned OR expertise IS master ) THEN rank IS veteran;
+IF cost IS low AND ( expertise IS seasoned OR expertise IS master ) THEN rank IS elite;
+IF cost IS mid AND ( expertise IS seasoned OR expertise IS master ) THEN rank IS champion;
+IF cost IS high AND ( expertise IS seasoned OR expertise IS master ) THEN rank IS paragon;

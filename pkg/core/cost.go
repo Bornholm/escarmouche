@@ -28,7 +28,7 @@ var DefaultCosts = Costs{
 	MaxTotal: 30,
 }
 
-func CalculateTotalCost(stats Stats, capacities []Ability, costs Costs) float64 {
+func CalculateTotalCost(stats Stats, abilities []Ability, costs Costs) float64 {
 	healthCost := CalculateSimpleCost(stats.Health, costs.HealthFactor)
 	reachCost := CalculeExponentialCost(stats.Reach, costs.ReachFactor, costs.ReachExponent)
 	moveCost := CalculeExponentialCost(stats.Move, costs.MoveFactor, costs.MoveExponent)
@@ -37,12 +37,12 @@ func CalculateTotalCost(stats Stats, capacities []Ability, costs Costs) float64 
 	// Synergie "bonus"
 	synergyBonus := (float64(stats.Reach) * costs.ReachFactor) * (float64(stats.Attack) * costs.AttackFactor) * 0.1
 
-	capacitiesCost := 0.0
-	for _, c := range capacities {
-		capacitiesCost += c.Cost
+	abilitiesCost := 0.0
+	for _, c := range abilities {
+		abilitiesCost += c.Cost
 	}
 
-	return math.Ceil(healthCost + reachCost + moveCost + attackCost + synergyBonus + capacitiesCost)
+	return math.Ceil(healthCost + reachCost + moveCost + attackCost + synergyBonus + abilitiesCost)
 }
 
 func CalculateSimpleCost(value int, costFactor float64) float64 {

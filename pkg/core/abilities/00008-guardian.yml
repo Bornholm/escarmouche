@@ -1,0 +1,15 @@
+label:
+  fr-FR: Gardien
+  en-EN: Guardian
+  es-ES: Guardián
+description:
+  fr-FR: |-
+    Choisissez une unité alliée adjacente. Jusqu'au début de votre prochain tour, 
+    vous pouvez rediriger vers cette unité les dégâts infligés à l'unité protégée.
+  en-EN: |-
+    Choose an adjacent allied unit. Until the start of your next turn, 
+    you may redirect damage dealt to the protected unit to this unit instead.
+  es-ES: |-
+    Elige una unidad aliada adyacente. Hasta el inicio de tu próximo turno, 
+    puedes redirigir a esta unidad el daño infligido a la unidad protegida.
+cost: 4

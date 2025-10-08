@@ -118,14 +118,16 @@ func (e *Evaluator) initializePopulation() {
 
 // randomCosts generates random cost parameters within reasonable bounds
 func (e *Evaluator) randomCosts() core.Costs {
+	min := 0.5
+	max := 4 - min
 	return core.Costs{
-		HealthFactor:   0.5 + rand.Float64()*2.0, // 0.5 to 2.5
-		ReachFactor:    1.0 + rand.Float64()*3.0, // 1.0 to 4.0
-		ReachExponent:  1.0 + rand.Float64()*0.5, // 1.0 to 1.5
-		MoveFactor:     0.5 + rand.Float64()*2.0, // 0.5 to 2.5
-		MoveExponent:   1.0 + rand.Float64()*0.5, // 1.0 to 1.5
-		AttackFactor:   1.0 + rand.Float64()*4.0, // 1.0 to 5.0
-		AttackExponent: 1.0 + rand.Float64()*0.5, // 1.0 to 1.5
+		HealthFactor:   min + rand.Float64()*max,
+		ReachFactor:    min + rand.Float64()*max,
+		ReachExponent:  min + rand.Float64()*max,
+		MoveFactor:     min + rand.Float64()*max,
+		MoveExponent:   min + rand.Float64()*max,
+		AttackFactor:   min + rand.Float64()*max,
+		AttackExponent: min + rand.Float64()*max,
 		MaxTotal:       30,
 	}
 }
@@ -178,7 +180,7 @@ func DefaultFitnessConfig() FitnessConfig {
 		MaxRankPoints:   30,
 		MaxSquadSize:    gen.DefaultMaxSquadSize,
 		ScalingExponent: 2.0,
-		MaxSimSteps:     1000, // Prevent runaway simulations
+		MaxSimSteps:     250, // Prevent runaway simulations
 	}
 }
 

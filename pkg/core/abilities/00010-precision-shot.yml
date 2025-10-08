@@ -1,0 +1,15 @@
+label:
+  fr-FR: Tir de Précision
+  en-EN: Precision Shot
+  es-ES: Disparo de Precisión
+description:
+  fr-FR: |-
+    Effectuez une attaque de puissance 2. Cette attaque ignore les unités 
+    qui bloqueraient normalement la ligne de vue.
+  en-EN: |-
+    Make a power 2 attack. This attack ignores units that would normally 
+    block line of sight.
+  es-ES: |-
+    Realiza un ataque de poder 2. Este ataque ignora las unidades que 
+    normalmente bloquearían la línea de visión.
+cost: 4

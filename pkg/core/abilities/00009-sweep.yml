@@ -1,0 +1,15 @@
+label:
+  fr-FR: Balayage
+  en-EN: Sweep
+  es-ES: Barrido
+description:
+  fr-FR: |-
+    Effectuez une attaque de puissance 1 contre toutes les unités ennemies 
+    adjacentes à cette unité.
+  en-EN: |-
+    Make a power 1 attack against all enemy units 
+    adjacent to this unit.
+  es-ES: |-
+    Realiza un ataque de poder 1 contra todas las unidades enemigas 
+    adyacentes a esta unidad.
+cost: 5
