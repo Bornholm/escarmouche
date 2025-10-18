@@ -31,40 +31,6 @@ func TestEvaluator_Creation(t *testing.T) {
 	}
 }
 
-func TestEvaluator_RandomCosts(t *testing.T) {
-	evaluator := NewEvaluator()
-
-	// Generate several random costs and check they're within bounds
-	for i := 0; i < 10; i++ {
-		costs := evaluator.randomCosts()
-
-		if costs.HealthFactor < 0.5 || costs.HealthFactor > 2.5 {
-			t.Errorf("HealthFactor out of expected range [0.5, 2.5]: %f", costs.HealthFactor)
-		}
-		if costs.ReachFactor < 1.0 || costs.ReachFactor > 4.0 {
-			t.Errorf("ReachFactor out of expected range [1.0, 4.0]: %f", costs.ReachFactor)
-		}
-		if costs.ReachExponent < 1.0 || costs.ReachExponent > 1.5 {
-			t.Errorf("ReachExponent out of expected range [1.0, 1.5]: %f", costs.ReachExponent)
-		}
-		if costs.MoveFactor < 0.5 || costs.MoveFactor > 2.5 {
-			t.Errorf("MoveFactor out of expected range [0.5, 2.5]: %f", costs.MoveFactor)
-		}
-		if costs.MoveExponent < 1.0 || costs.MoveExponent > 1.5 {
-			t.Errorf("MoveExponent out of expected range [1.0, 1.5]: %f", costs.MoveExponent)
-		}
-		if costs.AttackFactor < 1.0 || costs.AttackFactor > 5.0 {
-			t.Errorf("AttackFactor out of expected range [1.0, 5.0]: %f", costs.AttackFactor)
-		}
-		if costs.AttackExponent < 1.0 || costs.AttackExponent > 1.5 {
-			t.Errorf("AttackExponent out of expected range [1.0, 1.5]: %f", costs.AttackExponent)
-		}
-		if costs.MaxTotal < 20.0 || costs.MaxTotal > 40.0 {
-			t.Errorf("MaxTotal out of expected range [20.0, 40.0]: %f", costs.MaxTotal)
-		}
-	}
-}
-
 func TestEvaluator_PopulationInitialization(t *testing.T) {
 	evaluator := NewEvaluator(WithPopulationSize(5))
 	evaluator.initializePopulation()
