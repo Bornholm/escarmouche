@@ -34,9 +34,9 @@ func evaluateUnit(this js.Value, args []js.Value) any {
 	return withPromise(func() (map[string]any, error) {
 		stats := core.Stats{
 			Health: args[0].Get("health").Int(),
-			Reach:  args[0].Get("reach").Int(),
+			Range:  args[0].Get("range").Int(),
 			Move:   args[0].Get("move").Int(),
-			Attack: args[0].Get("attack").Int(),
+			Power:  args[0].Get("power").Int(),
 		}
 
 		abilities := []core.Ability{}
@@ -76,8 +76,8 @@ func generateSquad(this js.Value, args []js.Value) any {
 				unit := map[string]any{
 					"health":    u.Stats.Health,
 					"move":      u.Stats.Move,
-					"reach":     u.Stats.Reach,
-					"attack":    u.Stats.Attack,
+					"range":     u.Stats.Range,
+					"power":     u.Stats.Power,
 					"cost":      u.TotalCost,
 					"rank":      u.Rank.String(),
 					"archetype": u.Archetype.Name,
@@ -121,8 +121,8 @@ func generateUnit(this js.Value, args []js.Value) any {
 		return map[string]any{
 			"health":    unit.Stats.Health,
 			"move":      unit.Stats.Move,
-			"reach":     unit.Stats.Reach,
-			"attack":    unit.Stats.Attack,
+			"range":     unit.Stats.Range,
+			"power":     unit.Stats.Power,
 			"cost":      unit.TotalCost,
 			"rank":      unit.Rank.String(),
 			"archetype": unit.Archetype.Name,

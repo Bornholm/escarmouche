@@ -109,9 +109,9 @@ func main() {
 
 func printCosts(costs core.Costs) {
 	fmt.Printf("  HealthFactor:   %.3f\n", costs.HealthFactor)
-	fmt.Printf("  ReachFactor:    %.3f (exponent: %.3f)\n", costs.ReachFactor, costs.ReachExponent)
+	fmt.Printf("  RangeFactor:    %.3f (exponent: %.3f)\n", costs.RangeFactor, costs.RangeExponent)
 	fmt.Printf("  MoveFactor:     %.3f (exponent: %.3f)\n", costs.MoveFactor, costs.MoveExponent)
-	fmt.Printf("  AttackFactor:   %.3f (exponent: %.3f)\n", costs.AttackFactor, costs.AttackExponent)
+	fmt.Printf("  PowerFactor:   %.3f (exponent: %.3f)\n", costs.PowerFactor, costs.PowerExponent)
 	fmt.Printf("  MaxTotal:       %.1f\n", costs.MaxTotal)
 }
 
@@ -124,12 +124,12 @@ func compareCosts(defaultCosts, optimizedCosts core.Costs) {
 		optimized float64
 	}{
 		{"HealthFactor", defaultCosts.HealthFactor, optimizedCosts.HealthFactor},
-		{"ReachFactor", defaultCosts.ReachFactor, optimizedCosts.ReachFactor},
-		{"ReachExponent", defaultCosts.ReachExponent, optimizedCosts.ReachExponent},
+		{"RangeFactor", defaultCosts.RangeFactor, optimizedCosts.RangeFactor},
+		{"RangeExponent", defaultCosts.RangeExponent, optimizedCosts.RangeExponent},
 		{"MoveFactor", defaultCosts.MoveFactor, optimizedCosts.MoveFactor},
 		{"MoveExponent", defaultCosts.MoveExponent, optimizedCosts.MoveExponent},
-		{"AttackFactor", defaultCosts.AttackFactor, optimizedCosts.AttackFactor},
-		{"AttackExponent", defaultCosts.AttackExponent, optimizedCosts.AttackExponent},
+		{"PowerFactor", defaultCosts.PowerFactor, optimizedCosts.PowerFactor},
+		{"PowerExponent", defaultCosts.PowerExponent, optimizedCosts.PowerExponent},
 		{"MaxTotal", defaultCosts.MaxTotal, optimizedCosts.MaxTotal},
 	}
 

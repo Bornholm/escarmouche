@@ -47,8 +47,8 @@ func NewGame(player1 []Unit, player2 []Unit, funcs ...OptionFunc) *Game {
 				Unit: Unit{
 					Stats: core.Stats{
 						Health: u.Stats.Health,
-						Reach:  u.Stats.Reach,
-						Attack: u.Stats.Attack,
+						Range:  u.Stats.Range,
+						Power:  u.Stats.Power,
 						Move:   u.Stats.Move,
 					},
 					Abilities: append([]core.Ability{}, u.Abilities...),

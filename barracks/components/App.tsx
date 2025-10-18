@@ -6,49 +6,7 @@ import { SquadEditor } from "./SquadEditor";
 import { SquadCard } from "./SquadCard";
 import { Unit, Squad } from "../types";
 import { loadUnits, saveUnits, loadSquads, saveSquads } from "./storage";
-
-const defaultUnits = [
-  {
-    id: "knight",
-    name: "Templier",
-    health: 2,
-    reach: 1,
-    move: 1,
-    attack: 1,
-    imageUrl: "templar_knight.png",
-    customImage: undefined,
-  },
-  {
-    id: "archer",
-    name: "Archer elfe",
-    health: 1,
-    reach: 2,
-    move: 1,
-    attack: 2,
-    imageUrl: "elven_archer.png",
-    customImage: undefined,
-  },
-  {
-    id: "mage",
-    name: "Sorcier crépusculaire",
-    health: 1,
-    reach: 3,
-    move: 2,
-    attack: 3,
-    imageUrl: "fire_mage.png",
-    customImage: undefined,
-  },
-  {
-    id: "bruiser",
-    name: "Guerrier orc",
-    health: 3,
-    reach: 1,
-    move: 1,
-    attack: 3,
-    imageUrl: "orc_warrior.png",
-    customImage: undefined,
-  },
-];
+import { DefaultUnits } from "../util/defaults";
 
 export const App: React.FC = () => {
   const [units, setUnits] = useState<Unit[]>([]);
@@ -56,7 +14,7 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     const units = loadUnits();
-    defaultUnits.forEach((u, i) => {
+    DefaultUnits.forEach((u, i) => {
       const index = units.findIndex((l) => l.id === u.id);
       if (index === -1) {
         units.push(u);

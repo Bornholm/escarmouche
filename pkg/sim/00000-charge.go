@@ -20,7 +20,7 @@ func getPossibleCharges(state GameState, unit *PlayerUnit) []Action {
 
 	for _, targetPos := range reachablePositions {
 		// From this movement position, find all possible attack targets within reach
-		reachableTargets := getReachableOpponentUnits(state, unit.OwnerID, targetPos, unit.Stats.Reach)
+		reachableTargets := getReachableOpponentUnits(state, unit.OwnerID, targetPos, unit.Stats.Range)
 
 		for _, targetID := range reachableTargets {
 			// Create a charge action that combines movement + power 1 attack

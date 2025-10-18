@@ -6,12 +6,12 @@ import (
 )
 
 var (
-	ArchetypeJackOfAllTrades = Archetype{Name: "jackofalltrades", WeightHealth: 25, WeightReach: 25, WeightMove: 25, WeightAttack: 25, Abilities: core.AllAbilities()}
-	ArchetypeTank            = Archetype{Name: "tank", WeightHealth: 60, WeightReach: 10, WeightMove: 15, WeightAttack: 15, Abilities: core.Abilities("00002-defensive-stance"), WeightAbility: 20}
-	ArchetypeSniper          = Archetype{Name: "sniper", WeightHealth: 15, WeightReach: 40, WeightMove: 15, WeightAttack: 30}
-	ArchetypeSkirmisher      = Archetype{Name: "skirmisher", WeightHealth: 20, WeightReach: 20, WeightMove: 40, WeightAttack: 20, Abilities: core.Abilities("00000-charge"), WeightAbility: 20}
-	ArchetypeBruiser         = Archetype{Name: "bruiser", WeightHealth: 35, WeightReach: 15, WeightMove: 20, WeightAttack: 30}
-	ArchetypeGlassCannon     = Archetype{Name: "glasscannon", WeightHealth: 10, WeightReach: 30, WeightMove: 15, WeightAttack: 45, Abilities: core.Abilities("00001-energy-trait"), WeightAbility: 20}
+	ArchetypeJackOfAllTrades = Archetype{Name: "jackofalltrades", WeightHealth: 25, WeightRange: 25, WeightMove: 25, WeightPower: 25, Abilities: core.AllAbilities()}
+	ArchetypeTank            = Archetype{Name: "tank", WeightHealth: 60, WeightRange: 10, WeightMove: 15, WeightPower: 15, Abilities: core.Abilities("00002-defensive-stance"), WeightAbility: 20}
+	ArchetypeSniper          = Archetype{Name: "sniper", WeightHealth: 15, WeightRange: 40, WeightMove: 15, WeightPower: 30}
+	ArchetypeSkirmisher      = Archetype{Name: "skirmisher", WeightHealth: 20, WeightRange: 20, WeightMove: 40, WeightPower: 20, Abilities: core.Abilities("00000-charge"), WeightAbility: 20}
+	ArchetypeBruiser         = Archetype{Name: "bruiser", WeightHealth: 35, WeightRange: 15, WeightMove: 20, WeightPower: 30}
+	ArchetypeGlassCannon     = Archetype{Name: "glasscannon", WeightHealth: 10, WeightRange: 30, WeightMove: 15, WeightPower: 45, Abilities: core.Abilities("00001-energy-trait"), WeightAbility: 20}
 )
 
 var DefaultArchetypes = []Archetype{
@@ -27,9 +27,9 @@ type Archetype struct {
 	Name string
 
 	WeightHealth int
-	WeightReach  int
+	WeightRange  int
 	WeightMove   int
-	WeightAttack int
+	WeightPower  int
 
 	WeightAbility int
 	Abilities     []core.Ability

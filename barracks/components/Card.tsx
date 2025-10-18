@@ -12,9 +12,9 @@ export const Card: React.FC<CardProps> = ({
     id: "sample",
     name: "Sample Unit",
     health: 100,
-    reach: 3,
+    range: 3,
     move: 2,
-    attack: 25,
+    power: 25,
     abilities: [],
   },
   style,
@@ -122,12 +122,12 @@ export const Card: React.FC<CardProps> = ({
             <span style={cardCharacteristicValueStyle}>{unit.move}</span>
           </div>
           <div style={cardCharacteristicStyle}>
-            <span style={cardCharacteristicLabelStyle}>Reach</span>
-            <span style={cardCharacteristicValueStyle}>{unit.reach}</span>
+            <span style={cardCharacteristicLabelStyle}>Range</span>
+            <span style={cardCharacteristicValueStyle}>{unit.range}</span>
           </div>
           <div style={cardCharacteristicStyle}>
-            <span style={cardCharacteristicLabelStyle}>Attack</span>
-            <span style={cardCharacteristicValueStyle}>{unit.attack}</span>
+            <span style={cardCharacteristicLabelStyle}>Power</span>
+            <span style={cardCharacteristicValueStyle}>{unit.power}</span>
           </div>
           {unit.abilities?.length > 0 ? (
             <div style={cardAbilityStyle}>

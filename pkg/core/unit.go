@@ -2,7 +2,7 @@ package core
 
 type Stats struct {
 	Health int
-	Reach  int
+	Range  int
 	Move   int
-	Attack int
+	Power  int
 }

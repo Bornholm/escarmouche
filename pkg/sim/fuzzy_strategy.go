@@ -64,7 +64,7 @@ func calculateStrategicContext(state GameState, unit *PlayerUnit, playerID Playe
 	// Find nearest enemy and calculate distance
 	unitPos := state.Positions[unit.ID]
 	minDistance := 100.0
-	maxEnemyAttack := 0
+	maxEnemyPower := 0
 
 	for _, enemyUnit := range state.Units {
 		if enemyUnit.OwnerID != playerID {
@@ -73,14 +73,14 @@ func calculateStrategicContext(state GameState, unit *PlayerUnit, playerID Playe
 			if dist < minDistance {
 				minDistance = dist
 			}
-			if enemyUnit.Stats.Attack > maxEnemyAttack {
-				maxEnemyAttack = enemyUnit.Stats.Attack
+			if enemyUnit.Stats.Power > maxEnemyPower {
+				maxEnemyPower = enemyUnit.Stats.Power
 			}
 		}
 	}
 
 	// Calculate enemy threat
-	enemyThreat := CalculateEnemyThreat(currentHealth, maxEnemyAttack, minDistance)
+	enemyThreat := CalculateEnemyThreat(currentHealth, maxEnemyPower, minDistance)
 
 	// Calculate unit value
 	unitValue := CalculateUnitValue(unit.Stats, unit.Abilities, core.DefaultCosts)
@@ -177,7 +177,7 @@ func evaluateMoveAction(futureState GameState, action *MoveAction, unit *PlayerU
 
 	// Aggressive units prefer positions that enable attacks
 	if decision.Aggression > 0.6 {
-		attackTargets := countNearbyEnemies(futureState, unitPos, playerID, float64(unit.Stats.Reach))
+		attackTargets := countNearbyEnemies(futureState, unitPos, playerID, float64(unit.Stats.Range))
 		score += float64(attackTargets) * 15.0
 	}
 

@@ -11,10 +11,11 @@ DATA="{ \"latestVersion\": \"${LATEST_VERSION}\", \"language\": \"${LANGUAGE}\",
 ABILITIES=$(ls pkg/core/abilities/*)
 
 for ability in $ABILITIES; do
-  ability_translation=$(cat "$ability" | yq -o json eval "{ \"label\": .label[\"${LANGUAGE}\"], \"description\": .description[\"${LANGUAGE}\"], \"cost\": .cost }")
+  ability_id=$(basename "$ability" .yml)
+  ability_translation=$(cat "$ability" | yq -o json eval "{ \"id\": \"${ability_id}\", \"label\": .label[\"${LANGUAGE}\"], \"description\": .description[\"${LANGUAGE}\"], \"cost\": .cost }")
   DATA=$(echo $DATA | jq --argjson a "${ability_translation}" '.abilities += [$a]')
 done
 
-DATA=$(echo $DATA | jq '.abilities = ( .abilities | sort_by(.label) )')
+DATA=$(echo $DATA | jq '.abilities = ( .abilities | sort_by(.id) )')
 
 echo $DATA | jq -r

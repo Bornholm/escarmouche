@@ -14,9 +14,9 @@ func TestLineOfSight(t *testing.T) {
 		Unit: Unit{
 			Stats: core.Stats{
 				Health: 3,
-				Reach:  3,
+				Range:  3,
 				Move:   2,
-				Attack: 2,
+				Power:  2,
 			},
 		},
 	}
@@ -27,9 +27,9 @@ func TestLineOfSight(t *testing.T) {
 		Unit: Unit{
 			Stats: core.Stats{
 				Health: 2,
-				Reach:  1,
+				Range:  1,
 				Move:   1,
-				Attack: 1,
+				Power:  1,
 			},
 		},
 	}
@@ -40,9 +40,9 @@ func TestLineOfSight(t *testing.T) {
 		Unit: Unit{
 			Stats: core.Stats{
 				Health: 1,
-				Reach:  1,
+				Range:  1,
 				Move:   1,
-				Attack: 1,
+				Power:  1,
 			},
 		},
 	}
@@ -83,12 +83,12 @@ func TestLineOfSight(t *testing.T) {
 		reachable := getReachableOpponentUnits(state, PlayerOne, Position{X: 0, Y: 0}, 3)
 
 		// Should only find the blocking unit (unit 3), not the target behind it (unit 2)
-		expectedReachable := []UnitID{3}
-		if len(reachable) != len(expectedReachable) {
-			t.Errorf("Expected %d reachable units with blocked line of sight, got %d", len(expectedReachable), len(reachable))
+		expectedRangeable := []UnitID{3}
+		if len(reachable) != len(expectedRangeable) {
+			t.Errorf("Expected %d reachable units with blocked line of sight, got %d", len(expectedRangeable), len(reachable))
 		}
 
-		for _, expected := range expectedReachable {
+		for _, expected := range expectedRangeable {
 			found := false
 			for _, actual := range reachable {
 				if actual == expected {
@@ -116,12 +116,12 @@ func TestLineOfSight(t *testing.T) {
 		reachable := getReachableOpponentUnits(state, PlayerOne, Position{X: 0, Y: 0}, 3)
 
 		// Should only find the blocking unit (unit 3), not the target behind it (unit 2)
-		expectedReachable := []UnitID{3}
-		if len(reachable) != len(expectedReachable) {
-			t.Errorf("Expected %d reachable units with diagonal blocked line of sight, got %d", len(expectedReachable), len(reachable))
+		expectedRangeable := []UnitID{3}
+		if len(reachable) != len(expectedRangeable) {
+			t.Errorf("Expected %d reachable units with diagonal blocked line of sight, got %d", len(expectedRangeable), len(reachable))
 		}
 
-		for _, expected := range expectedReachable {
+		for _, expected := range expectedRangeable {
 			found := false
 			for _, actual := range reachable {
 				if actual == expected {

@@ -17,9 +17,9 @@ export enum Rank {
 
 export interface UnitStats {
   health: number;
-  reach: number;
+  range: number;
   move: number;
-  attack: number;
+  power: number;
   abilities: Ability[]
 }
 

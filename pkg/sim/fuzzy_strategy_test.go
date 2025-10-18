@@ -14,9 +14,9 @@ func TestFuzzyStrategyBehavior(t *testing.T) {
 		Unit: Unit{
 			Stats: core.Stats{
 				Health: 5,
-				Reach:  2,
+				Range:  2,
 				Move:   3,
-				Attack: 4,
+				Power:  4,
 			},
 			Abilities: []core.Ability{
 				{ID: "00000-charge", Cost: 2.0},
@@ -30,9 +30,9 @@ func TestFuzzyStrategyBehavior(t *testing.T) {
 		Unit: Unit{
 			Stats: core.Stats{
 				Health: 2, // Low health should make it defensive
-				Reach:  1,
+				Range:  1,
 				Move:   2,
-				Attack: 2,
+				Power:  2,
 			},
 			Abilities: []core.Ability{
 				{ID: "00002-defensive-stance", Cost: 1.0},
@@ -46,9 +46,9 @@ func TestFuzzyStrategyBehavior(t *testing.T) {
 		Unit: Unit{
 			Stats: core.Stats{
 				Health: 3,
-				Reach:  1,
+				Range:  1,
 				Move:   2,
-				Attack: 3,
+				Power:  3,
 			},
 		},
 	}
@@ -171,9 +171,9 @@ func TestStrategicContextCalculation(t *testing.T) {
 		Unit: Unit{
 			Stats: core.Stats{
 				Health: 4,
-				Reach:  2,
+				Range:  2,
 				Move:   2,
-				Attack: 3,
+				Power:  3,
 			},
 			Abilities: []core.Ability{
 				{ID: "00001-energy-trait", Cost: 1.5},
@@ -187,9 +187,9 @@ func TestStrategicContextCalculation(t *testing.T) {
 		Unit: Unit{
 			Stats: core.Stats{
 				Health: 3,
-				Reach:  1,
+				Range:  1,
 				Move:   2,
-				Attack: 4,
+				Power:  4,
 			},
 		},
 	}

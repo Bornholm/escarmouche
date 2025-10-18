@@ -121,14 +121,14 @@ func (e *Evaluator) randomCosts() core.Costs {
 	min := 0.5
 	max := 4 - min
 	return core.Costs{
-		HealthFactor:   min + rand.Float64()*max,
-		ReachFactor:    min + rand.Float64()*max,
-		ReachExponent:  min + rand.Float64()*max,
-		MoveFactor:     min + rand.Float64()*max,
-		MoveExponent:   min + rand.Float64()*max,
-		AttackFactor:   min + rand.Float64()*max,
-		AttackExponent: min + rand.Float64()*max,
-		MaxTotal:       30,
+		HealthFactor:  min + rand.Float64()*max,
+		RangeFactor:   min + rand.Float64()*max,
+		RangeExponent: min + rand.Float64()*max,
+		MoveFactor:    min + rand.Float64()*max,
+		MoveExponent:  min + rand.Float64()*max,
+		PowerFactor:   min + rand.Float64()*max,
+		PowerExponent: min + rand.Float64()*max,
+		MaxTotal:      30,
 	}
 }
 
@@ -409,7 +409,7 @@ func (e *Evaluator) runSingleGame(ctx context.Context, squad1, squad2 []sim.Unit
 
 	}
 
-	// If we reach max steps, declare it a draw (return player one arbitrarily)
+	// If we range max steps, declare it a draw (return player one arbitrarily)
 	return sim.PlayerOne, errors.New("simulation exceeded maximum steps")
 }
 
@@ -578,10 +578,10 @@ func (e *Evaluator) crossover(parent1, parent2 Individual) (Individual, Individu
 		child1.Costs.HealthFactor, child2.Costs.HealthFactor = child2.Costs.HealthFactor, child1.Costs.HealthFactor
 	}
 	if rand.Float64() < 0.5 {
-		child1.Costs.ReachFactor, child2.Costs.ReachFactor = child2.Costs.ReachFactor, child1.Costs.ReachFactor
+		child1.Costs.RangeFactor, child2.Costs.RangeFactor = child2.Costs.RangeFactor, child1.Costs.RangeFactor
 	}
 	if rand.Float64() < 0.5 {
-		child1.Costs.ReachExponent, child2.Costs.ReachExponent = child2.Costs.ReachExponent, child1.Costs.ReachExponent
+		child1.Costs.RangeExponent, child2.Costs.RangeExponent = child2.Costs.RangeExponent, child1.Costs.RangeExponent
 	}
 	if rand.Float64() < 0.5 {
 		child1.Costs.MoveFactor, child2.Costs.MoveFactor = child2.Costs.MoveFactor, child1.Costs.MoveFactor
@@ -590,10 +590,10 @@ func (e *Evaluator) crossover(parent1, parent2 Individual) (Individual, Individu
 		child1.Costs.MoveExponent, child2.Costs.MoveExponent = child2.Costs.MoveExponent, child1.Costs.MoveExponent
 	}
 	if rand.Float64() < 0.5 {
-		child1.Costs.AttackFactor, child2.Costs.AttackFactor = child2.Costs.AttackFactor, child1.Costs.AttackFactor
+		child1.Costs.PowerFactor, child2.Costs.PowerFactor = child2.Costs.PowerFactor, child1.Costs.PowerFactor
 	}
 	if rand.Float64() < 0.5 {
-		child1.Costs.AttackExponent, child2.Costs.AttackExponent = child2.Costs.AttackExponent, child1.Costs.AttackExponent
+		child1.Costs.PowerExponent, child2.Costs.PowerExponent = child2.Costs.PowerExponent, child1.Costs.PowerExponent
 	}
 	if rand.Float64() < 0.5 {
 		child1.Costs.MaxTotal, child2.Costs.MaxTotal = child2.Costs.MaxTotal, child1.Costs.MaxTotal
@@ -612,12 +612,12 @@ func (e *Evaluator) mutate(individual Individual) Individual {
 		mutated.Costs.HealthFactor = math.Max(0.1, math.Min(5.0, mutated.Costs.HealthFactor))
 	}
 	if rand.Float64() < e.mutationRate {
-		mutated.Costs.ReachFactor += (rand.Float64() - 0.5) * 0.4
-		mutated.Costs.ReachFactor = math.Max(0.1, math.Min(8.0, mutated.Costs.ReachFactor))
+		mutated.Costs.RangeFactor += (rand.Float64() - 0.5) * 0.4
+		mutated.Costs.RangeFactor = math.Max(0.1, math.Min(8.0, mutated.Costs.RangeFactor))
 	}
 	if rand.Float64() < e.mutationRate {
-		mutated.Costs.ReachExponent += (rand.Float64() - 0.5) * 0.1
-		mutated.Costs.ReachExponent = math.Max(1.0, math.Min(2.0, mutated.Costs.ReachExponent))
+		mutated.Costs.RangeExponent += (rand.Float64() - 0.5) * 0.1
+		mutated.Costs.RangeExponent = math.Max(1.0, math.Min(2.0, mutated.Costs.RangeExponent))
 	}
 	if rand.Float64() < e.mutationRate {
 		mutated.Costs.MoveFactor += (rand.Float64() - 0.5) * 0.2
@@ -628,12 +628,12 @@ func (e *Evaluator) mutate(individual Individual) Individual {
 		mutated.Costs.MoveExponent = math.Max(1.0, math.Min(2.0, mutated.Costs.MoveExponent))
 	}
 	if rand.Float64() < e.mutationRate {
-		mutated.Costs.AttackFactor += (rand.Float64() - 0.5) * 0.4
-		mutated.Costs.AttackFactor = math.Max(0.1, math.Min(10.0, mutated.Costs.AttackFactor))
+		mutated.Costs.PowerFactor += (rand.Float64() - 0.5) * 0.4
+		mutated.Costs.PowerFactor = math.Max(0.1, math.Min(10.0, mutated.Costs.PowerFactor))
 	}
 	if rand.Float64() < e.mutationRate {
-		mutated.Costs.AttackExponent += (rand.Float64() - 0.5) * 0.1
-		mutated.Costs.AttackExponent = math.Max(1.0, math.Min(2.0, mutated.Costs.AttackExponent))
+		mutated.Costs.PowerExponent += (rand.Float64() - 0.5) * 0.1
+		mutated.Costs.PowerExponent = math.Max(1.0, math.Min(2.0, mutated.Costs.PowerExponent))
 	}
 	if rand.Float64() < e.mutationRate {
 		mutated.Costs.MaxTotal += (rand.Float64() - 0.5) * 4.0

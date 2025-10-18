@@ -21,9 +21,9 @@ func TestDefensiveStanceAbility(t *testing.T) {
 		Unit: Unit{
 			Stats: core.Stats{
 				Health: 3,
-				Reach:  1,
+				Range:  1,
 				Move:   2,
-				Attack: 2,
+				Power:  2,
 			},
 			Abilities: []core.Ability{defensiveStanceAbility},
 		},
@@ -36,9 +36,9 @@ func TestDefensiveStanceAbility(t *testing.T) {
 		Unit: Unit{
 			Stats: core.Stats{
 				Health: 2,
-				Reach:  1,
+				Range:  1,
 				Move:   1,
-				Attack: 2,
+				Power:  2,
 			},
 			Abilities: []core.Ability{},
 		},
@@ -118,9 +118,9 @@ func TestDefensiveStanceCannotStack(t *testing.T) {
 		Unit: Unit{
 			Stats: core.Stats{
 				Health: 3,
-				Reach:  1,
+				Range:  1,
 				Move:   2,
-				Attack: 2,
+				Power:  2,
 			},
 			Abilities: []core.Ability{defensiveStanceAbility},
 		},
@@ -163,9 +163,9 @@ func TestDefensiveStanceAlreadyUsedAbility(t *testing.T) {
 		Unit: Unit{
 			Stats: core.Stats{
 				Health: 3,
-				Reach:  1,
+				Range:  1,
 				Move:   2,
-				Attack: 2,
+				Power:  2,
 			},
 			Abilities: []core.Ability{defensiveStanceAbility},
 		},

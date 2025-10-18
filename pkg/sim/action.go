@@ -69,7 +69,7 @@ func (a *AttackAction) Apply(state GameState) GameState {
 	unit := state.Units[a.unitID]
 
 	// Use the new applyDamage function that respects defensive stance
-	newState, _ := applyDamage(state, a.targetID, unit.Stats.Attack)
+	newState, _ := applyDamage(state, a.targetID, unit.Stats.Power)
 
 	newState.Inc(a.unitID, CounterRoundAttacks, 1)
 

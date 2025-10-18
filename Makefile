@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-AMATL_VERSION := 0.24.1
+AMATL_VERSION := 0.27.1
 YQ_VERSION := 4.47.2
 jQ_VERSION := 1.8.1
 
@@ -81,7 +81,7 @@ tools/yq-$(YQ_VERSION)/bin/yq:
 	wget -O tools/yq-$(YQ_VERSION)/bin/yq https://github.com/mikefarah/yq/releases/download/v$(YQ_VERSION)/yq_linux_amd64
 	chmod +x tools/yq-$(YQ_VERSION)/bin/yq
 	mkdir -p tools/bin
-	ln -s $(PWD)/tools/yq-$(YQ_VERSION)/bin/yq tools/bin/yq
+	ln -sf $(PWD)/tools/yq-$(YQ_VERSION)/bin/yq tools/bin/yq
 
 jq-bin: tools/jq-$(JQ_VERSION)/bin/jq
 
@@ -90,5 +90,5 @@ tools/jq-$(JQ_VERSION)/bin/jq:
 	wget -O tools/jq-$(JQ_VERSION)/bin/jq https://github.com/jqlang/jq/releases/download/jq-1.8.1/jq-linux-amd64
 	chmod +x tools/jq-$(JQ_VERSION)/bin/jq
 	mkdir -p tools/bin
-	ln -s $(PWD)/tools/jq-$(YQ_VERSION)/bin/jq tools/bin/jq
+	ln -sf $(PWD)/tools/jq-$(YQ_VERSION)/bin/jq tools/bin/jq
 

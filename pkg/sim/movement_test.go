@@ -14,9 +14,9 @@ func TestMovementWithObstacles(t *testing.T) {
 		Unit: Unit{
 			Stats: core.Stats{
 				Health: 3,
-				Reach:  1,
+				Range:  1,
 				Move:   2,
-				Attack: 1,
+				Power:  1,
 			},
 		},
 	}
@@ -28,9 +28,9 @@ func TestMovementWithObstacles(t *testing.T) {
 		Unit: Unit{
 			Stats: core.Stats{
 				Health: 1,
-				Reach:  1,
+				Range:  1,
 				Move:   1,
-				Attack: 1,
+				Power:  1,
 			},
 		},
 	}
@@ -135,7 +135,7 @@ func TestMovementWithObstacles(t *testing.T) {
 	})
 }
 
-func TestGetReachablePositions(t *testing.T) {
+func TestGetRangeablePositions(t *testing.T) {
 	// Test the pathfinding function directly
 	state := GameState{
 		Board: map[string]UnitID{

@@ -27,8 +27,8 @@ func (p Position) String() string {
 
 type UnitStats struct {
 	Health int
-	Reach  int
-	Attack int
+	Range  int
+	Power  int
 	Move   int
 }
 
@@ -284,8 +284,8 @@ func getPossibleMoves(state GameState, unit *PlayerUnit) []Action {
 	return moves
 }
 
-func getPossibleAttacks(state GameState, unit *PlayerUnit) []Action {
-	reachable := getReachableOpponentUnits(state, unit.OwnerID, state.Positions[unit.ID], unit.Stats.Reach)
+func getPossiblePowers(state GameState, unit *PlayerUnit) []Action {
+	reachable := getReachableOpponentUnits(state, unit.OwnerID, state.Positions[unit.ID], unit.Stats.Range)
 
 	attacks := make([]Action, 0, len(reachable))
 	for _, r := range reachable {
@@ -406,9 +406,9 @@ func getValidActions(state GameState, unit *PlayerUnit) []Action {
 	moves := getPossibleMoves(state, unit)
 	actions = append(actions, moves...)
 
-	roundAttacks := state.Get(unit.ID, CounterRoundAttacks, 0)
-	if roundAttacks == 0 {
-		attacks := getPossibleAttacks(state, unit)
+	roundPowers := state.Get(unit.ID, CounterRoundAttacks, 0)
+	if roundPowers == 0 {
+		attacks := getPossiblePowers(state, unit)
 		actions = append(actions, attacks...)
 	}
 

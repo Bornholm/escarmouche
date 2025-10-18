@@ -22,8 +22,8 @@ export const UnitEditor: React.FC<UnitEditorProps> = ({
     name: "",
     health: 1,
     move: 1,
-    reach: 1,
-    attack: 1,
+    range: 1,
+    power: 1,
     imageUrl: "templar_knight.png",
     customImage: undefined,
     abilities: [],
@@ -48,8 +48,8 @@ export const UnitEditor: React.FC<UnitEditorProps> = ({
         name: "",
         health: 1,
         move: 1,
-        reach: 1,
-        attack: 1,
+        range: 1,
+        power: 1,
         imageUrl: "templar_knight.png",
         customImage: undefined,
         abilities: [],
@@ -84,8 +84,6 @@ export const UnitEditor: React.FC<UnitEditorProps> = ({
         selectedArchetype
       );
 
-      console.log(generatedUnit);
-
       // Convert GeneratedUnit to Unit format
       const newUnit: Unit = {
         id: formData.id || generateId(),
@@ -95,8 +93,8 @@ export const UnitEditor: React.FC<UnitEditorProps> = ({
         ),
         health: generatedUnit.health,
         move: generatedUnit.move,
-        reach: generatedUnit.reach,
-        attack: generatedUnit.attack,
+        range: generatedUnit.range,
+        power: generatedUnit.power,
         imageUrl: getImageForArchetype(generatedUnit.archetype),
         customImage: undefined,
         abilities: generatedUnit.abilities,
@@ -310,28 +308,28 @@ export const UnitEditor: React.FC<UnitEditorProps> = ({
             </div>
 
             <div>
-              <label>Reach:</label>
+              <label>Range:</label>
               <input
                 type="number"
                 min="1"
                 max="10"
-                value={formData.reach}
+                value={formData.range}
                 onChange={(e) =>
-                  handleInputChange("reach", parseInt(e.target.value) || 1)
+                  handleInputChange("range", parseInt(e.target.value) || 1)
                 }
                 required
               />
             </div>
 
             <div>
-              <label>Attack:</label>
+              <label>Power:</label>
               <input
                 type="number"
                 min="1"
                 max="10"
-                value={formData.attack}
+                value={formData.power}
                 onChange={(e) =>
-                  handleInputChange("attack", parseInt(e.target.value) || 1)
+                  handleInputChange("power", parseInt(e.target.value) || 1)
                 }
                 required
               />

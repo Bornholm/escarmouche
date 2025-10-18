@@ -33,8 +33,8 @@ func RandomUnit(targetRank core.Rank, archetype Archetype, costs core.Costs) (*G
 
 	hasMinimalHealth := false
 	hasMinimalMove := false
-	hasMinimalAttack := false
-	hasMinimalReach := false
+	hasMinimalPower := false
+	hasMinimalRange := false
 
 	var (
 		evaluation *core.Evaluation
@@ -51,15 +51,15 @@ func RandomUnit(targetRank core.Rank, archetype Archetype, costs core.Costs) (*G
 		case !hasMinimalHealth:
 			statToUpgrade = 0
 			hasMinimalHealth = true
-		case !hasMinimalReach:
+		case !hasMinimalRange:
 			statToUpgrade = 1
-			hasMinimalReach = true
+			hasMinimalRange = true
 		case !hasMinimalMove:
 			statToUpgrade = 2
 			hasMinimalMove = true
-		case !hasMinimalAttack:
+		case !hasMinimalPower:
 			statToUpgrade = 3
-			hasMinimalAttack = true
+			hasMinimalPower = true
 		default:
 			statToUpgrade = chooseWeightedStat(archetype)
 		}
@@ -68,14 +68,14 @@ func RandomUnit(targetRank core.Rank, archetype Archetype, costs core.Costs) (*G
 		case 0:
 			stats.Health++
 		case 1:
-			stats.Reach++
+			stats.Range++
 		case 2:
 			stats.Move++
 		case 3:
-			stats.Attack++
+			stats.Power++
 		}
 
-		hasMinimal := hasMinimalHealth && hasMinimalReach && hasMinimalMove && hasMinimalAttack
+		hasMinimal := hasMinimalHealth && hasMinimalRange && hasMinimalMove && hasMinimalPower
 
 		abilityAdded := false
 
@@ -100,11 +100,11 @@ func RandomUnit(targetRank core.Rank, archetype Archetype, costs core.Costs) (*G
 				case 0:
 					stats.Health--
 				case 1:
-					stats.Reach--
+					stats.Range--
 				case 2:
 					stats.Move--
 				case 3:
-					stats.Attack--
+					stats.Power--
 				}
 
 				if abilityAdded {
@@ -134,7 +134,7 @@ func RandomUnit(targetRank core.Rank, archetype Archetype, costs core.Costs) (*G
 }
 
 func chooseWeightedStat(archetype Archetype) int {
-	totalWeight := archetype.WeightHealth + archetype.WeightReach + archetype.WeightMove + archetype.WeightAttack
+	totalWeight := archetype.WeightHealth + archetype.WeightRange + archetype.WeightMove + archetype.WeightPower
 
 	r := rand.Intn(totalWeight)
 
@@ -142,14 +142,14 @@ func chooseWeightedStat(archetype Archetype) int {
 		return 0 // Health
 	}
 	r -= archetype.WeightHealth
-	if r < archetype.WeightReach {
-		return 1 // Reach
+	if r < archetype.WeightRange {
+		return 1 // Range
 	}
-	r -= archetype.WeightReach
+	r -= archetype.WeightRange
 
 	if r < archetype.WeightMove {
 		return 2 // Movement
 	}
 
-	return 3 // Attack
+	return 3 // Power
 }
