@@ -2,7 +2,7 @@ package sim
 
 type Options struct {
 	Strategies map[PlayerID]StrategyFunc
-	MaxTurns   int
+	MaxTurns   uint
 }
 
 type OptionFunc func(opts *Options)

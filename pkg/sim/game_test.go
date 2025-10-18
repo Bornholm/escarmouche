@@ -54,26 +54,21 @@ func TestSimulation(t *testing.T) {
 		}
 	})
 
-	sim := NewSimulation(playerOneUnits, playerTwoUnits)
+	game := NewGame(playerOneUnits, playerTwoUnits)
 
-	for {
+	for step := range game.Run() {
 		select {
 		case <-ctx.Done():
 			t.Fatalf("%+v", errors.WithStack(ctx.Err()))
 		default:
-			actions, isGameOver, winner := sim.Next()
-			currentPlayer := sim.State().CurrentPlayerID
+			game.State().PrintConsole()
 
-			sim.State().PrintConsole()
+			t.Logf("[TURN] %d", game.Turn())
 
-			t.Logf("[TURN] %d", sim.Turn())
+			t.Logf("[ACTION] P%d: %s", step.Player, step.Action)
 
-			for _, a := range actions {
-				t.Logf("[ACTION] P%d: %s", currentPlayer, a)
-			}
-
-			if isGameOver {
-				t.Logf("[GAME OVER] Winner %d", winner)
+			if step.IsOver {
+				t.Logf("[GAME OVER] Winner %d", step.Winner)
 				return
 			}
 

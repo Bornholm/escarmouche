@@ -391,19 +391,22 @@ func (e *Evaluator) tournamentWorker(ctx context.Context, wg *sync.WaitGroup, sq
 
 // runSingleGame executes a single simulation between two squads
 func (e *Evaluator) runSingleGame(ctx context.Context, squad1, squad2 []sim.Unit, config FitnessConfig) (sim.PlayerID, error) {
-	simulation := sim.NewSimulation(squad1, squad2)
+	game := sim.NewGame(squad1, squad2)
 
-	for step := 0; step < config.MaxSimSteps; step++ {
+	for step := range game.Run() {
 		select {
 		case <-ctx.Done():
-			return sim.PlayerOne, ctx.Err()
+			return -1, ctx.Err()
 		default:
+			if step.Turn >= uint(config.MaxSimSteps) {
+				return sim.GetHealthWinner(game.State()), nil
+			}
+
+			if step.IsOver {
+				return step.Winner, nil
+			}
 		}
 
-		_, isGameOver, winner := simulation.Next()
-		if isGameOver {
-			return winner, nil
-		}
 	}
 
 	// If we reach max steps, declare it a draw (return player one arbitrarily)
