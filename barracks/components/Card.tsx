@@ -2,6 +2,7 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import { Evaluation, Unit } from "../types";
 import { useAsyncMemo } from "../hooks/useAsyncMemo";
+import { IgnoreTrans } from "./IgnoreTrans";
 
 interface CardProps {
   unit?: Unit;
@@ -20,7 +21,7 @@ export const Card: React.FC<CardProps> = ({
   },
   style,
 }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const evaluation = useAsyncMemo<Evaluation>(() => {
     return Barracks.evaluateUnit(unit);
   }, [unit]);
@@ -99,7 +100,14 @@ export const Card: React.FC<CardProps> = ({
     alignContent: "center",
     justifyContent: "center",
     alignItems: "center",
+    flexDirection: "column",
   };
+
+  const availableAbilities = useAsyncMemo(() => {
+    return Barracks.getAvailableAbilities(
+      `${i18n.language}-${i18n.language.toUpperCase()}`
+    );
+  }, [i18n.language]);
 
   return (
     <div style={{ ...cardContainerStyle, ...(style ?? {}) }}>
@@ -130,9 +138,17 @@ export const Card: React.FC<CardProps> = ({
           </div>
           {unit.abilities?.length > 0 ? (
             <div style={cardAbilityStyle}>
-              {unit.abilities?.map((a) => (
-                <span key={a.id}>{a.label}</span>
-              ))}
+              {unit.abilities?.map((a, i) => {
+                const ability = availableAbilities?.find((ab) => ab.id === a);
+                if (!ability) return null;
+                return (
+                  <div key={i}>
+                    <span className="has-text-weight-bold">
+                      {ability.label}
+                    </span>
+                  </div>
+                );
+              })}
             </div>
           ) : null}
         </div>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router";
 import { useTranslation } from "react-i18next";
-import { Unit, Rank, Archetype, GeneratedUnit } from "../types";
+import { Unit, Rank, Archetype, GeneratedUnit, Ability } from "../types";
 import { Card } from "../components/Card";
 import { generateId } from "../util/storage";
 import {
@@ -11,6 +11,8 @@ import {
 } from "../components/imageUtils";
 import { BASE_URL } from "../util/baseUrl";
 import { useAsyncMemo } from "../hooks/useAsyncMemo";
+import { IgnoreTrans } from "../components/IgnoreTrans";
+import { fork } from "child_process";
 
 interface UnitEditorPageProps {
   units: Unit[];
@@ -21,7 +23,7 @@ export const UnitEditorPage: React.FC<UnitEditorPageProps> = ({
   units,
   onSave,
 }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const isEditing = id !== "new";
@@ -47,6 +49,17 @@ export const UnitEditorPage: React.FC<UnitEditorPageProps> = ({
   const [uploadError, setUploadError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const availableAbilities = useAsyncMemo(() => {
+    return Barracks.getAvailableAbilities(
+      `${i18n.language}-${i18n.language.toUpperCase()}`
+    );
+  }, [i18n.language]);
+
+  const evaluation = useAsyncMemo(
+    () => Barracks.evaluateUnit(formData),
+    [formData]
+  );
+
   useEffect(() => {
     if (existingUnit) {
       setFormData({ ...existingUnit });
@@ -69,6 +82,29 @@ export const UnitEditorPage: React.FC<UnitEditorPageProps> = ({
       ...prev,
       [field]: value,
     }));
+  };
+
+  const handleAbilityChange = (
+    abilityIndex: number,
+    value: string | undefined | null
+  ) => {
+    setFormData((prev) => {
+      const abilities = [...prev.abilities];
+      if (!value || value === "--") {
+        abilities.splice(abilityIndex, 1);
+      } else {
+        const ability: Ability | undefined = availableAbilities?.find(
+          (a) => a.id === value
+        );
+        if (ability) {
+          abilities[abilityIndex] = ability.id;
+        }
+      }
+      return {
+        ...prev,
+        abilities,
+      };
+    });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -116,17 +152,17 @@ export const UnitEditorPage: React.FC<UnitEditorPageProps> = ({
   const getImageForArchetype = (archetype: Archetype): string => {
     switch (archetype) {
       case Archetype.Tank:
-        return "/templar_knight.png";
+        return `${BASE_URL}/templar_knight.png`;
       case Archetype.Bruiser:
-        return "/orc_warrior.png";
+        return `${BASE_URL}/orc_warrior.png`;
       case Archetype.Sniper:
-        return "/elven_archer.png";
+        return `${BASE_URL}/elven_archer.png`;
       case Archetype.Skirmisher:
-        return "/orc_javelin.png";
+        return `${BASE_URL}/orc_javelin.png`;
       case Archetype.GlassCannon:
-        return "/fire_mage.png";
+        return `${BASE_URL}/fire_mage.png`;
       default:
-        return "/templar_knight.png";
+        return `${BASE_URL}/templar_knight.png`;
     }
   };
 
@@ -178,6 +214,8 @@ export const UnitEditorPage: React.FC<UnitEditorPageProps> = ({
       imageUrl,
     }));
   };
+
+  const isUnitValid = (evaluation?.cost ?? 0) <= Barracks.MaxUnitCost;
 
   return (
     <div className="container">
@@ -405,6 +443,61 @@ export const UnitEditorPage: React.FC<UnitEditorPageProps> = ({
                 </div>
               </div>
 
+              {/* Unit abilities */}
+              <div className="box">
+                <h2 className="subtitle">{t("unitEditor.abilities")}</h2>
+                <div className="field">
+                  <label className="label">{t("unitEditor.primary")}</label>
+                  <div className="control">
+                    <div className="select is-fullwidth">
+                      <select
+                        className="select"
+                        onChange={(e) => handleAbilityChange(0, e.target.value)}
+                        value={formData.abilities[0]}
+                      >
+                        <option value={undefined}>
+                          <IgnoreTrans>--</IgnoreTrans>
+                        </option>
+                        {availableAbilities
+                          ?.filter((a) => a.id !== formData.abilities[1])
+                          .map((a) => (
+                            <option key={a.id} value={a.id}>
+                              <IgnoreTrans>
+                                {a.label} ({a.cost})
+                              </IgnoreTrans>
+                            </option>
+                          ))}
+                      </select>
+                    </div>
+                  </div>
+                </div>
+                <div className="field">
+                  <label className="label">{t("unitEditor.secondary")}</label>
+                  <div className="control">
+                    <div className="select is-fullwidth">
+                      <select
+                        className="select"
+                        onChange={(e) => handleAbilityChange(1, e.target.value)}
+                        value={formData.abilities[1]}
+                      >
+                        <option value={undefined}>
+                          <IgnoreTrans>--</IgnoreTrans>
+                        </option>
+                        {availableAbilities
+                          ?.filter((a) => a.id !== formData.abilities[0])
+                          .map((a) => (
+                            <option key={a.id} value={a.id}>
+                              <IgnoreTrans>
+                                {a.label} ({a.cost})
+                              </IgnoreTrans>
+                            </option>
+                          ))}
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               {/* Image Section */}
               <div className="box">
                 <h2 className="subtitle">{t("unitEditor.illustration")}</h2>
@@ -508,6 +601,24 @@ export const UnitEditorPage: React.FC<UnitEditorPageProps> = ({
               </div>
             </div>
 
+            <div className="box">
+              <h2 className="subtitle">{t("unitEditor.evaluation")}</h2>
+              <div className="field">
+                <label className="label">{t("unitEditor.unitPoints")}</label>
+                <div className="control">
+                  <p className="input is-static">
+                    <span
+                      className={`${
+                        !isUnitValid ? "has-text-danger" : "has-text-success"
+                      }`}
+                    >
+                      {evaluation?.cost} / {Barracks.MaxUnitCost}
+                    </span>
+                  </p>
+                </div>
+              </div>
+            </div>
+
             <div className="buttons is-centered are-medium">
               <button
                 type="button"
@@ -516,7 +627,12 @@ export const UnitEditorPage: React.FC<UnitEditorPageProps> = ({
               >
                 {t("unitEditor.cancel")}
               </button>
-              <button type="submit" className="button is-primary">
+              <button
+                type="submit"
+                className="button is-primary"
+                disabled={!isUnitValid}
+                onClick={handleSubmit}
+              >
                 {isEditing ? t("unitEditor.save") : t("unitEditor.create")}
               </button>
             </div>

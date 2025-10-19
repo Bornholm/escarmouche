@@ -9,6 +9,7 @@
   },
   "navigation": {
     "language": "Idioma",
+    "rules": "Reglas",
     "squads": "Escuadrones",
     "title": "El Cuartel",
     "units": "Unidades"
@@ -70,6 +71,7 @@
     "range": "Alcance"
   },
   "unitEditor": {
+    "abilities": "Habilidades",
     "archetype": "Arquetipo:",
     "back": "Volver",
     "cancel": "Cancelar",
@@ -78,6 +80,7 @@
     "customImageUploaded": "✓ Imagen personalizada subida",
     "delete": "Eliminar",
     "editUnit": "Editar Unidad",
+    "evaluation": "Evaluación",
     "generateRandomUnit": "Generar Unidad Aleatoria",
     "generating": "Generando...",
     "health": "Salud:",
@@ -87,13 +90,16 @@
     "orChoosePredefined": "O elegir una ilustración predefinida:",
     "power": "Poder:",
     "preview": "Vista previa",
+    "primary": "Primaria",
     "randomGeneration": "Generación Aleatoria",
     "range": "Alcance:",
     "rank": "Rango:",
     "save": "Guardar",
+    "secondary": "Secundaria",
     "supportedFormats": "Formatos soportados: JPG, PNG, GIF, WebP (máx 5MB)",
     "unitDetails": "Detalles de la Unidad",
     "unitNamePlaceholder": "Nombre de la unidad",
+    "unitPoints": "Unidad Puntos",
     "uploadCustomImage": "Subir una imagen personalizada:",
     "uploading": "Subiendo..."
   },

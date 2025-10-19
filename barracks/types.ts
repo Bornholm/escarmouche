@@ -20,7 +20,7 @@ export interface UnitStats {
   range: number;
   move: number;
   power: number;
-  abilities: Ability[]
+  abilities: string[]
 }
 
 export interface GeneratedUnit extends UnitStats {
@@ -33,6 +33,7 @@ export interface Ability {
   id: string;
   label: string;
   description: string;
+  cost: number;
 }
 
 export interface Unit extends UnitStats {

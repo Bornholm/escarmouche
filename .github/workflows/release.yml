@@ -28,7 +28,7 @@ jobs:
           node-version: 20
       - run: git fetch --tags --force
       - run: npm ci
-      - run: make build
+      - run: BASE_URL=https://bornholm.github.io/escarmouche/barracks make build
       - run: mv dist/barracks dist/website/
       - name: Publish Github pages
         uses: JamesIves/github-pages-deploy-action@v4

@@ -23,7 +23,7 @@ export const App: React.FC = () => {
       if (index === -1) {
         units.push(u);
       } else {
-        units[index] = { ...u };
+        units[index] = { ...u, ...units[index] };
       }
     });
     setUnits(units);
@@ -43,6 +43,7 @@ export const App: React.FC = () => {
   }, [squads]);
 
   const handleSaveUnit = (unit: Unit) => {
+    console.log(unit);
     const existingIndex = units.findIndex((u) => u.id === unit.id);
     if (existingIndex !== -1) {
       // Update existing unit
@@ -79,13 +80,8 @@ export const App: React.FC = () => {
     setSquads((prev) => prev.filter((s) => s.id !== squadId));
   };
 
-  const basePath: string = useMemo(() => {
-    const url = new URL(BASE_URL);
-    return url.pathname;
-  }, [BASE_URL]);
-
   return (
-    <Router basename={basePath}>
+    <Router>
       <div
         className="app has-background-dark has-text-light"
         style={{ minHeight: "100vh" }}

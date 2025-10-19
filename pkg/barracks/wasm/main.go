@@ -19,12 +19,14 @@ func main() {
 	}
 
 	js.Global().Set("Barracks", map[string]any{
-		"evaluateUnit":       js.FuncOf(evaluateUnit),
-		"generateSquad":      js.FuncOf(generateSquad),
-		"generateUnit":       js.FuncOf(generateUnit),
-		"RankPointCosts":     js.ValueOf(rankPointCosts),
-		"MaxSquadSize":       js.ValueOf(gen.DefaultMaxSquadSize),
-		"MaxSquadRankPoints": js.ValueOf(gen.DefaultMaxRankPoints),
+		"evaluateUnit":          js.FuncOf(evaluateUnit),
+		"generateSquad":         js.FuncOf(generateSquad),
+		"generateUnit":          js.FuncOf(generateUnit),
+		"getAvailableAbilities": js.FuncOf(getAvailableAbilities),
+		"RankPointCosts":        js.ValueOf(rankPointCosts),
+		"MaxSquadSize":          js.ValueOf(gen.DefaultMaxSquadSize),
+		"MaxSquadRankPoints":    js.ValueOf(gen.DefaultMaxRankPoints),
+		"MaxUnitCost":           js.ValueOf(core.DefaultCosts.MaxTotal),
 	})
 
 	select {}
@@ -46,7 +48,7 @@ func evaluateUnit(this js.Value, args []js.Value) any {
 			ids := make([]string, 0, len)
 
 			for i := 0; i < len; i++ {
-				ids = append(ids, jsAbilities.Index(i).Get("id").String())
+				ids = append(ids, jsAbilities.Index(i).String())
 			}
 
 			abilities = core.Abilities(ids...)
@@ -111,11 +113,7 @@ func generateUnit(this js.Value, args []js.Value) any {
 
 		abilities := make([]any, 0, len(unit.Abilities))
 		for _, a := range unit.Abilities {
-			abilities = append(abilities, map[string]any{
-				"id":          a.ID,
-				"description": a.Description.String(),
-				"label":       a.Label.String(),
-			})
+			abilities = append(abilities, a.ID)
 		}
 
 		return map[string]any{
@@ -153,4 +151,28 @@ func withPromise[T any](fn func() (T, error)) js.Value {
 	promiseConstructor := js.Global().Get("Promise")
 
 	return promiseConstructor.New(handler)
+}
+
+func getAvailableAbilities(this js.Value, args []js.Value) any {
+	return withPromise(func() ([]any, error) {
+		language := core.Language(args[0].String())
+
+		core.SetLanguage(language)
+
+		abilities := core.AllAbilities()
+
+		jsAbilities := make([]any, 0, len(abilities))
+
+		for _, a := range abilities {
+			jsAbilities = append(jsAbilities, map[string]any{
+				"id":          a.ID,
+				"description": a.Description.String(),
+				"label":       a.Label.String(),
+				"cost":        a.Cost,
+			})
+		}
+
+		return jsAbilities, nil
+	})
+
 }

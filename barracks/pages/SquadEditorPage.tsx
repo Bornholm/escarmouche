@@ -285,28 +285,24 @@ export const SquadEditorPage: React.FC<SquadEditorPageProps> = ({
               </div>
 
               {/* Action Buttons */}
-              <div className="box">
-                <div className="field is-grouped is-grouped-multiline">
-                  <div className="control">
-                    <button
-                      type="submit"
-                      className="button is-fullwidth"
-                      disabled={!isValid}
-                    >
-                      {isEditing
-                        ? t("squadEditor.edit")
-                        : t("squadEditor.create")}
-                    </button>
-                  </div>
-                  <div className="control">
-                    <button
-                      type="button"
-                      onClick={handleCancel}
-                      className="button is-fullwidth"
-                    >
-                      {t("squadEditor.cancel")}
-                    </button>
-                  </div>
+              <div>
+                <div className="buttons is-centered are-medium">
+                  <button
+                    type="button"
+                    onClick={handleCancel}
+                    className="button is-warning"
+                  >
+                    {t("squadEditor.cancel")}
+                  </button>
+                  <button
+                    type="submit"
+                    className="button is-primary"
+                    disabled={!isValid}
+                  >
+                    {isEditing
+                      ? t("squadEditor.edit")
+                      : t("squadEditor.create")}
+                  </button>
                 </div>
                 {!isValid && (
                   <div className="notification is-danger is-light">

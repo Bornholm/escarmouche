@@ -5,9 +5,11 @@ declare global {
     function evaluateUnit(unit: UnitStats): Promise<Evaluation>;
     function generateSquad(): Promise<GeneratedUnit[]>;
     function generateUnit(rank: string, archetype: string): Promise<GeneratedUnit>;
+    function getAvailableAbilities(locale: string): Promise<Ability[]>;
     const RankPointCosts: Record<string, number>;
     const MaxSquadRankPoints: number;
     const MaxSquadSize: number;
+    const MaxUnitCost: number;
   }
 }
 

@@ -31,7 +31,10 @@ export const Navigation: React.FC = () => {
       <div className="container">
         <div className="navbar-brand">
           <Link to="/" className="navbar-item" onClick={closeBurger}>
-            <span className="title is-4 has-text-light">
+            <span
+              className="title is-4 has-text-light"
+              style={{ whiteSpace: "nowrap" }}
+            >
               {t("navigation.title")}
             </span>
           </Link>
@@ -79,6 +82,20 @@ export const Navigation: React.FC = () => {
                 <i className="fas fa-shield-alt"></i>
               </span>
               <span>{t("navigation.squads")}</span>
+            </Link>
+
+            <Link
+              target="_blank"
+              to={`https://bornholm.github.io/escarmouche/${
+                i18n.language
+              }-${i18n.language.toUpperCase()}/`}
+              className={`navbar-item`}
+              onClick={closeBurger}
+            >
+              <span className="icon">
+                <i className="fas fa-external-link-alt"></i>
+              </span>
+              <span>{t("navigation.rules")}</span>
             </Link>
           </div>
 

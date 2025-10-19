@@ -11,7 +11,6 @@ export const DefaultUnits: Unit[] = [
     move: 1,
     power: 1,
     imageUrl: `${BASE_URL}/templar_knight.png`,
-    customImage: undefined,
     abilities: []
   },
   {
@@ -22,7 +21,6 @@ export const DefaultUnits: Unit[] = [
     move: 1,
     power: 2,
     imageUrl: `${BASE_URL}/elven_archer.png`,
-    customImage: undefined,
     abilities: []
   },
   {
@@ -33,7 +31,6 @@ export const DefaultUnits: Unit[] = [
     move: 2,
     power: 3,
     imageUrl: `${BASE_URL}/fire_mage.png`,
-    customImage: undefined,
     abilities: []
   },
   {
@@ -44,7 +41,6 @@ export const DefaultUnits: Unit[] = [
     move: 1,
     power: 3,
     imageUrl: `${BASE_URL}/orc_warrior.png`,
-    customImage: undefined,
     abilities: []
   },
 ];

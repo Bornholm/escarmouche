@@ -2,7 +2,9 @@
   "compilerOptions": {
     "esModuleInterop": true,
     "jsx": "react",
-    "declaration": true
+    "declaration": true,
+    "module": "es2022",
+    "moduleResolution": "node"
   },
   "extends": "@tsconfig/recommended/tsconfig.json",
   "include": ["./barracks/**/*.ts", "./barracks/**/*.tsx", "./barracks/**/*.d.ts"]
