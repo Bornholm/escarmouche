@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router";
+import { HashRouter as Router, Routes, Route, Navigate } from "react-router";
 import "bulma/css/bulma.min.css";
 import { Navigation } from "./Navigation";
 import { UnitsPage } from "../pages/UnitsPage";
