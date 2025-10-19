@@ -1,0 +1,107 @@
+{
+  "archetypes": {
+    "bruiser": "Matón",
+    "glasscannon": "Cañón de Cristal",
+    "jackofalltrades": "Todoterreno",
+    "skirmisher": "Escaramuzador",
+    "sniper": "Francotirador",
+    "tank": "Tanque"
+  },
+  "navigation": {
+    "language": "Idioma",
+    "squads": "Escuadrones",
+    "title": "El Cuartel",
+    "units": "Unidades"
+  },
+  "predefinedUnits": {
+    "elvenArcher": "Arquero Élfico",
+    "fireMage": "Mago de Fuego",
+    "orcShaman": "Chamán Orco",
+    "orcSkirmisher": "Escaramuzador Orco",
+    "orcWarrior": "Guerrero Orco",
+    "templarKnight": "Caballero Templario"
+  },
+  "ranks": {
+    "champion": "Campeón",
+    "elite": "Élite",
+    "paragon": "Parangón",
+    "trooper": "Soldado",
+    "veteran": "Veterano"
+  },
+  "squadEditor": {
+    "availableUnits": "Unidades Disponibles",
+    "back": "Volver",
+    "cancel": "Cancelar",
+    "clickToAdd": "Haz clic en las unidades de abajo para añadirlas a tu escuadrón",
+    "clickToAddUnit": "Clic para añadir",
+    "composition": "Composición:",
+    "create": "Crear",
+    "createSquad": "Crear Nuevo Escuadrón",
+    "currentSquad": "Escuadrón Actual",
+    "edit": "Editar",
+    "editSquad": "Editar Escuadrón",
+    "noAvailableUnits": "No hay unidades disponibles. Crea unidades primero en la sección Unidades.",
+    "rankPoints": "Puntos de rango:",
+    "remove": "Quitar",
+    "size": "Tamaño:",
+    "squadDetails": "Detalles del Escuadrón",
+    "squadFull": "Escuadrón Completo",
+    "squadName": "Nombre del escuadrón:",
+    "squadNamePlaceholder": "Mi escuadrón...",
+    "statistics": "Estadísticas",
+    "tooManyRankPoints": "Demasiados puntos de rango utilizados.",
+    "tooManyUnits": "Demasiadas unidades en el escuadrón."
+  },
+  "squads": {
+    "delete": "Eliminar",
+    "deleteSquad": "Eliminar escuadrón",
+    "edit": "Editar",
+    "editSquad": "Editar escuadrón",
+    "newSquad": "Nuevo Escuadrón",
+    "noSquads": "No hay escuadrones creados. Haz clic en \"Nuevo Escuadrón\" para comenzar.",
+    "noUnitsInSquad": "No hay unidades en este escuadrón",
+    "title": "Escuadrones",
+    "units": "unidades"
+  },
+  "stats": {
+    "health": "Salud",
+    "move": "Movi.",
+    "power": "Poder",
+    "range": "Alcance"
+  },
+  "unitEditor": {
+    "archetype": "Arquetipo:",
+    "back": "Volver",
+    "cancel": "Cancelar",
+    "create": "Crear",
+    "createUnit": "Crear Nueva Unidad",
+    "customImageUploaded": "✓ Imagen personalizada subida",
+    "delete": "Eliminar",
+    "editUnit": "Editar Unidad",
+    "generateRandomUnit": "Generar Unidad Aleatoria",
+    "generating": "Generando...",
+    "health": "Salud:",
+    "illustration": "Ilustración",
+    "move": "Movimiento:",
+    "name": "Nombre:",
+    "orChoosePredefined": "O elegir una ilustración predefinida:",
+    "power": "Poder:",
+    "preview": "Vista previa",
+    "randomGeneration": "Generación Aleatoria",
+    "range": "Alcance:",
+    "rank": "Rango:",
+    "save": "Guardar",
+    "supportedFormats": "Formatos soportados: JPG, PNG, GIF, WebP (máx 5MB)",
+    "unitDetails": "Detalles de la Unidad",
+    "unitNamePlaceholder": "Nombre de la unidad",
+    "uploadCustomImage": "Subir una imagen personalizada:",
+    "uploading": "Subiendo..."
+  },
+  "units": {
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "newUnit": "Nueva Unidad",
+    "noUnits": "No hay unidades creadas. Haz clic en \"Nueva Unidad\" para comenzar.",
+    "title": "Unidades"
+  }
+}
