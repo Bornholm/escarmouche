@@ -23,8 +23,6 @@ export const Card: React.FC<CardProps> = ({
     return Barracks.evaluateUnit(unit);
   }, [unit]);
 
-  console.log(unit, evaluation);
-
   const cardContainerStyle: React.CSSProperties = {
     width: "300px",
     height: "420px",
@@ -41,11 +39,8 @@ export const Card: React.FC<CardProps> = ({
     position: "relative",
   };
 
-  // Use custom image if available, otherwise use preset image
-  const imageSource = unit.customImage || unit.imageUrl;
-
   const cardBackgroundStyle: React.CSSProperties = {
-    backgroundImage: imageSource ? `url(${imageSource})` : undefined,
+    backgroundImage: unit.imageUrl ? `url(${unit.imageUrl})` : undefined,
     backgroundRepeat: "no-repeat",
     backgroundSize: "contain",
     backgroundPositionX: "50px",
@@ -132,7 +127,7 @@ export const Card: React.FC<CardProps> = ({
           {unit.abilities?.length > 0 ? (
             <div style={cardAbilityStyle}>
               {unit.abilities?.map((a) => (
-                <span>{a.label}</span>
+                <span key={a.id}>{a.label}</span>
               ))}
             </div>
           ) : null}

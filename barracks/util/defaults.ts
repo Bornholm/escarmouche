@@ -1,4 +1,5 @@
 import { Unit } from "../types";
+import { BASE_URL } from "./baseUrl";
 
 
 export const DefaultUnits: Unit[] = [
@@ -9,7 +10,7 @@ export const DefaultUnits: Unit[] = [
     range: 1,
     move: 1,
     power: 1,
-    imageUrl: "templar_knight.png",
+    imageUrl: `${BASE_URL}/templar_knight.png`,
     customImage: undefined,
     abilities: []
   },
@@ -20,7 +21,7 @@ export const DefaultUnits: Unit[] = [
     range: 2,
     move: 1,
     power: 2,
-    imageUrl: "elven_archer.png",
+    imageUrl: `${BASE_URL}/elven_archer.png`,
     customImage: undefined,
     abilities: []
   },
@@ -31,7 +32,7 @@ export const DefaultUnits: Unit[] = [
     range: 3,
     move: 2,
     power: 3,
-    imageUrl: "fire_mage.png",
+    imageUrl: `${BASE_URL}/fire_mage.png`,
     customImage: undefined,
     abilities: []
   },
@@ -42,7 +43,7 @@ export const DefaultUnits: Unit[] = [
     range: 1,
     move: 1,
     power: 3,
-    imageUrl: "orc_warrior.png",
+    imageUrl: `${BASE_URL}/orc_warrior.png`,
     customImage: undefined,
     abilities: []
   },

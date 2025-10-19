@@ -17,21 +17,31 @@
   "homepage": "https://github.com/Bornholm/escarmouche#readme",
   "devDependencies": {
     "@parcel/config-default": "^2.15.4",
+    "@plasmohq/parcel-transformer-inject-env": "^0.2.12",
+    "@types/node": "^24.8.1",
     "parcel-reporter-static-files-copy": "^1.5.3",
     "parcel-resolver-ignore": "^2.2.0"
   },
   "parcelIgnore": [
-    "wasm_exec.js"
+    "wasm/wasm_exec.js"
   ],
-  "staticFiles": {
-    "staticPath": "barracks/static"
-  },
+  "staticFiles": [
+    {
+      "staticPath": "barracks/static"
+    },
+    {
+      "staticPath": "dist/wasm",
+      "staticOutPath": "wasm"
+    }
+  ],
   "dependencies": {
     "@picocss/pico": "^2.1.1",
     "@tsconfig/recommended": "^1.0.10",
     "@types/react": "^19.1.13",
     "@types/react-dom": "^19.1.9",
+    "bulma": "^1.0.4",
     "react": "^19.1.1",
-    "react-dom": "^19.1.1"
+    "react-dom": "^19.1.1",
+    "react-router": "^7.9.4"
   }
 }

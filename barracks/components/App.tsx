@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
-import "@picocss/pico";
-import { Card } from "./Card";
-import { UnitEditor } from "./UnitEditor";
-import { SquadEditor } from "./SquadEditor";
-import { SquadCard } from "./SquadCard";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router";
+import "bulma/css/bulma.min.css";
+import { Navigation } from "./Navigation";
+import { UnitsPage } from "../pages/UnitsPage";
+import { SquadsPage } from "../pages/SquadsPage";
+import { UnitEditorPage } from "../pages/UnitEditorPage";
+import { SquadEditorPage } from "../pages/SquadEditorPage";
 import { Unit, Squad } from "../types";
-import { loadUnits, saveUnits, loadSquads, saveSquads } from "./storage";
+import { loadUnits, saveUnits, loadSquads, saveSquads } from "../util/storage";
 import { DefaultUnits } from "../util/defaults";
 
 export const App: React.FC = () => {
@@ -38,23 +40,9 @@ export const App: React.FC = () => {
     saveSquads(squads);
   }, [squads]);
 
-  const [isEditorOpen, setIsEditorOpen] = useState(false);
-  const [editingUnit, setEditingUnit] = useState<Unit | null>(null);
-  const [isSquadEditorOpen, setIsSquadEditorOpen] = useState(false);
-  const [editingSquad, setEditingSquad] = useState<Squad | null>(null);
-
-  const handleCreateUnit = () => {
-    setEditingUnit(null);
-    setIsEditorOpen(true);
-  };
-
-  const handleEditUnit = (unit: Unit) => {
-    setEditingUnit(unit);
-    setIsEditorOpen(true);
-  };
-
   const handleSaveUnit = (unit: Unit) => {
-    if (editingUnit) {
+    const existingIndex = units.findIndex((u) => u.id === unit.id);
+    if (existingIndex !== -1) {
       // Update existing unit
       setUnits((prev) => prev.map((u) => (u.id === unit.id ? unit : u)));
     } else {
@@ -74,18 +62,9 @@ export const App: React.FC = () => {
     );
   };
 
-  const handleCreateSquad = () => {
-    setEditingSquad(null);
-    setIsSquadEditorOpen(true);
-  };
-
-  const handleEditSquad = (squad: Squad) => {
-    setEditingSquad(squad);
-    setIsSquadEditorOpen(true);
-  };
-
   const handleSaveSquad = (squad: Squad) => {
-    if (editingSquad) {
+    const existingIndex = squads.findIndex((s) => s.id === squad.id);
+    if (existingIndex !== -1) {
       // Update existing squad
       setSquads((prev) => prev.map((s) => (s.id === squad.id ? squad : s)));
     } else {
@@ -98,156 +77,59 @@ export const App: React.FC = () => {
     setSquads((prev) => prev.filter((s) => s.id !== squadId));
   };
 
-  const headerStyle: React.CSSProperties = {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: "2rem",
-  };
-
-  const cardContainerStyle: React.CSSProperties = {
-    position: "relative",
-  };
-
-  const cardOverlayStyle: React.CSSProperties = {
-    position: "absolute",
-    top: "10px",
-    right: "10px",
-    display: "flex",
-    gap: "0.5rem",
-    opacity: 0,
-    transition: "opacity 0.2s",
-  };
-
-  const smallButtonStyle: React.CSSProperties = {
-    padding: "0.25rem 0.5rem",
-    fontSize: "0.8rem",
-    border: "none",
-    borderRadius: "3px",
-    cursor: "pointer",
-  };
-
-  const editButtonStyle: React.CSSProperties = {
-    ...smallButtonStyle,
-    backgroundColor: "#28a745",
-    color: "white",
-  };
-
-  const deleteButtonStyle: React.CSSProperties = {
-    ...smallButtonStyle,
-    backgroundColor: "#dc3545",
-    color: "white",
-  };
-
   return (
-    <main className="container-fluid" style={{ padding: "1rem" }}>
-      <h1>La Caserne</h1>
-
-      <div className="grid">
-        <div>
-          <div style={headerStyle}>
-            <h2>Escouades</h2>
-            <button onClick={handleCreateSquad}>Nouvelle escouade</button>
-          </div>
-          <div
-            style={{
-              display: "flex",
-              flexWrap: "wrap",
-              justifyContent: "center",
-              gap: "1rem",
-              marginBottom: "2rem",
-            }}
-          >
-            {squads.length === 0 ? (
-              <p style={{ color: "#6c757d", fontStyle: "italic" }}>
-                Aucune escouade créée. Cliquez sur "Nouvelle escouade" pour
-                commencer.
-              </p>
-            ) : (
-              squads.map((squad) => (
-                <SquadCard
-                  key={squad.id}
-                  squad={squad}
-                  onEdit={() => handleEditSquad(squad)}
-                  onDelete={() => handleDeleteSquad(squad.id)}
+    <Router>
+      <div
+        className="app has-background-dark has-text-light"
+        style={{ minHeight: "100vh" }}
+      >
+        <Navigation />
+        <main>
+          <Routes>
+            <Route path="/" element={<Navigate to="/units" replace />} />
+            <Route
+              path="/units"
+              element={
+                <UnitsPage units={units} onDeleteUnit={handleDeleteUnit} />
+              }
+            />
+            <Route
+              path="/units/new"
+              element={<UnitEditorPage units={units} onSave={handleSaveUnit} />}
+            />
+            <Route
+              path="/units/:id/edit"
+              element={<UnitEditorPage units={units} onSave={handleSaveUnit} />}
+            />
+            <Route
+              path="/squads"
+              element={
+                <SquadsPage squads={squads} onDeleteSquad={handleDeleteSquad} />
+              }
+            />
+            <Route
+              path="/squads/new"
+              element={
+                <SquadEditorPage
+                  squads={squads}
+                  availableUnits={units}
+                  onSave={handleSaveSquad}
                 />
-              ))
-            )}
-          </div>
-        </div>
-        <div>
-          <div style={headerStyle}>
-            <h2>Unités</h2>
-            <button onClick={handleCreateUnit}>Nouvelle unité</button>
-          </div>
-          <div
-            style={{
-              display: "flex",
-              flexWrap: "wrap",
-              justifyContent: "center",
-              gap: "1rem",
-            }}
-          >
-            {units.length === 0 ? (
-              <p style={{ color: "#6c757d", fontStyle: "italic" }}>
-                Aucune unité créée. Cliquez sur "Nouvelle unité" pour commencer.
-              </p>
-            ) : (
-              units.map((unit) => (
-                <div
-                  key={unit.id}
-                  style={cardContainerStyle}
-                  onMouseEnter={(e) => {
-                    const overlay = e.currentTarget.querySelector(
-                      ".card-overlay"
-                    ) as HTMLElement;
-                    if (overlay) overlay.style.opacity = "1";
-                  }}
-                  onMouseLeave={(e) => {
-                    const overlay = e.currentTarget.querySelector(
-                      ".card-overlay"
-                    ) as HTMLElement;
-                    if (overlay) overlay.style.opacity = "0";
-                  }}
-                >
-                  <Card unit={unit} />
-                  <div className="card-overlay" style={cardOverlayStyle}>
-                    <button
-                      onClick={() => handleEditUnit(unit)}
-                      style={editButtonStyle}
-                      title="Modifier l'unité"
-                    >
-                      Modifier
-                    </button>
-                    <button
-                      onClick={() => handleDeleteUnit(unit.id)}
-                      style={deleteButtonStyle}
-                      title="Supprimer l'unité"
-                    >
-                      Supprimer
-                    </button>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
+              }
+            />
+            <Route
+              path="/squads/:id/edit"
+              element={
+                <SquadEditorPage
+                  squads={squads}
+                  availableUnits={units}
+                  onSave={handleSaveSquad}
+                />
+              }
+            />
+          </Routes>
+        </main>
       </div>
-
-      <UnitEditor
-        isOpen={isEditorOpen}
-        onClose={() => setIsEditorOpen(false)}
-        onSave={handleSaveUnit}
-        unit={editingUnit}
-      />
-
-      <SquadEditor
-        isOpen={isSquadEditorOpen}
-        onClose={() => setIsSquadEditorOpen(false)}
-        onSave={handleSaveSquad}
-        squad={editingSquad}
-        availableUnits={units}
-      />
-    </main>
+    </Router>
   );
 };

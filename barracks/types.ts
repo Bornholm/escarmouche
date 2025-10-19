@@ -1,5 +1,5 @@
 export enum Archetype {
-  Balanced = "balanced",
+  JackOfAllTrades = "jackofalltrades",
   Tank = "tank",
   Sniper = "sniper",
   Skirmisher = "skirmisher",
@@ -39,7 +39,6 @@ export interface Unit extends UnitStats {
   id: string;
   name: string;
   imageUrl?: string;
-  customImage?: string; // base64 data URL for custom images
 }
 
 export interface Squad {

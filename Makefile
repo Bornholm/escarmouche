@@ -15,15 +15,15 @@ cmd-%:
 	CGO_ENABLED=0 go build -o bin/$* ./cmd/$*
 
 wasm-lib:
-	mkdir -p dist/barracks
-	cp -f "$(shell go env GOROOT)/lib/wasm/wasm_exec.js" ./dist/barracks/wasm_exec.js
-	GOOS=js GOARCH=wasm go build -o dist/barracks/barracks.wasm ./pkg/barracks/wasm
+	mkdir -p dist/wasm
+	cp -f "$(shell go env GOROOT)/lib/wasm/wasm_exec.js" ./dist/wasm/wasm_exec.js
+	GOOS=js GOARCH=wasm go build -o dist/wasm/barracks.wasm ./pkg/barracks/wasm
 
 barracks-app:
 	rm -rf dist/barracks
 	mkdir -p dist/barracks
 	$(MAKE) wasm-lib
-	npx parcel build --public-url "./" --dist-dir dist/barracks  ./barracks/index.html
+	npx parcel build --no-cache --public-url "./" --dist-dir dist/barracks  ./barracks/index.html
 
 website: website-index $(foreach lang,$(LANGUAGES),website-$(lang))
 
