@@ -9,6 +9,7 @@
   },
   "navigation": {
     "language": "Language",
+    "rules": "Rules",
     "squads": "Squads",
     "title": "The Barracks",
     "units": "Units"
@@ -70,6 +71,7 @@
     "range": "Range"
   },
   "unitEditor": {
+    "abilities": "Abilities",
     "archetype": "Archetype:",
     "back": "Back",
     "cancel": "Cancel",
@@ -78,6 +80,7 @@
     "customImageUploaded": "✓ Custom image uploaded",
     "delete": "Delete",
     "editUnit": "Edit Unit",
+    "evaluation": "Evaluation",
     "generateRandomUnit": "Generate Random Unit",
     "generating": "Generating...",
     "health": "Health:",
@@ -87,13 +90,16 @@
     "orChoosePredefined": "Or choose a predefined illustration:",
     "power": "Power:",
     "preview": "Preview",
+    "primary": "Primary",
     "randomGeneration": "Random Generation",
     "range": "Range:",
     "rank": "Rank:",
     "save": "Save",
+    "secondary": "Secondary",
     "supportedFormats": "Supported formats: JPG, PNG, GIF, WebP (max 5MB)",
     "unitDetails": "Unit Details",
     "unitNamePlaceholder": "Unit name",
+    "unitPoints": "Unit Points",
     "uploadCustomImage": "Upload a custom image:",
     "uploading": "Uploading..."
   },
