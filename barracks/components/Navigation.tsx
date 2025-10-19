@@ -1,7 +1,10 @@
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router";
+import { useTranslation } from "react-i18next";
+import { IgnoreTrans } from "./IgnoreTrans";
 
 export const Navigation: React.FC = () => {
+  const { t, i18n } = useTranslation();
   const [isActive, setIsActive] = useState(false);
   const location = useLocation();
 
@@ -28,7 +31,9 @@ export const Navigation: React.FC = () => {
       <div className="container">
         <div className="navbar-brand">
           <Link to="/" className="navbar-item" onClick={closeBurger}>
-            <span className="title is-4 has-text-light">La Caserne</span>
+            <span className="title is-4 has-text-light">
+              {t("navigation.title")}
+            </span>
           </Link>
 
           <button
@@ -60,7 +65,7 @@ export const Navigation: React.FC = () => {
               <span className="icon">
                 <i className="fas fa-users"></i>
               </span>
-              <span>Unités</span>
+              <span>{t("navigation.units")}</span>
             </Link>
 
             <Link
@@ -73,8 +78,42 @@ export const Navigation: React.FC = () => {
               <span className="icon">
                 <i className="fas fa-shield-alt"></i>
               </span>
-              <span>Escouades</span>
+              <span>{t("navigation.squads")}</span>
             </Link>
+          </div>
+
+          <div className="navbar-end">
+            <div className="navbar-item has-dropdown is-hoverable">
+              <a className="navbar-link">
+                <span className="icon">
+                  <i className="fas fa-globe"></i>
+                </span>
+                <span>{t("navigation.language")}</span>
+              </a>
+              <div className="navbar-dropdown is-right">
+                <a
+                  className="navbar-item"
+                  onClick={() => i18n.changeLanguage("fr")}
+                  style={{ cursor: "pointer" }}
+                >
+                  <IgnoreTrans>🇫🇷 Français</IgnoreTrans>
+                </a>
+                <a
+                  className="navbar-item"
+                  onClick={() => i18n.changeLanguage("en")}
+                  style={{ cursor: "pointer" }}
+                >
+                  <IgnoreTrans>🇬🇧 English</IgnoreTrans>
+                </a>
+                <a
+                  className="navbar-item"
+                  onClick={() => i18n.changeLanguage("es")}
+                  style={{ cursor: "pointer" }}
+                >
+                  <IgnoreTrans>🇪🇸 Español</IgnoreTrans>
+                </a>
+              </div>
+            </div>
           </div>
         </div>
       </div>

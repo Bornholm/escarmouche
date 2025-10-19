@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router";
+import { useTranslation } from "react-i18next";
 import { Unit } from "../types";
 import { Card } from "../components/Card";
 
@@ -12,13 +13,14 @@ export const UnitsPage: React.FC<UnitsPageProps> = ({
   units,
   onDeleteUnit,
 }) => {
+  const { t } = useTranslation();
   return (
     <div className="container">
       <div className="section">
         <div className="level">
           <div className="level-left">
             <div className="level-item">
-              <h1 className="title">Unités</h1>
+              <h1 className="title">{t("units.title")}</h1>
             </div>
           </div>
           <div className="level-right">
@@ -27,7 +29,7 @@ export const UnitsPage: React.FC<UnitsPageProps> = ({
                 <span className="icon">
                   <i className="fas fa-plus"></i>
                 </span>
-                <span>Nouvelle unité</span>
+                <span>{t("units.newUnit")}</span>
               </Link>
             </div>
           </div>
@@ -35,9 +37,7 @@ export const UnitsPage: React.FC<UnitsPageProps> = ({
 
         {units.length === 0 ? (
           <div className="notification">
-            <p className="has-text-centered">
-              Aucune unité créée. Cliquez sur "Nouvelle unité" pour commencer.
-            </p>
+            <p className="has-text-centered">{t("units.noUnits")}</p>
           </div>
         ) : (
           <div className="columns is-multiline is-mobile">
@@ -58,7 +58,7 @@ export const UnitsPage: React.FC<UnitsPageProps> = ({
                       <span className="icon">
                         <i className="fas fa-edit"></i>
                       </span>
-                      <span>Modifier</span>
+                      <span>{t("units.edit")}</span>
                     </Link>
                     <button
                       onClick={() => onDeleteUnit(unit.id)}
@@ -67,7 +67,7 @@ export const UnitsPage: React.FC<UnitsPageProps> = ({
                       <span className="icon">
                         <i className="fas fa-trash"></i>
                       </span>
-                      <span>Supprimer</span>
+                      <span>{t("units.delete")}</span>
                     </button>
                   </footer>
                 </div>

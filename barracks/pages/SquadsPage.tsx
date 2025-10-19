@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router";
+import { useTranslation } from "react-i18next";
 import { Squad } from "../types";
 import { SquadCard } from "../components/SquadCard";
 
@@ -12,13 +13,14 @@ export const SquadsPage: React.FC<SquadsPageProps> = ({
   squads,
   onDeleteSquad,
 }) => {
+  const { t } = useTranslation();
   return (
     <div className="container">
       <div className="section">
         <div className="level">
           <div className="level-left">
             <div className="level-item">
-              <h1 className="title">Escouades</h1>
+              <h1 className="title">{t("squads.title")}</h1>
             </div>
           </div>
           <div className="level-right">
@@ -27,7 +29,7 @@ export const SquadsPage: React.FC<SquadsPageProps> = ({
                 <span className="icon">
                   <i className="fas fa-plus"></i>
                 </span>
-                <span>Nouvelle escouade</span>
+                <span>{t("squads.newSquad")}</span>
               </Link>
             </div>
           </div>
@@ -35,10 +37,7 @@ export const SquadsPage: React.FC<SquadsPageProps> = ({
 
         {squads.length === 0 ? (
           <div className="notification">
-            <p className="has-text-centered">
-              Aucune escouade créée. Cliquez sur "Nouvelle escouade" pour
-              commencer.
-            </p>
+            <p className="has-text-centered">{t("squads.noSquads")}</p>
           </div>
         ) : (
           <div className="columns is-multiline is-mobile">
@@ -63,7 +62,7 @@ export const SquadsPage: React.FC<SquadsPageProps> = ({
                       <span className="icon">
                         <i className="fas fa-edit"></i>
                       </span>
-                      <span>Modifier</span>
+                      <span>{t("squads.edit")}</span>
                     </Link>
                     <button
                       onClick={() => onDeleteSquad(squad.id)}
@@ -72,7 +71,7 @@ export const SquadsPage: React.FC<SquadsPageProps> = ({
                       <span className="icon">
                         <i className="fas fa-trash"></i>
                       </span>
-                      <span>Supprimer</span>
+                      <span>{t("squads.delete")}</span>
                     </button>
                   </footer>
                 </div>

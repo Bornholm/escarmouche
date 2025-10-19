@@ -1,0 +1,19 @@
+name: lint
+
+on:
+  push:
+
+jobs:
+  lint-translations:
+    runs-on: ubuntu-latest
+    env:
+      flags: ""
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v6
+        with:
+          node-version: lts/iron
+      - run: npm ci
+      - run: ./node_modules/.bin/i18next-cli lint

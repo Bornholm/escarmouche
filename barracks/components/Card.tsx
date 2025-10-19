@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { Evaluation, Unit } from "../types";
 import { useAsyncMemo } from "../hooks/useAsyncMemo";
 
@@ -19,6 +20,7 @@ export const Card: React.FC<CardProps> = ({
   },
   style,
 }) => {
+  const { t } = useTranslation();
   const evaluation = useAsyncMemo<Evaluation>(() => {
     return Barracks.evaluateUnit(unit);
   }, [unit]);
@@ -109,19 +111,21 @@ export const Card: React.FC<CardProps> = ({
             <span style={cardSubtitleStyle}>{evaluation?.rank}</span>
           </div>
           <div style={cardCharacteristicStyle}>
-            <span style={cardCharacteristicLabelStyle}>Health</span>
+            <span style={cardCharacteristicLabelStyle}>
+              {t("stats.health")}
+            </span>
             <span style={cardCharacteristicValueStyle}>{unit.health}</span>
           </div>
           <div style={cardCharacteristicStyle}>
-            <span style={cardCharacteristicLabelStyle}>Move</span>
+            <span style={cardCharacteristicLabelStyle}>{t("stats.move")}</span>
             <span style={cardCharacteristicValueStyle}>{unit.move}</span>
           </div>
           <div style={cardCharacteristicStyle}>
-            <span style={cardCharacteristicLabelStyle}>Range</span>
+            <span style={cardCharacteristicLabelStyle}>{t("stats.range")}</span>
             <span style={cardCharacteristicValueStyle}>{unit.range}</span>
           </div>
           <div style={cardCharacteristicStyle}>
-            <span style={cardCharacteristicLabelStyle}>Power</span>
+            <span style={cardCharacteristicLabelStyle}>{t("stats.power")}</span>
             <span style={cardCharacteristicValueStyle}>{unit.power}</span>
           </div>
           {unit.abilities?.length > 0 ? (

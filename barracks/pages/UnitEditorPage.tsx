@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router";
+import { useTranslation } from "react-i18next";
 import { Unit, Rank, Archetype, GeneratedUnit } from "../types";
 import { Card } from "../components/Card";
 import { generateId } from "../util/storage";
@@ -20,6 +21,7 @@ export const UnitEditorPage: React.FC<UnitEditorPageProps> = ({
   units,
   onSave,
 }) => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const isEditing = id !== "new";
@@ -184,7 +186,9 @@ export const UnitEditorPage: React.FC<UnitEditorPageProps> = ({
           <div className="level-left">
             <div className="level-item">
               <h1 className="title">
-                {isEditing ? "Modifier l'unité" : "Créer une nouvelle unité"}
+                {isEditing
+                  ? t("unitEditor.editUnit")
+                  : t("unitEditor.createUnit")}
               </h1>
             </div>
           </div>
@@ -194,7 +198,7 @@ export const UnitEditorPage: React.FC<UnitEditorPageProps> = ({
                 <span className="icon">
                   <i className="fas fa-arrow-left"></i>
                 </span>
-                <span>Retour</span>
+                <span>{t("unitEditor.back")}</span>
               </button>
             </div>
           </div>
@@ -205,11 +209,11 @@ export const UnitEditorPage: React.FC<UnitEditorPageProps> = ({
             <form onSubmit={handleSubmit}>
               {/* Random Unit Generation Section */}
               <div className="box">
-                <h2 className="subtitle">Génération aléatoire</h2>
+                <h2 className="subtitle">{t("unitEditor.randomGeneration")}</h2>
                 <div className="columns">
                   <div className="column">
                     <div className="field">
-                      <label className="label">Rang:</label>
+                      <label className="label">{t("unitEditor.rank")}</label>
                       <div className="control">
                         <div className="select is-fullwidth">
                           <select
@@ -218,11 +222,21 @@ export const UnitEditorPage: React.FC<UnitEditorPageProps> = ({
                               setSelectedRank(e.target.value as Rank)
                             }
                           >
-                            <option value={Rank.Trooper}>Trooper</option>
-                            <option value={Rank.Veteran}>Veteran</option>
-                            <option value={Rank.Elite}>Elite</option>
-                            <option value={Rank.Champion}>Champion</option>
-                            <option value={Rank.Paragon}>Paragon</option>
+                            <option value={Rank.Trooper}>
+                              {t("ranks.trooper")}
+                            </option>
+                            <option value={Rank.Veteran}>
+                              {t("ranks.veteran")}
+                            </option>
+                            <option value={Rank.Elite}>
+                              {t("ranks.elite")}
+                            </option>
+                            <option value={Rank.Champion}>
+                              {t("ranks.champion")}
+                            </option>
+                            <option value={Rank.Paragon}>
+                              {t("ranks.paragon")}
+                            </option>
                           </select>
                         </div>
                       </div>
@@ -230,7 +244,9 @@ export const UnitEditorPage: React.FC<UnitEditorPageProps> = ({
                   </div>
                   <div className="column">
                     <div className="field">
-                      <label className="label">Archétype:</label>
+                      <label className="label">
+                        {t("unitEditor.archetype")}
+                      </label>
                       <div className="control">
                         <div className="select is-fullwidth">
                           <select
@@ -240,16 +256,22 @@ export const UnitEditorPage: React.FC<UnitEditorPageProps> = ({
                             }
                           >
                             <option value={Archetype.JackOfAllTrades}>
-                              Jack of all trades
+                              {t("archetypes.jackofalltrades")}
                             </option>
-                            <option value={Archetype.Tank}>Tank</option>
-                            <option value={Archetype.Sniper}>Sniper</option>
+                            <option value={Archetype.Tank}>
+                              {t("archetypes.tank")}
+                            </option>
+                            <option value={Archetype.Sniper}>
+                              {t("archetypes.sniper")}
+                            </option>
                             <option value={Archetype.Skirmisher}>
-                              Skirmisher
+                              {t("archetypes.skirmisher")}
                             </option>
-                            <option value={Archetype.Bruiser}>Bruiser</option>
+                            <option value={Archetype.Bruiser}>
+                              {t("archetypes.bruiser")}
+                            </option>
                             <option value={Archetype.GlassCannon}>
-                              Glass Cannon
+                              {t("archetypes.glasscannon")}
                             </option>
                           </select>
                         </div>
@@ -268,8 +290,8 @@ export const UnitEditorPage: React.FC<UnitEditorPageProps> = ({
                       disabled={isGenerating}
                     >
                       {isGenerating
-                        ? "Génération..."
-                        : "Générer une unité aléatoire"}
+                        ? t("unitEditor.generating")
+                        : t("unitEditor.generateRandomUnit")}
                     </button>
                   </div>
                 </div>
@@ -277,10 +299,10 @@ export const UnitEditorPage: React.FC<UnitEditorPageProps> = ({
 
               {/* Unit Details */}
               <div className="box">
-                <h2 className="subtitle">Détails de l'unité</h2>
+                <h2 className="subtitle">{t("unitEditor.unitDetails")}</h2>
 
                 <div className="field">
-                  <label className="label">Nom:</label>
+                  <label className="label">{t("unitEditor.name")}</label>
                   <div className="control">
                     <input
                       className="input"
@@ -289,7 +311,7 @@ export const UnitEditorPage: React.FC<UnitEditorPageProps> = ({
                       onChange={(e) =>
                         handleInputChange("name", e.target.value)
                       }
-                      placeholder="Nom de l'unité"
+                      placeholder={t("unitEditor.unitNamePlaceholder")}
                       required
                     />
                   </div>
@@ -298,7 +320,7 @@ export const UnitEditorPage: React.FC<UnitEditorPageProps> = ({
                 <div className="columns">
                   <div className="column">
                     <div className="field">
-                      <label className="label">Health:</label>
+                      <label className="label">{t("unitEditor.health")}</label>
                       <div className="control">
                         <input
                           className="input"
@@ -319,7 +341,7 @@ export const UnitEditorPage: React.FC<UnitEditorPageProps> = ({
                   </div>
                   <div className="column">
                     <div className="field">
-                      <label className="label">Move:</label>
+                      <label className="label">{t("unitEditor.move")}</label>
                       <div className="control">
                         <input
                           className="input"
@@ -340,7 +362,7 @@ export const UnitEditorPage: React.FC<UnitEditorPageProps> = ({
                   </div>
                   <div className="column">
                     <div className="field">
-                      <label className="label">Range:</label>
+                      <label className="label">{t("unitEditor.range")}</label>
                       <div className="control">
                         <input
                           className="input"
@@ -361,7 +383,7 @@ export const UnitEditorPage: React.FC<UnitEditorPageProps> = ({
                   </div>
                   <div className="column">
                     <div className="field">
-                      <label className="label">Power:</label>
+                      <label className="label">{t("unitEditor.power")}</label>
                       <div className="control">
                         <input
                           className="input"
@@ -385,14 +407,14 @@ export const UnitEditorPage: React.FC<UnitEditorPageProps> = ({
 
               {/* Image Section */}
               <div className="box">
-                <h2 className="subtitle">Illustration</h2>
+                <h2 className="subtitle">{t("unitEditor.illustration")}</h2>
 
                 {formData.imageUrl && formData.imageUrl.startsWith("data:") ? (
                   <div className="notification">
                     <div className="level">
                       <div className="level-left">
                         <div className="level-item">
-                          <span>✓ Image personnalisée téléchargée</span>
+                          <span>{t("unitEditor.customImageUploaded")}</span>
                         </div>
                       </div>
                       <div className="level-right">
@@ -402,7 +424,7 @@ export const UnitEditorPage: React.FC<UnitEditorPageProps> = ({
                             onClick={handleRemoveCustomImage}
                             className="button is-small is-danger"
                           >
-                            Supprimer
+                            {t("unitEditor.delete")}
                           </button>
                         </div>
                       </div>
@@ -412,7 +434,7 @@ export const UnitEditorPage: React.FC<UnitEditorPageProps> = ({
                   <>
                     <div className="field">
                       <label className="label">
-                        Télécharger une image personnalisée:
+                        {t("unitEditor.uploadCustomImage")}
                       </label>
                       <div className="control">
                         <input
@@ -426,20 +448,18 @@ export const UnitEditorPage: React.FC<UnitEditorPageProps> = ({
                       </div>
                       {isUploadingImage && (
                         <p className="help is-info">
-                          Téléchargement en cours...
+                          {t("unitEditor.uploading")}
                         </p>
                       )}
                       {uploadError && (
                         <p className="help is-danger">{uploadError}</p>
                       )}
-                      <p className="help">
-                        Formats supportés: JPG, PNG, GIF, WebP (max 5MB)
-                      </p>
+                      <p className="help">{t("unitEditor.supportedFormats")}</p>
                     </div>
 
                     <div className="field">
                       <label className="label">
-                        Ou choisir une illustration prédéfinie:
+                        {t("unitEditor.orChoosePredefined")}
                       </label>
                       <div className="control">
                         <div className="select is-fullwidth">
@@ -453,22 +473,22 @@ export const UnitEditorPage: React.FC<UnitEditorPageProps> = ({
                             }
                           >
                             <option value={`${BASE_URL}/templar_knight.png`}>
-                              Templar Knight
+                              {t("predefinedUnits.templarKnight")}
                             </option>
                             <option value={`${BASE_URL}/elven_archer.png`}>
-                              Elven Archer
+                              {t("predefinedUnits.elvenArcher")}
                             </option>
                             <option value={`${BASE_URL}/fire_mage.png`}>
-                              Fire Mage
+                              {t("predefinedUnits.fireMage")}
                             </option>
                             <option value={`${BASE_URL}/orc_javelin.png`}>
-                              Orc Skirmisher
+                              {t("predefinedUnits.orcSkirmisher")}
                             </option>
                             <option value={`${BASE_URL}/orc_shaman.png`}>
-                              Orc Shaman
+                              {t("predefinedUnits.orcShaman")}
                             </option>
                             <option value={`${BASE_URL}/orc_warrior.png`}>
-                              Orc Warrior
+                              {t("predefinedUnits.orcWarrior")}
                             </option>
                           </select>
                         </div>
@@ -482,7 +502,7 @@ export const UnitEditorPage: React.FC<UnitEditorPageProps> = ({
 
           <div className="column is-4">
             <div className="box">
-              <h2 className="subtitle">Prévisualisation</h2>
+              <h2 className="subtitle">{t("unitEditor.preview")}</h2>
               <div className="is-flex is-justify-content-center pb-5">
                 <Card unit={formData} />
               </div>
@@ -494,10 +514,10 @@ export const UnitEditorPage: React.FC<UnitEditorPageProps> = ({
                 onClick={handleCancel}
                 className="button is-warning"
               >
-                Annuler
+                {t("unitEditor.cancel")}
               </button>
               <button type="submit" className="button is-primary">
-                {isEditing ? "Enregistrer" : "Créer"}
+                {isEditing ? t("unitEditor.save") : t("unitEditor.create")}
               </button>
             </div>
           </div>

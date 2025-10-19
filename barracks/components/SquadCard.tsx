@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { Squad } from "../types";
 
 interface SquadCardProps {
@@ -12,6 +13,7 @@ export const SquadCard: React.FC<SquadCardProps> = ({
   onEdit,
   onDelete,
 }) => {
+  const { t } = useTranslation();
   return (
     <div
       className="box"
@@ -32,7 +34,8 @@ export const SquadCard: React.FC<SquadCardProps> = ({
               <div>
                 <h3 className="title is-5 has-text-dark mb-1">{squad.name}</h3>
                 <p className="subtitle is-6 has-text-grey is-italic">
-                  {squad.units.length}/{Barracks.MaxSquadSize} unités
+                  {squad.units.length}/{Barracks.MaxSquadSize}{" "}
+                  {t("squads.units")}
                 </p>
               </div>
             </div>
@@ -42,7 +45,7 @@ export const SquadCard: React.FC<SquadCardProps> = ({
         <div className="content has-text-dark">
           {squad.units.length === 0 ? (
             <p className="has-text-grey is-italic">
-              Aucune unité dans cette escouade
+              {t("squads.noUnitsInSquad")}
             </p>
           ) : (
             <ul>
@@ -78,7 +81,7 @@ export const SquadCard: React.FC<SquadCardProps> = ({
               <button
                 onClick={onEdit}
                 className="button is-success is-small"
-                title="Modifier l'escouade"
+                title={t("squads.editSquad")}
               >
                 <span className="icon is-small">
                   <i className="fas fa-edit"></i>
@@ -89,7 +92,7 @@ export const SquadCard: React.FC<SquadCardProps> = ({
               <button
                 onClick={onDelete}
                 className="button is-danger is-small"
-                title="Supprimer l'escouade"
+                title={t("squads.deleteSquad")}
               >
                 <span className="icon is-small">
                   <i className="fas fa-trash"></i>

@@ -10,6 +10,7 @@ import { Unit, Squad } from "../types";
 import { loadUnits, saveUnits, loadSquads, saveSquads } from "../util/storage";
 import { DefaultUnits } from "../util/defaults";
 import { BASE_URL } from "../util/baseUrl";
+import "../i18n"; // Initialize i18n
 
 export const App: React.FC = () => {
   const [units, setUnits] = useState<Unit[]>([]);

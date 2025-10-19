@@ -22,6 +22,7 @@ wasm-lib:
 barracks-app:
 	rm -rf dist/barracks
 	mkdir -p dist/barracks
+	npx i18next-cli extract --sync-primary
 	$(MAKE) wasm-lib
 	npx parcel build --no-cache --public-url "./" --dist-dir dist/barracks  ./barracks/index.html
 

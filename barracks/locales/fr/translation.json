@@ -1,0 +1,107 @@
+{
+  "archetypes": {
+    "bruiser": "Bruiser",
+    "glasscannon": "Glass Cannon",
+    "jackofalltrades": "Jack of all trades",
+    "skirmisher": "Skirmisher",
+    "sniper": "Sniper",
+    "tank": "Tank"
+  },
+  "navigation": {
+    "language": "Langue",
+    "squads": "Escouades",
+    "title": "La Caserne",
+    "units": "Unités"
+  },
+  "predefinedUnits": {
+    "elvenArcher": "Elven Archer",
+    "fireMage": "Fire Mage",
+    "orcShaman": "Orc Shaman",
+    "orcSkirmisher": "Orc Skirmisher",
+    "orcWarrior": "Orc Warrior",
+    "templarKnight": "Templar Knight"
+  },
+  "ranks": {
+    "champion": "Champion",
+    "elite": "Elite",
+    "paragon": "Paragon",
+    "trooper": "Trooper",
+    "veteran": "Veteran"
+  },
+  "squadEditor": {
+    "availableUnits": "Unités disponibles",
+    "back": "Retour",
+    "cancel": "Annuler",
+    "clickToAdd": "Cliquez sur les unités ci-dessous pour les ajouter à votre escouade",
+    "clickToAddUnit": "Cliquer pour ajouter",
+    "composition": "Composition:",
+    "create": "Créer",
+    "createSquad": "Créer une nouvelle escouade",
+    "currentSquad": "Escouade actuelle",
+    "edit": "Modifier",
+    "editSquad": "Modifier l'escouade",
+    "noAvailableUnits": "Aucune unité disponible. Créez d'abord des unités dans la section Unités.",
+    "rankPoints": "Points de rang:",
+    "remove": "Retirer",
+    "size": "Taille:",
+    "squadDetails": "Détails de l'escouade",
+    "squadFull": "Escouade complète",
+    "squadName": "Nom de l'escouade:",
+    "squadNamePlaceholder": "Mon escouade...",
+    "statistics": "Statistiques",
+    "tooManyRankPoints": "Trop de points de rang utilisés.",
+    "tooManyUnits": "Trop d'unités dans l'escouade."
+  },
+  "squads": {
+    "delete": "Supprimer",
+    "deleteSquad": "Supprimer l'escouade",
+    "edit": "Modifier",
+    "editSquad": "Modifier l'escouade",
+    "newSquad": "Nouvelle escouade",
+    "noSquads": "Aucune escouade créée. Cliquez sur \"Nouvelle escouade\" pour commencer.",
+    "noUnitsInSquad": "Aucune unité dans cette escouade",
+    "title": "Escouades",
+    "units": "unités"
+  },
+  "stats": {
+    "health": "Santé",
+    "move": "Mouv.",
+    "power": "Puiss.",
+    "range": "Portée"
+  },
+  "unitEditor": {
+    "archetype": "Archétype:",
+    "back": "Retour",
+    "cancel": "Annuler",
+    "create": "Créer",
+    "createUnit": "Créer une nouvelle unité",
+    "customImageUploaded": "✓ Image personnalisée téléchargée",
+    "delete": "Supprimer",
+    "editUnit": "Modifier l'unité",
+    "generateRandomUnit": "Générer une unité aléatoire",
+    "generating": "Génération...",
+    "health": "Santé:",
+    "illustration": "Illustration",
+    "move": "Move:",
+    "name": "Nom:",
+    "orChoosePredefined": "Ou choisir une illustration prédéfinie:",
+    "power": "Power:",
+    "preview": "Prévisualisation",
+    "randomGeneration": "Génération aléatoire",
+    "range": "Range:",
+    "rank": "Rang:",
+    "save": "Enregistrer",
+    "supportedFormats": "Formats supportés: JPG, PNG, GIF, WebP (max 5MB)",
+    "unitDetails": "Détails de l'unité",
+    "unitNamePlaceholder": "Nom de l'unité",
+    "uploadCustomImage": "Télécharger une image personnalisée:",
+    "uploading": "Téléchargement en cours..."
+  },
+  "units": {
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "newUnit": "Nouvelle unité",
+    "noUnits": "Aucune unité créée. Cliquez sur \"Nouvelle unité\" pour commencer.",
+    "title": "Unités"
+  }
+}

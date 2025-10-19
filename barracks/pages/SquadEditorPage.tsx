@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate, useParams } from "react-router";
+import { useTranslation } from "react-i18next";
 import { Squad, Unit } from "../types";
 import { Card } from "../components/Card";
 import { generateId } from "../util/storage";
@@ -16,6 +17,7 @@ export const SquadEditorPage: React.FC<SquadEditorPageProps> = ({
   availableUnits,
   onSave,
 }) => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const isEditing = id !== "new";
@@ -111,8 +113,8 @@ export const SquadEditorPage: React.FC<SquadEditorPageProps> = ({
             <div className="level-item">
               <h1 className="title">
                 {isEditing
-                  ? "Modifier l'escouade"
-                  : "Créer une nouvelle escouade"}
+                  ? t("squadEditor.editSquad")
+                  : t("squadEditor.createSquad")}
               </h1>
             </div>
           </div>
@@ -122,7 +124,7 @@ export const SquadEditorPage: React.FC<SquadEditorPageProps> = ({
                 <span className="icon">
                   <i className="fas fa-arrow-left"></i>
                 </span>
-                <span>Retour</span>
+                <span>{t("squadEditor.back")}</span>
               </button>
             </div>
           </div>
@@ -133,16 +135,16 @@ export const SquadEditorPage: React.FC<SquadEditorPageProps> = ({
             <div className="column is-8">
               {/* Squad Details */}
               <div className="box">
-                <h2 className="subtitle">Détails de l'escouade</h2>
+                <h2 className="subtitle">{t("squadEditor.squadDetails")}</h2>
                 <div className="field">
-                  <label className="label">Nom de l'escouade:</label>
+                  <label className="label">{t("squadEditor.squadName")}</label>
                   <div className="control">
                     <input
                       className="input"
                       type="text"
                       value={formData.name}
                       onChange={(e) => handleNameChange(e.target.value)}
-                      placeholder="Mon escouade..."
+                      placeholder={t("squadEditor.squadNamePlaceholder")}
                       required
                     />
                   </div>
@@ -151,13 +153,10 @@ export const SquadEditorPage: React.FC<SquadEditorPageProps> = ({
 
               {/* Current Squad */}
               <div className="box">
-                <h2 className="subtitle">Escouade actuelle</h2>
+                <h2 className="subtitle">{t("squadEditor.currentSquad")}</h2>
                 {formData.units.length === 0 ? (
                   <div className="notification">
-                    <p>
-                      Cliquez sur les unités ci-dessous pour les ajouter à votre
-                      escouade
-                    </p>
+                    <p>{t("squadEditor.clickToAdd")}</p>
                   </div>
                 ) : (
                   <div className="columns is-multiline is-mobile">
@@ -182,7 +181,7 @@ export const SquadEditorPage: React.FC<SquadEditorPageProps> = ({
                               <span className="icon">
                                 <i className="fas fa-times"></i>
                               </span>
-                              <span>Retirer</span>
+                              <span>{t("squadEditor.remove")}</span>
                             </button>
                           </footer>
                         </div>
@@ -194,13 +193,10 @@ export const SquadEditorPage: React.FC<SquadEditorPageProps> = ({
 
               {/* Available Units */}
               <div className="box">
-                <h2 className="subtitle">Unités disponibles</h2>
+                <h2 className="subtitle">{t("squadEditor.availableUnits")}</h2>
                 {availableUnits.length === 0 ? (
                   <div className="notification is-warning">
-                    <p>
-                      Aucune unité disponible. Créez d'abord des unités dans la
-                      section Unités.
-                    </p>
+                    <p>{t("squadEditor.noAvailableUnits")}</p>
                   </div>
                 ) : (
                   <div className="columns is-multiline is-mobile">
@@ -236,8 +232,8 @@ export const SquadEditorPage: React.FC<SquadEditorPageProps> = ({
                           <footer className="card-footer">
                             <div className="card-footer-item">
                               {formData.units.length >= Barracks.MaxSquadSize
-                                ? "Escouade complète"
-                                : "Cliquer pour ajouter"}
+                                ? t("squadEditor.squadFull")
+                                : t("squadEditor.clickToAddUnit")}
                             </div>
                           </footer>
                         </div>
@@ -251,7 +247,7 @@ export const SquadEditorPage: React.FC<SquadEditorPageProps> = ({
             <div className="column is-4">
               {/* Squad Stats */}
               <div className="box">
-                <h2 className="subtitle">Statistiques</h2>
+                <h2 className="subtitle">{t("squadEditor.statistics")}</h2>
                 <div className="content">
                   <p>
                     <strong
@@ -261,19 +257,20 @@ export const SquadEditorPage: React.FC<SquadEditorPageProps> = ({
                           : "has-text-success"
                       }
                     >
-                      Points de rang: {totalRankPoints}/
+                      {t("squadEditor.rankPoints")} {totalRankPoints}/
                       {Barracks.MaxSquadRankPoints}
                     </strong>
                   </p>
                   <p>
                     <strong>
-                      Taille: {formData.units.length}/{Barracks.MaxSquadSize}
+                      {t("squadEditor.size")} {formData.units.length}/
+                      {Barracks.MaxSquadSize}
                     </strong>
                   </p>
                   {Object.keys(composition).length > 0 && (
                     <>
                       <p>
-                        <strong>Composition:</strong>
+                        <strong>{t("squadEditor.composition")}</strong>
                       </p>
                       <ul>
                         {Object.keys(composition).map((rank) => (
@@ -296,7 +293,9 @@ export const SquadEditorPage: React.FC<SquadEditorPageProps> = ({
                       className="button is-fullwidth"
                       disabled={!isValid}
                     >
-                      {isEditing ? "Modifier" : "Créer"}
+                      {isEditing
+                        ? t("squadEditor.edit")
+                        : t("squadEditor.create")}
                     </button>
                   </div>
                   <div className="control">
@@ -305,7 +304,7 @@ export const SquadEditorPage: React.FC<SquadEditorPageProps> = ({
                       onClick={handleCancel}
                       className="button is-fullwidth"
                     >
-                      Annuler
+                      {t("squadEditor.cancel")}
                     </button>
                   </div>
                 </div>
@@ -313,9 +312,9 @@ export const SquadEditorPage: React.FC<SquadEditorPageProps> = ({
                   <div className="notification is-danger is-light">
                     <p className="is-size-7">
                       {totalRankPoints > Barracks.MaxSquadRankPoints &&
-                        "Trop de points de rang utilisés. "}
+                        t("squadEditor.tooManyRankPoints") + " "}
                       {formData.units.length > Barracks.MaxSquadSize &&
-                        "Trop d'unités dans l'escouade. "}
+                        t("squadEditor.tooManyUnits") + " "}
                     </p>
                   </div>
                 )}
