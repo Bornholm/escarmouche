@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router";
 import "bulma/css/bulma.min.css";
 import { Navigation } from "./Navigation";
@@ -9,6 +9,7 @@ import { SquadEditorPage } from "../pages/SquadEditorPage";
 import { Unit, Squad } from "../types";
 import { loadUnits, saveUnits, loadSquads, saveSquads } from "../util/storage";
 import { DefaultUnits } from "../util/defaults";
+import { BASE_URL } from "../util/baseUrl";
 
 export const App: React.FC = () => {
   const [units, setUnits] = useState<Unit[]>([]);
@@ -77,8 +78,13 @@ export const App: React.FC = () => {
     setSquads((prev) => prev.filter((s) => s.id !== squadId));
   };
 
+  const basePath: string = useMemo(() => {
+    const url = new URL(BASE_URL);
+    return url.pathname;
+  }, [BASE_URL]);
+
   return (
-    <Router>
+    <Router basename={basePath}>
       <div
         className="app has-background-dark has-text-light"
         style={{ minHeight: "100vh" }}
