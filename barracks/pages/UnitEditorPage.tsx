@@ -9,6 +9,7 @@ import {
   resizeImage,
 } from "../components/imageUtils";
 import { BASE_URL } from "../util/baseUrl";
+import { useAsyncMemo } from "../hooks/useAsyncMemo";
 
 interface UnitEditorPageProps {
   units: Unit[];
@@ -476,23 +477,6 @@ export const UnitEditorPage: React.FC<UnitEditorPageProps> = ({
                   </>
                 )}
               </div>
-
-              <div className="field is-grouped">
-                <div className="control">
-                  <button type="submit" className="button">
-                    {isEditing ? "Modifier" : "Créer"}
-                  </button>
-                </div>
-                <div className="control">
-                  <button
-                    type="button"
-                    onClick={handleCancel}
-                    className="button"
-                  >
-                    Annuler
-                  </button>
-                </div>
-              </div>
             </form>
           </div>
 
@@ -502,6 +486,19 @@ export const UnitEditorPage: React.FC<UnitEditorPageProps> = ({
               <div className="is-flex is-justify-content-center pb-5">
                 <Card unit={formData} />
               </div>
+            </div>
+
+            <div className="buttons is-centered are-medium">
+              <button
+                type="button"
+                onClick={handleCancel}
+                className="button is-warning"
+              >
+                Annuler
+              </button>
+              <button type="submit" className="button is-primary">
+                {isEditing ? "Enregistrer" : "Créer"}
+              </button>
             </div>
           </div>
         </div>

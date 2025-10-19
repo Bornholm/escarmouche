@@ -153,7 +153,7 @@ export const SquadEditorPage: React.FC<SquadEditorPageProps> = ({
               <div className="box">
                 <h2 className="subtitle">Escouade actuelle</h2>
                 {formData.units.length === 0 ? (
-                  <div className="notification is-info">
+                  <div className="notification">
                     <p>
                       Cliquez sur les unités ci-dessous pour les ajouter à votre
                       escouade
@@ -164,10 +164,7 @@ export const SquadEditorPage: React.FC<SquadEditorPageProps> = ({
                     {formData.units.map((unit) => (
                       <div key={unit.id} className="column is-narrow">
                         <div className="card">
-                          <div
-                            className="card-content is-flex is-justify-content-center"
-                            style={{ padding: "0.5rem" }}
-                          >
+                          <div className="card-content is-flex is-justify-content-center p-0">
                             <div
                               style={{
                                 transform: "scale(0.7)",
@@ -227,10 +224,7 @@ export const SquadEditorPage: React.FC<SquadEditorPageProps> = ({
                                 : "pointer",
                           }}
                         >
-                          <div
-                            className="card-content is-flex is-justify-content-center"
-                            style={{ padding: "0.5rem" }}
-                          >
+                          <div className="card-content is-flex is-justify-content-center p-0">
                             <div
                               style={{
                                 transform: "scale(0.7)",
@@ -302,7 +296,7 @@ export const SquadEditorPage: React.FC<SquadEditorPageProps> = ({
                       className="button is-fullwidth"
                       disabled={!isValid}
                     >
-                      {isEditing ? "Mettre à jour" : "Créer"}
+                      {isEditing ? "Modifier" : "Créer"}
                     </button>
                   </div>
                   <div className="control">

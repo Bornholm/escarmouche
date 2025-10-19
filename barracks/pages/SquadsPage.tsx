@@ -48,7 +48,7 @@ export const SquadsPage: React.FC<SquadsPageProps> = ({
                 className="column is-12-mobile is-6-tablet is-4-desktop"
               >
                 <div className="card">
-                  <div className="card-content">
+                  <div className="card-content is-flex is-justify-content-center">
                     <SquadCard
                       squad={squad}
                       onEdit={() => {}}
