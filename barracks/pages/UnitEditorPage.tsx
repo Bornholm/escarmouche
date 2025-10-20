@@ -13,6 +13,7 @@ import { BASE_URL } from "../util/baseUrl";
 import { useAsyncMemo } from "../hooks/useAsyncMemo";
 import { IgnoreTrans } from "../components/IgnoreTrans";
 import { fork } from "child_process";
+import { normalizeLocale } from "../util/locale";
 
 interface UnitEditorPageProps {
   units: Unit[];
@@ -50,9 +51,7 @@ export const UnitEditorPage: React.FC<UnitEditorPageProps> = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const availableAbilities = useAsyncMemo(() => {
-    return Barracks.getAvailableAbilities(
-      `${i18n.language}-${i18n.language.toUpperCase()}`
-    );
+    return Barracks.getAvailableAbilities(normalizeLocale(i18n.language));
   }, [i18n.language]);
 
   const evaluation = useAsyncMemo(

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link, useLocation } from "react-router";
 import { useTranslation } from "react-i18next";
 import { IgnoreTrans } from "./IgnoreTrans";
+import { normalizeLocale } from "../util/locale";
 
 export const Navigation: React.FC = () => {
   const { t, i18n } = useTranslation();
@@ -86,9 +87,9 @@ export const Navigation: React.FC = () => {
 
             <Link
               target="_blank"
-              to={`https://bornholm.github.io/escarmouche/${
+              to={`https://bornholm.github.io/escarmouche/${normalizeLocale(
                 i18n.language
-              }-${i18n.language.toUpperCase()}/`}
+              )}/`}
               className={`navbar-item`}
               onClick={closeBurger}
             >
