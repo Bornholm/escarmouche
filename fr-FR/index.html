@@ -156,7 +156,8 @@
 <ul>
 <li>Les 2 actions peuvent être effectuées par la <strong>même unité</strong> ou <strong>réparties</strong> sur 2 unités différentes</li>
 <li>Une même unité peut effectuer plusieurs actions dans le tour</li>
-<li><strong>Restriction</strong> : Une unité ne peut effectuer qu'<strong>1 seule attaque par tour</strong> ou n'activer qu'<strong>1 seule capacité par tour</strong></li>
+<li><strong>Restriction</strong> : Une unité ne peut effectuer qu'<strong>1 seule attaque par tour</strong> et n'activer qu'<strong>1 seule capacité par tour</strong></li>
+<li>Une unité peut donc <strong>attaquer et utiliser une capacité</strong> dans le même tour (si chacune est effectuée comme une action séparée)</li>
 </ul>
 <h4 id="combat">Combat</h4>
 <h5 id="attaque">Attaque</h5>
@@ -187,10 +188,43 @@
 </ul>
 <h5 id="capacits-spciales">Capacités spéciales</h5>
 <ul>
-<li>Les capacités remplacent l'action d'Attaque quand utilisées</li>
-<li>Référez-vous au texte spécifique de chaque carte de capacité</li>
-<li>Certaines capacités peuvent modifier les règles standard</li>
+<li>Les capacités constituent un <strong>troisième type d'action</strong>, distinct du Mouvement et de l'Attaque</li>
+<li>Référez-vous au texte spécifique de chaque carte de capacité pour ses effets</li>
+<li>Certaines capacités peuvent modifier les règles standard ou appliquer des effets de statut</li>
 </ul>
+<h5 id="effets-de-statut">Effets de statut</h5>
+<p>Certaines capacités appliquent des effets persistants sur les unités :</p>
+<table>
+<thead>
+<tr>
+<th>Effet</th>
+<th>Source</th>
+<th>Conséquence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Suppression</strong></td>
+<td>Tir de Suppression</td>
+<td>L'unité ciblée ne peut effectuer aucune action lors de son prochain tour</td>
+</tr>
+<tr>
+<td><strong>Inciblable</strong></td>
+<td>Repli Tactique</td>
+<td>L'unité ne peut pas être ciblée par des attaques jusqu'à la fin du tour adverse</td>
+</tr>
+<tr>
+<td><strong>Surcharge</strong></td>
+<td>Surcharge</td>
+<td>L'unité ne peut pas attaquer lors de son prochain tour</td>
+</tr>
+<tr>
+<td><strong>Protection</strong></td>
+<td>Gardien</td>
+<td>Les dégâts reçus par une unité alliée adjacente sont redirigés vers l'unité gardienne jusqu'au début de son prochain tour</td>
+</tr>
+</tbody>
+</table>
 <h3 id="capacits">Capacités</h3>
 <p></p>
 <h4 id="00000-charge">1. Charge</h4>
