@@ -14,15 +14,15 @@ type Costs struct {
 }
 
 var DefaultCosts = Costs{
-	HealthFactor: 1,
+	HealthFactor: 1.0,
 
-	RangeFactor:   2,
+	RangeFactor:   2.0,
 	RangeExponent: 1.1,
 
-	MoveFactor:   1,
+	MoveFactor:   1.0,
 	MoveExponent: 1.1,
 
-	PowerFactor:   3,
+	PowerFactor:   1.5,
 	PowerExponent: 1.2,
 
 	MaxTotal: 30,

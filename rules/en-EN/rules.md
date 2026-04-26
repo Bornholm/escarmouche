@@ -67,7 +67,8 @@ On their turn, the active player performs **exactly 2 actions** from:
 
 - The 2 actions can be performed by the **same unit** or **distributed** across 2 different units
 - The same unit can perform multiple actions in the turn
-- **Restriction**: A unit can only perform **1 attack per turn** or activate **1 ability per turn**
+- **Restriction**: A unit can only perform **1 attack per turn** and activate **1 ability per turn**
+- A unit may therefore **attack and use an ability** in the same turn (if each is performed as a separate action)
 
 ## Combat
 
@@ -105,6 +106,17 @@ The first player to eliminate **all enemy units** wins the game.
 
 ### Special Abilities
 
-- Abilities replace the Attack action when used
-- Refer to the specific text of each ability card
-- Some abilities may modify standard rules
+- Abilities are a **third type of action**, distinct from Movement and Attack
+- Refer to the specific text of each ability card for its effects
+- Some abilities may modify standard rules or apply status effects
+
+### Status Effects
+
+Some abilities apply persistent effects to units:
+
+| Effect | Source | Consequence |
+| ------ | ------ | ----------- |
+| **Suppressed** | Suppressing Fire | The targeted unit cannot perform any action on its next turn |
+| **Untargetable** | Tactical Retreat | The unit cannot be targeted by attacks until the end of the opponent's turn |
+| **Overcharged** | Overcharge | The unit cannot attack on its next turn |
+| **Protected** | Guardian | Damage received by an adjacent allied unit is redirected to the guardian unit until the start of its next turn |

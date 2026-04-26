@@ -67,7 +67,8 @@ En su turno, el jugador activo realiza **exactamente 2 acciones** entre:
 
 - Las 2 acciones pueden ser realizadas por la **misma unidad** o **repartidas** en 2 unidades diferentes
 - Una misma unidad puede realizar varias acciones en el turno
-- **Restricción**: Una unidad solo puede realizar **1 solo ataque por turno** o activar **1 sola habilidad por turno**
+- **Restricción**: Una unidad solo puede realizar **1 solo ataque por turno** y activar **1 sola habilidad por turno**
+- Una unidad puede por tanto **atacar y usar una habilidad** en el mismo turno (si cada una se realiza como una acción separada)
 
 ## Combate
 
@@ -105,6 +106,17 @@ El primer jugador en eliminar **todas las unidades adversarias** gana la partida
 
 ### Habilidades especiales
 
-- Las habilidades reemplazan la acción de Ataque cuando se usan
-- Consulta el texto específico de cada carta de habilidad
-- Algunas habilidades pueden modificar las reglas estándar
+- Las habilidades constituyen un **tercer tipo de acción**, distinto del Movimiento y del Ataque
+- Consulta el texto específico de cada carta de habilidad para sus efectos
+- Algunas habilidades pueden modificar las reglas estándar o aplicar efectos de estado
+
+### Efectos de estado
+
+Algunas habilidades aplican efectos persistentes sobre las unidades:
+
+| Efecto | Fuente | Consecuencia |
+| ------ | ------ | ------------ |
+| **Suprimida** | Fuego de Supresión | La unidad objetivo no puede realizar ninguna acción en su próximo turno |
+| **No objetivo** | Retirada Táctica | La unidad no puede ser objetivo de ataques hasta el final del turno adversario |
+| **Sobrecargada** | Sobrecarga | La unidad no puede atacar en su próximo turno |
+| **Protegida** | Guardián | Los daños recibidos por una unidad aliada adyacente son redirigidos hacia la unidad guardiana hasta el inicio de su próximo turno |

@@ -391,7 +391,7 @@ func (e *Evaluator) tournamentWorker(ctx context.Context, wg *sync.WaitGroup, sq
 
 // runSingleGame executes a single simulation between two squads
 func (e *Evaluator) runSingleGame(ctx context.Context, squad1, squad2 []sim.Unit, config FitnessConfig) (sim.PlayerID, error) {
-	game := sim.NewGame(squad1, squad2)
+	game := sim.NewGame(squad1, squad2, sim.WithLookaheadDepth(1))
 
 	for step := range game.Run() {
 		select {
@@ -595,49 +595,47 @@ func (e *Evaluator) crossover(parent1, parent2 Individual) (Individual, Individu
 	if rand.Float64() < 0.5 {
 		child1.Costs.PowerExponent, child2.Costs.PowerExponent = child2.Costs.PowerExponent, child1.Costs.PowerExponent
 	}
-	if rand.Float64() < 0.5 {
-		child1.Costs.MaxTotal, child2.Costs.MaxTotal = child2.Costs.MaxTotal, child1.Costs.MaxTotal
-	}
-
 	return child1, child2
 }
 
-// mutate applies random mutations to an individual
+// mutate applies random mutations to an individual with adaptive step sizes.
+// Step sizes shrink as generations progress (starts at 100%, decays to 10%).
 func (e *Evaluator) mutate(individual Individual) Individual {
 	mutated := Individual{Costs: individual.Costs, Fitness: 0}
 
-	// Mutate each parameter with probability mutationRate
+	progress := 0.0
+	if e.maxGenerations > 0 {
+		progress = float64(e.generation) / float64(e.maxGenerations)
+	}
+	adaptiveFactor := 1.0 - 0.9*progress
+
 	if rand.Float64() < e.mutationRate {
-		mutated.Costs.HealthFactor += (rand.Float64() - 0.5) * 0.2
+		mutated.Costs.HealthFactor += (rand.Float64()-0.5) * 0.2 * adaptiveFactor
 		mutated.Costs.HealthFactor = math.Max(0.1, math.Min(5.0, mutated.Costs.HealthFactor))
 	}
 	if rand.Float64() < e.mutationRate {
-		mutated.Costs.RangeFactor += (rand.Float64() - 0.5) * 0.4
+		mutated.Costs.RangeFactor += (rand.Float64()-0.5) * 0.4 * adaptiveFactor
 		mutated.Costs.RangeFactor = math.Max(0.1, math.Min(8.0, mutated.Costs.RangeFactor))
 	}
 	if rand.Float64() < e.mutationRate {
-		mutated.Costs.RangeExponent += (rand.Float64() - 0.5) * 0.1
+		mutated.Costs.RangeExponent += (rand.Float64()-0.5) * 0.1 * adaptiveFactor
 		mutated.Costs.RangeExponent = math.Max(1.0, math.Min(2.0, mutated.Costs.RangeExponent))
 	}
 	if rand.Float64() < e.mutationRate {
-		mutated.Costs.MoveFactor += (rand.Float64() - 0.5) * 0.2
+		mutated.Costs.MoveFactor += (rand.Float64()-0.5) * 0.2 * adaptiveFactor
 		mutated.Costs.MoveFactor = math.Max(0.1, math.Min(5.0, mutated.Costs.MoveFactor))
 	}
 	if rand.Float64() < e.mutationRate {
-		mutated.Costs.MoveExponent += (rand.Float64() - 0.5) * 0.1
+		mutated.Costs.MoveExponent += (rand.Float64()-0.5) * 0.1 * adaptiveFactor
 		mutated.Costs.MoveExponent = math.Max(1.0, math.Min(2.0, mutated.Costs.MoveExponent))
 	}
 	if rand.Float64() < e.mutationRate {
-		mutated.Costs.PowerFactor += (rand.Float64() - 0.5) * 0.4
+		mutated.Costs.PowerFactor += (rand.Float64()-0.5) * 0.4 * adaptiveFactor
 		mutated.Costs.PowerFactor = math.Max(0.1, math.Min(10.0, mutated.Costs.PowerFactor))
 	}
 	if rand.Float64() < e.mutationRate {
-		mutated.Costs.PowerExponent += (rand.Float64() - 0.5) * 0.1
+		mutated.Costs.PowerExponent += (rand.Float64()-0.5) * 0.1 * adaptiveFactor
 		mutated.Costs.PowerExponent = math.Max(1.0, math.Min(2.0, mutated.Costs.PowerExponent))
-	}
-	if rand.Float64() < e.mutationRate {
-		mutated.Costs.MaxTotal += (rand.Float64() - 0.5) * 4.0
-		mutated.Costs.MaxTotal = math.Max(10.0, math.Min(60.0, mutated.Costs.MaxTotal))
 	}
 
 	return mutated

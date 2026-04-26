@@ -122,6 +122,18 @@ func (g *Game) Run() iter.Seq[GameStep] {
 			g.state.ActionsLeft = 2
 
 			g.state.DelAll(CounterRoundAttacks)
+			g.state.DelAll(CounterRoundAbilities)
+
+			for _, unit := range g.state.Units {
+				for _, counter := range []string{CounterSuppressed, CounterUntargetable, CounterOvercharged} {
+					if v := g.state.Get(unit.ID, counter, 0); v > 0 {
+						g.state.Inc(unit.ID, counter, -1)
+					}
+				}
+				if unit.OwnerID == playerID {
+					g.state.Del(unit.ID, CounterGuardianOf)
+				}
+			}
 
 			for range g.state.ActionsLeft {
 				g.state.ActionsLeft--

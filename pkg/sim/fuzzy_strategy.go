@@ -1,8 +1,6 @@
 package sim
 
 import (
-	"math/rand"
-
 	"github.com/bornholm/escarmouche/pkg/core"
 )
 
@@ -40,10 +38,6 @@ func findBestFuzzyAction(state GameState, playerID PlayerID) Action {
 		for _, action := range possibleActions {
 			futureState := action.Apply(state.Copy())
 			score := evaluateFuzzyAction(futureState, action, unit, decision, playerID)
-
-			// Add some randomness to make decisions less predictable (more human-like)
-			randomFactor := 1.0 + (rand.Float64()-0.5)*0.2 // ±10% randomness
-			score *= randomFactor
 
 			if score > bestScore {
 				bestScore = score
@@ -187,29 +181,63 @@ func evaluateMoveAction(futureState GameState, action *MoveAction, unit *PlayerU
 // evaluateAbilityAction applies fuzzy logic to ability actions
 func evaluateAbilityAction(futureState GameState, action *AbilityAction, unit *PlayerUnit, decision *StrategicDecision, playerID PlayerID, baseScore float64) float64 {
 	score := baseScore
-
-	// Different abilities get different bonuses based on strategic preferences
 	abilityID := action.String()
 
-	if contains(abilityID, "defensive-stance") {
-		// Defensive units prefer defensive abilities
+	// Offensive melee abilities — aggressive + risk-tolerant units
+	if contains(abilityID, "charge") ||
+		contains(abilityID, "devastating-strike") ||
+		contains(abilityID, "sweep") ||
+		contains(abilityID, "overcharge") {
+		if decision.Aggression > 0.6 {
+			score += 35.0
+		}
+		if decision.RiskTolerance > 0.6 {
+			score += 25.0
+		}
+	}
+
+	// Offensive ranged abilities — aggressive units at range
+	if contains(abilityID, "energy-trait") ||
+		contains(abilityID, "suppressing-fire") ||
+		contains(abilityID, "precision-shot") {
+		if decision.Aggression > 0.6 {
+			score += 30.0
+		}
+		if decision.RiskTolerance > 0.5 {
+			score += 15.0
+		}
+	}
+
+	// Defensive abilities — cautious or low-health units
+	if contains(abilityID, "defensive-stance") ||
+		contains(abilityID, "guardian") {
 		if decision.Aggression < 0.5 {
 			score += 30.0
 		}
-		// Risk-averse units also prefer defensive abilities
 		if decision.RiskTolerance < 0.4 {
 			score += 20.0
 		}
 	}
 
-	if contains(abilityID, "charge") || contains(abilityID, "energy-trait") {
-		// Aggressive units prefer offensive abilities
-		if decision.Aggression > 0.6 {
+	// Mobility/repositioning abilities — units that want to advance or retreat
+	if contains(abilityID, "tactical-retreat") {
+		// Prefer retreat when damaged or under heavy threat
+		if decision.Aggression < 0.4 {
 			score += 35.0
 		}
-		// Bold units are more likely to use risky abilities
-		if decision.RiskTolerance > 0.6 {
+		if decision.RiskTolerance < 0.3 {
+			score += 20.0
+		}
+	}
+
+	if contains(abilityID, "command-forward") ||
+		contains(abilityID, "feint") {
+		// Positioning-focused abilities
+		if decision.PositioningPreference > 0.6 {
 			score += 25.0
+		}
+		if decision.Aggression > 0.5 {
+			score += 15.0
 		}
 	}
 

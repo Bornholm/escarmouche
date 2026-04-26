@@ -13,7 +13,7 @@ import (
 )
 
 func TestSimulation(t *testing.T) {
-	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Minute)
 	defer cancel()
 
 	isVerbose := testing.Verbose()

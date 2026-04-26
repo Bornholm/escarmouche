@@ -26,3 +26,13 @@ func WithPlayerStrategy(playerID PlayerID, strategy StrategyFunc) OptionFunc {
 		opts.Strategies[playerID] = strategy
 	}
 }
+
+// WithLookaheadDepth configures both players to use alpha-beta minimax at the given depth.
+// depth=1 is fast (one action ahead), depth=2 is the default (full response lookahead).
+func WithLookaheadDepth(depth int) OptionFunc {
+	strategy := LookaheadStrategy(depth)
+	return func(opts *Options) {
+		opts.Strategies[PlayerOne] = strategy
+		opts.Strategies[PlayerTwo] = strategy
+	}
+}

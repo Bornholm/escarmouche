@@ -67,7 +67,8 @@ _Note : Les déplacements en diagonale sont autorisés._
 
 - Les 2 actions peuvent être effectuées par la **même unité** ou **réparties** sur 2 unités différentes
 - Une même unité peut effectuer plusieurs actions dans le tour
-- **Restriction** : Une unité ne peut effectuer qu'**1 seule attaque par tour** ou n'activer qu'**1 seule capacité par tour**
+- **Restriction** : Une unité ne peut effectuer qu'**1 seule attaque par tour** et n'activer qu'**1 seule capacité par tour**
+- Une unité peut donc **attaquer et utiliser une capacité** dans le même tour (si chacune est effectuée comme une action séparée)
 
 ## Combat
 
@@ -105,6 +106,17 @@ Le premier joueur à éliminer **toutes les unités adverses** remporte la parti
 
 ### Capacités spéciales
 
-- Les capacités remplacent l'action d'Attaque quand utilisées
-- Référez-vous au texte spécifique de chaque carte de capacité
-- Certaines capacités peuvent modifier les règles standard
+- Les capacités constituent un **troisième type d'action**, distinct du Mouvement et de l'Attaque
+- Référez-vous au texte spécifique de chaque carte de capacité pour ses effets
+- Certaines capacités peuvent modifier les règles standard ou appliquer des effets de statut
+
+### Effets de statut
+
+Certaines capacités appliquent des effets persistants sur les unités :
+
+| Effet | Source | Conséquence |
+| ----- | ------- | ----------- |
+| **Suppression** | Tir de Suppression | L'unité ciblée ne peut effectuer aucune action lors de son prochain tour |
+| **Inciblable** | Repli Tactique | L'unité ne peut pas être ciblée par des attaques jusqu'à la fin du tour adverse |
+| **Surcharge** | Surcharge | L'unité ne peut pas attaquer lors de son prochain tour |
+| **Protection** | Gardien | Les dégâts reçus par une unité alliée adjacente sont redirigés vers l'unité gardienne jusqu'au début de son prochain tour |

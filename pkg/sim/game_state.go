@@ -44,6 +44,10 @@ const (
 	CounterHealth          string = "health"
 	CounterRoundAbilities  string = "round-abilities"
 	CounterDefensiveStance string = "defensive-stance"
+	CounterSuppressed      string = "suppressed"
+	CounterUntargetable    string = "untargetable"
+	CounterOvercharged     string = "overcharged"
+	CounterGuardianOf      string = "guardian-of"
 )
 
 type GameState struct {
@@ -382,6 +386,10 @@ func getReachableOpponentUnits(state GameState, playerID PlayerID, from Position
 				continue
 			}
 
+			if state.Get(targetUnitID, CounterUntargetable, 0) > 0 {
+				continue
+			}
+
 			dist := distance(from, targetPos)
 			if int(dist) > reach {
 				continue
@@ -399,15 +407,36 @@ func getReachableOpponentUnits(state GameState, playerID PlayerID, from Position
 	return reachable
 }
 
+// getOpponentsInRange returns all opponent units within reach ignoring line of sight.
+func getOpponentsInRange(state GameState, playerID PlayerID, from Position, reach int) []UnitID {
+	reachable := make([]UnitID, 0)
+
+	for uid, unit := range state.Units {
+		if unit.OwnerID == playerID {
+			continue
+		}
+		targetPos := state.Positions[uid]
+		dist := distance(from, targetPos)
+		if int(dist) <= reach {
+			reachable = append(reachable, uid)
+		}
+	}
+
+	return reachable
+}
+
 func getValidActions(state GameState, unit *PlayerUnit) []Action {
+	if state.Get(unit.ID, CounterSuppressed, 0) > 0 {
+		return nil
+	}
+
 	actions := make([]Action, 0)
 
-	// Add possible moves
 	moves := getPossibleMoves(state, unit)
 	actions = append(actions, moves...)
 
 	roundPowers := state.Get(unit.ID, CounterRoundAttacks, 0)
-	if roundPowers == 0 {
+	if roundPowers == 0 && state.Get(unit.ID, CounterOvercharged, 0) == 0 {
 		attacks := getPossiblePowers(state, unit)
 		actions = append(actions, attacks...)
 	}
@@ -437,23 +466,31 @@ func distance(pos1, pos2 Position) float64 {
 	)
 }
 
-// applyDamage applies damage to a unit, respecting defensive stance
+// applyDamage applies damage to a unit, respecting defensive stance and guardian redirection.
 func applyDamage(state GameState, targetID UnitID, damage int) (GameState, int) {
 	newState := state.Copy()
+
+	// Check if any ally is protecting the target via Guardian
+	if targetUnit, exists := newState.Units[targetID]; exists {
+		for uid := range newState.Units {
+			if newState.Units[uid].OwnerID == targetUnit.OwnerID && uid != targetID {
+				if UnitID(newState.Get(uid, CounterGuardianOf, -1)) == targetID {
+					newState.Del(uid, CounterGuardianOf)
+					return applyDamage(newState, uid, damage)
+				}
+			}
+		}
+	}
 
 	// Check if target has defensive stance active
 	defensiveStance := newState.Get(targetID, CounterDefensiveStance, 0)
 	if defensiveStance > 0 && damage > 0 {
-		// Defensive stance blocks 1 point of damage
 		damage = damage - 1
-		// Remove defensive stance after use
 		newState.Del(targetID, CounterDefensiveStance)
 	}
 
-	// Apply remaining damage
 	remainingHealth := newState.Inc(targetID, CounterHealth, -damage)
 
-	// Kill unit if health drops to 0 or below
 	if remainingHealth <= 0 {
 		newState = newState.Kill(targetID)
 	}
