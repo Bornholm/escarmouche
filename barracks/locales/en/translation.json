@@ -17,6 +17,10 @@
     "controlScore": "Zone control",
     "defeat": "Defeat",
     "defeatMessage": "All your units have been eliminated.",
+    "deployHint": "Place “{{unit}}” on your first two rows. Your opponent will answer by placing one unit in turn.",
+    "deployProgress": "{{n}} / {{max}} placed",
+    "deployReady": "All your units are in place. Your opponent has finished deploying.",
+    "deployTitle": "Deployment",
     "difficulties": {
       "easy": "EASY",
       "hard": "HARD",
@@ -46,6 +50,7 @@
     "moveTo": "Move to {{cell}}",
     "noActions": "No action available",
     "noSquads": "No squad found. Create one to play.",
+    "opponentIs": "Opponent: {{squad}}",
     "rematch": "Rematch",
     "replaying": "Action in progress",
     "replayingHint": "The board is replaying the actions…",
@@ -69,6 +74,7 @@
       "untargetable": "UNT"
     },
     "title": "Battle",
+    "toDeployment": "Deploy units",
     "toSetup": "Prepare the battle",
     "turn": "Turn {{turn}}",
     "useDefault": "Demo squad",

@@ -17,6 +17,10 @@
     "controlScore": "Contrôle de la zone",
     "defeat": "Défaite",
     "defeatMessage": "Toutes vos unités ont été éliminées.",
+    "deployHint": "Placez « {{unit}} » sur vos deux premières rangées. L'adversaire répondra en plaçant une unité à son tour.",
+    "deployProgress": "{{n}} / {{max}} placées",
+    "deployReady": "Toutes vos unités sont en place. L'adversaire a terminé son déploiement.",
+    "deployTitle": "Déploiement",
     "difficulties": {
       "easy": "FACILE",
       "hard": "DIFFICILE",
@@ -46,6 +50,7 @@
     "moveTo": "Se déplacer en {{cell}}",
     "noActions": "Aucune action disponible",
     "noSquads": "Aucune escouade trouvée. Créez-en une pour jouer.",
+    "opponentIs": "Adversaire : {{squad}}",
     "rematch": "Revanche",
     "replaying": "Action en cours",
     "replayingHint": "Le plateau rejoue les actions…",
@@ -69,6 +74,7 @@
       "untargetable": "INC"
     },
     "title": "Bataille",
+    "toDeployment": "Déployer les unités",
     "toSetup": "Préparer la bataille",
     "turn": "Tour {{turn}}",
     "useDefault": "Escouade de démonstration",
