@@ -13,16 +13,24 @@ type Costs struct {
 	MaxTotal      float64
 }
 
+// DefaultCosts : facteurs issus de l'évaluation d'équilibrage du 2026-08-16
+// (cf. docs/20260816_balancing.md). L'algorithme évolutionnaire, mesuré sur
+// des tournois stratifiés par archétype avec l'IA de recherche, indiquait :
+// santé sous-cotée, puissance sous-cotée, mobilité dominante dans un jeu à
+// objectif central. Les amplitudes ci-dessous sont la version « tempérée »
+// des directions trouvées : le candidat brut rendait Move ≥ 4 inachetable
+// (exposant 2,95), amputant l'espace de conception pour un gain de fitness
+// dans la marge de bruit (0,543 contre 0,531 mesurés).
 var DefaultCosts = Costs{
-	HealthFactor: 1.0,
+	HealthFactor: 1.5,
 
-	RangeFactor:   2.0,
-	RangeExponent: 1.1,
+	RangeFactor:   1.4,
+	RangeExponent: 1.35,
 
-	MoveFactor:   1.0,
-	MoveExponent: 1.1,
+	MoveFactor:   0.7,
+	MoveExponent: 1.6,
 
-	PowerFactor:   1.5,
+	PowerFactor:   2.2,
 	PowerExponent: 1.2,
 
 	MaxTotal: 30,
