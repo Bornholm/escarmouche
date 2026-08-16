@@ -2,29 +2,29 @@
 
 - **Escouade** : Détachement Vanguard
 - **Fichier cible** : `barracks/static/scifi-drone.png`
-- **Accent d'escouade** : steel cyan
+- **Palette d'escouade** : steel cyan and cold starlight
 
 > « UNITÉ 7-K : AUCUNE PEUR DÉTECTÉE. AUCUNE, JAMAIS. »
 
 ## Prompt
 
 ```
-Tabletop wargame miniature, 32 mm scale, rendered as a clean studio product shot.
-Full body on a plain round display base. Light-grey resin sculpt with a single
-accent color wash: steel cyan. Soft studio lighting, subtle contact shadow, plain
-white background, no scenery, no text. Centered, slight three-quarter view,
-whole figure visible with generous margin. Crisp sculpted detail, strong
-readable silhouette (the image is displayed at 400×400 px and printed in
-greyscale on a 63×88 mm card).
+Trading card game character illustration, detailed digital painting.
+Dynamic three-quarter composition, dramatic cinematic lighting, rich painterly
+texture. The character is the clear focal point, sharply rendered against an
+atmospheric environment background with soft depth of field. Landscape
+orientation, wide 16:9 framing with the subject slightly off-center. Palette
+dominated by steel cyan and cold starlight tones over neutral shadows — strong value contrast so
+the artwork stays readable when printed in greyscale on a 63×88 mm card.
 
-Universe: hard sci-fi colonial military, functional armor plating, utilitarian gear, no neon excess.
+Universe: hard sci-fi colonial military — dropship bays, orbital structures, dusty frontier colonies under alien skies.
 
-Subject: A hovering sentinel drone on a clear flight stem above the base: faceted hull, single central sensor eye, folded manipulator arms, small thruster nacelles. Strictly machine, no face.
+Subject: A hovering sentinel drone: faceted hull, single central sensor eye glowing softly, folded manipulator arms, small thruster nacelles stirring the dust below. Strictly machine, no face.
 ```
 
 ## Negative prompt
 
 ```
-text, watermark, logo, background scenery, cropped limbs, multiple figures,
-photorealistic skin, cartoon proportions, blurry, frame, border
+text, watermark, logo, card frame, border, flat colors, cartoon proportions,
+photorealistic photograph, cropped face, multiple main characters, blurry subject
 ```

@@ -2,29 +2,29 @@
 
 - **Escouade** : Ligne de 1812
 - **Fichier cible** : `barracks/static/hist-sergeant.png`
-- **Accent d'escouade** : deep imperial blue
+- **Palette d'escouade** : deep imperial blue and powder smoke grey
 
 > « Tenez la ligne ! La ligne, c'est tout ce qu'on a. »
 
 ## Prompt
 
 ```
-Tabletop wargame miniature, 32 mm scale, rendered as a clean studio product shot.
-Full body on a plain round display base. Light-grey resin sculpt with a single
-accent color wash: deep imperial blue. Soft studio lighting, subtle contact shadow, plain
-white background, no scenery, no text. Centered, slight three-quarter view,
-whole figure visible with generous margin. Crisp sculpted detail, strong
-readable silhouette (the image is displayed at 400×400 px and printed in
-greyscale on a 63×88 mm card).
+Trading card game character illustration, detailed digital painting.
+Dynamic three-quarter composition, dramatic cinematic lighting, rich painterly
+texture. The character is the clear focal point, sharply rendered against an
+atmospheric environment background with soft depth of field. Landscape
+orientation, wide 16:9 framing with the subject slightly off-center. Palette
+dominated by deep imperial blue and powder smoke grey tones over neutral shadows — strong value contrast so
+the artwork stays readable when printed in greyscale on a 63×88 mm card.
 
-Universe: napoleonic-era line infantry and cavalry, period-accurate uniforms, shakos, muskets and sabres.
+Universe: napoleonic battlefield — musket smoke drifting over trampled fields, distant cannon flashes, period-accurate uniforms.
 
-Subject: A company sergeant half-turned as if shouting down the line, one arm extended flat to dress the ranks, halberd-style spontoon in the other hand, chevrons on the sleeve.
+Subject: A company sergeant half-turned, shouting down the line, one arm extended flat to dress the ranks, spontoon in the other hand, chevrons on the sleeve, bayonets of the unseen line glinting at the frame's edge.
 ```
 
 ## Negative prompt
 
 ```
-text, watermark, logo, background scenery, cropped limbs, multiple figures,
-photorealistic skin, cartoon proportions, blurry, frame, border
+text, watermark, logo, card frame, border, flat colors, cartoon proportions,
+photorealistic photograph, cropped face, multiple main characters, blurry subject
 ```

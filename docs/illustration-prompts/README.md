@@ -6,33 +6,36 @@ il embarque déjà le bloc de style commun.
 
 ## Le style d'ensemble
 
-Toutes les unités partagent la même esthétique : **figurine de wargame en
-résine grise, rendu studio, socle rond, fond blanc uni** — avec un unique
-**accent de couleur par escouade**. Pourquoi ce choix :
+Toutes les unités partagent la même esthétique : **illustration de carte à la
+manière des grands TCG** (Magic: The Gathering…) — peinture numérique
+détaillée, éclairage cinématographique, personnage net sur un arrière-plan
+d'ambiance en profondeur de champ, **cadrage paysage 16:9**. La cohérence de
+collection tient à deux invariants :
 
-- cohérent avec l'objet du jeu (un compagnon de jeu de figurines) et avec les
-  six images existantes du projet ;
-- un accent unique par escouade = quatre univers immédiatement distinguables,
-  sans casser l'unité de la collection ;
-- la grisaille reste lisible une fois imprimée en noir et blanc sur la carte
-  (63 × 88 mm) — c'est une exigence de la feuille d'impression.
+1. le même bloc STYLE en tête de chaque prompt ;
+2. une **palette dominante par escouade**, qui distingue les quatre univers
+   au premier coup d'œil sans casser l'unité de l'ensemble.
 
-| Escouade | Préfixe | Accent |
-|---|---|---|
-| Compagnie de l'Aube | `fantasy-` | or pâle (*pale gold*) |
-| Détachement Vanguard | `scifi-` | cyan acier (*steel cyan*) |
-| Ligne de 1812 | `hist-` | bleu impérial (*deep imperial blue*) |
-| Convoi des Rouilleux | `apoc-` | orange rouille (*rust orange*) |
+| Escouade | Préfixe | Palette dominante | Ambiance d'arrière-plan |
+|---|---|---|---|
+| Compagnie de l'Aube | `fantasy-` | or pâle, lumière d'aube | remparts en ruine, bannières, brume |
+| Détachement Vanguard | `scifi-` | cyan acier, lumière stellaire froide | soutes, structures orbitales, colonies |
+| Ligne de 1812 | `hist-` | bleu impérial, gris poudre | fumée de mousquets, éclairs de canon |
+| Convoi des Rouilleux | `apoc-` | orange rouille, blanc os | autoroutes effondrées, carcasses, poussière ambrée |
 
-Pour basculer toute la collection dans un autre style (peinture complète,
-illustration 2D…), remplacez le bloc STYLE au début de chaque prompt — le
-reste (pose, équipement, caractère) est indépendant du rendu.
+Le contraste de valeurs est exigé dans le STYLE : l'illustration doit rester
+lisible **imprimée en noir et blanc** sur la carte 63 × 88 mm.
+
+Pour changer de rendu global (repasser en figurines, en illustration 2D
+flat…), remplacez le bloc STYLE au début de chaque prompt — les sujets
+(pose, équipement, caractère) en sont indépendants.
 
 ## Paramètres recommandés
 
-- **Format : carré, 1024 × 1024 minimum** — l'application redimensionne en
-  400 × 400 (`object-fit: contain`), un fond blanc uni ou transparent est
-  indispensable.
+- **Format : paysage 16:9, 1344 × 768 minimum** — la fenêtre d'illustration
+  de la carte est au ratio ≈ 1,75:1 et l'image la remplit (`object-fit:
+  cover`) : le centre du cadre doit porter le sujet, les bords peuvent être
+  rognés.
 - Générer les variantes d'une même escouade **dans la même session/seed**
   quand l'outil le permet : la cohérence intra-escouade y gagne.
 - Après génération : déposer les fichiers dans `barracks/static/` sous le nom

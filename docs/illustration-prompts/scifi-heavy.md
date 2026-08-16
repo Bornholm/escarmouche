@@ -2,29 +2,29 @@
 
 - **Escouade** : Détachement Vanguard
 - **Fichier cible** : `barracks/static/scifi-heavy.png`
-- **Accent d'escouade** : steel cyan
+- **Palette d'escouade** : steel cyan and cold starlight
 
 > « Zone verrouillée. Personne ne traverse mon couloir de tir. »
 
 ## Prompt
 
 ```
-Tabletop wargame miniature, 32 mm scale, rendered as a clean studio product shot.
-Full body on a plain round display base. Light-grey resin sculpt with a single
-accent color wash: steel cyan. Soft studio lighting, subtle contact shadow, plain
-white background, no scenery, no text. Centered, slight three-quarter view,
-whole figure visible with generous margin. Crisp sculpted detail, strong
-readable silhouette (the image is displayed at 400×400 px and printed in
-greyscale on a 63×88 mm card).
+Trading card game character illustration, detailed digital painting.
+Dynamic three-quarter composition, dramatic cinematic lighting, rich painterly
+texture. The character is the clear focal point, sharply rendered against an
+atmospheric environment background with soft depth of field. Landscape
+orientation, wide 16:9 framing with the subject slightly off-center. Palette
+dominated by steel cyan and cold starlight tones over neutral shadows — strong value contrast so
+the artwork stays readable when printed in greyscale on a 63×88 mm card.
 
-Universe: hard sci-fi colonial military, functional armor plating, utilitarian gear, no neon excess.
+Universe: hard sci-fi colonial military — dropship bays, orbital structures, dusty frontier colonies under alien skies.
 
-Subject: A heavy fusilier braced behind a squad support cannon with an ammunition backpack and feed line, wide stable stance, armored boots dug in. The gun is almost as big as he is.
+Subject: A heavy fusilier braced behind a squad support cannon with an ammunition backpack and feed line, muzzle flash lighting his armor, wide stable stance, boots dug into the dirt. The gun is almost as big as he is.
 ```
 
 ## Negative prompt
 
 ```
-text, watermark, logo, background scenery, cropped limbs, multiple figures,
-photorealistic skin, cartoon proportions, blurry, frame, border
+text, watermark, logo, card frame, border, flat colors, cartoon proportions,
+photorealistic photograph, cropped face, multiple main characters, blurry subject
 ```
