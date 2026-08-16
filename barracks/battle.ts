@@ -97,3 +97,17 @@ export interface BattleEffect {
   abilityID?: string;
   unitID?: number;
 }
+
+
+/**
+ * État de la phase de déploiement alterné : les règles font placer les unités
+ * tour à tour, chaque camp voyant ce que l'autre a posé.
+ */
+export interface DeploymentState {
+  playerPositions: { x: number; y: number }[];
+  aiPositions: { x: number; y: number }[];
+  obstacles: { x: number; y: number }[];
+  playerTotal: number;
+  aiTotal: number;
+  done: boolean;
+}

@@ -38,6 +38,8 @@ func main() {
 		"generateSquad":           js.FuncOf(generateSquad),
 		"generateUnit":            js.FuncOf(generateUnit),
 		"getAvailableAbilities":   js.FuncOf(getAvailableAbilities),
+		"startDeployment":         js.FuncOf(startDeployment),
+		"deployUnit":              js.FuncOf(deployUnit),
 		"startGame":               js.FuncOf(startGame),
 		"getValidActions":         js.FuncOf(getValidActionsJS),
 		"selectAction":            js.FuncOf(selectAction),
@@ -218,6 +220,163 @@ var (
 	sessionMu      sync.Mutex
 )
 
+// ── Phase de déploiement ────────────────────────────────────────────────────
+//
+// Les règles font placer les unités tour à tour : le joueur pose une unité,
+// l'IA répond, et ainsi de suite. La session ci-dessous tient l'état de cette
+// alternance ; les positions obtenues sont ensuite passées à startGame.
+
+type deploymentSession struct {
+	playerUnits []sim.Unit
+	aiUnits     []sim.Unit
+	playerPos   []sim.Position
+	aiPos       []sim.Position
+	obstacles   map[string]bool
+}
+
+var currentDeployment *deploymentSession
+
+func parseUnits(jsUnits js.Value) ([]sim.Unit, []originalUnitData) {
+	n := jsUnits.Length()
+	units := make([]sim.Unit, 0, n)
+	originals := make([]originalUnitData, 0, n)
+
+	for i := 0; i < n; i++ {
+		u := jsUnits.Index(i)
+		abilityIDs := []string{}
+		if jsAbs := u.Get("abilities"); jsAbs.Truthy() {
+			for j := 0; j < jsAbs.Length(); j++ {
+				abilityIDs = append(abilityIDs, jsAbs.Index(j).String())
+			}
+		}
+		units = append(units, sim.Unit{
+			Stats: core.Stats{
+				Health: u.Get("health").Int(),
+				Range:  u.Get("range").Int(),
+				Move:   u.Get("move").Int(),
+				Power:  u.Get("power").Int(),
+			},
+			Abilities: core.Abilities(abilityIDs...),
+		})
+		originals = append(originals, originalUnitData{
+			Name:     u.Get("name").String(),
+			ImageURL: u.Get("imageUrl").String(),
+		})
+	}
+
+	return units, originals
+}
+
+func serializeDeployment() map[string]any {
+	d := currentDeployment
+
+	toJS := func(positions []sim.Position) []any {
+		out := make([]any, 0, len(positions))
+		for _, p := range positions {
+			out = append(out, map[string]any{"x": p.X, "y": p.Y})
+		}
+		return out
+	}
+
+	obstacles := make([]any, 0, len(d.obstacles))
+	for x := 0; x < sim.BoardSize; x++ {
+		for y := 0; y < sim.BoardSize; y++ {
+			pos := sim.Position{X: x, Y: y}
+			if d.obstacles[pos.String()] {
+				obstacles = append(obstacles, map[string]any{"x": x, "y": y})
+			}
+		}
+	}
+
+	return map[string]any{
+		"playerPositions": toJS(d.playerPos),
+		"aiPositions":     toJS(d.aiPos),
+		"obstacles":       obstacles,
+		"playerTotal":     len(d.playerUnits),
+		"aiTotal":         len(d.aiUnits),
+		"done":            len(d.playerPos) >= len(d.playerUnits),
+	}
+}
+
+// startDeployment ouvre la phase de placement : unités des deux camps et
+// obstacles déjà posés.
+func startDeployment(this js.Value, args []js.Value) any {
+	return withPromise(func() (map[string]any, error) {
+		playerUnits, _ := parseUnits(args[0])
+		aiUnits, _ := parseUnits(args[1])
+
+		obstacles := map[string]bool{}
+		if len(args) > 2 && args[2].Truthy() {
+			jsObs := args[2]
+			for i := 0; i < jsObs.Length(); i++ {
+				o := jsObs.Index(i)
+				pos := sim.Position{X: o.Get("x").Int(), Y: o.Get("y").Int()}
+				if sim.IsValidObstaclePosition(pos) {
+					obstacles[pos.String()] = true
+				}
+			}
+		}
+
+		currentDeployment = &deploymentSession{
+			playerUnits: playerUnits,
+			aiUnits:     aiUnits,
+			playerPos:   []sim.Position{},
+			aiPos:       []sim.Position{},
+			obstacles:   obstacles,
+		}
+
+		return serializeDeployment(), nil
+	})
+}
+
+// deployUnit place l'unité courante du joueur puis, en réponse, l'unité
+// suivante de l'IA — c'est l'alternance décrite par les règles.
+func deployUnit(this js.Value, args []js.Value) any {
+	return withPromise(func() (map[string]any, error) {
+		d := currentDeployment
+		if d == nil {
+			return nil, errors.New("no deployment session")
+		}
+		if len(d.playerPos) >= len(d.playerUnits) {
+			return serializeDeployment(), nil
+		}
+
+		pos := sim.Position{X: args[0].Int(), Y: args[1].Int()}
+		if !sim.IsValidDeploymentPosition(sim.PlayerOne, pos, d.obstacles) {
+			return nil, errors.New("invalid deployment position")
+		}
+
+		occupied := map[string]bool{}
+		for _, p := range d.playerPos {
+			occupied[p.String()] = true
+		}
+		for _, p := range d.aiPos {
+			occupied[p.String()] = true
+		}
+		if occupied[pos.String()] {
+			return nil, errors.New("position already occupied")
+		}
+
+		d.playerPos = append(d.playerPos, pos)
+		occupied[pos.String()] = true
+
+		// Réponse de l'IA : elle voit les unités déjà déployées par le joueur.
+		if len(d.aiPos) < len(d.aiUnits) {
+			enemies := make([]sim.DeployedUnit, 0, len(d.playerPos))
+			for i, p := range d.playerPos {
+				enemies = append(enemies, sim.DeployedUnit{Unit: d.playerUnits[i], Position: p})
+			}
+
+			next := d.aiUnits[len(d.aiPos)]
+			if aiPos, ok := sim.SuggestDeployment(next, sim.PlayerTwo, occupied, d.obstacles, enemies); ok {
+				d.aiPos = append(d.aiPos, aiPos)
+			}
+		}
+
+		return serializeDeployment(), nil
+	})
+}
+
 func startGame(this js.Value, args []js.Value) any {
 	return withPromise(func() (map[string]any, error) {
 		sessionMu.Lock()
@@ -262,16 +421,27 @@ func startGame(this js.Value, args []js.Value) any {
 			}
 		}
 
-		aiSquad, err := gen.RandomSquad(gen.DefaultSquadBudget, gen.DefaultMaxSquadSize, core.DefaultCosts, gen.DefaultArchetypes...)
-		if err != nil {
-			return nil, errors.Wrap(err, "could not generate AI squad")
-		}
-		aiUnits := make([]sim.Unit, 0, len(aiSquad))
-		for _, u := range aiSquad {
-			aiUnits = append(aiUnits, sim.Unit{
-				Stats:     core.Stats{Health: u.Stats.Health, Range: u.Stats.Range, Move: u.Stats.Move, Power: u.Stats.Power},
-				Abilities: u.Abilities,
-			})
+		// L'escouade adverse est fournie par le front (une escouade thématique
+		// du catalogue) : elle a donc un nom et des illustrations. À défaut,
+		// on retombe sur une génération aléatoire.
+		var aiUnits []sim.Unit
+		if len(args) > 4 && args[4].Truthy() && args[4].Length() > 0 {
+			parsed, originals := parseUnits(args[4])
+			aiUnits = parsed
+			for i, orig := range originals {
+				session.originalUnits[sim.UnitID(len(playerUnits)+i)] = orig
+			}
+		} else {
+			aiSquad, err := gen.RandomSquad(gen.DefaultSquadBudget, gen.DefaultMaxSquadSize, core.DefaultCosts, gen.DefaultArchetypes...)
+			if err != nil {
+				return nil, errors.Wrap(err, "could not generate AI squad")
+			}
+			for _, u := range aiSquad {
+				aiUnits = append(aiUnits, sim.Unit{
+					Stats:     core.Stats{Health: u.Stats.Health, Range: u.Stats.Range, Move: u.Stats.Move, Power: u.Stats.Power},
+					Abilities: u.Abilities,
+				})
+			}
 		}
 
 		difficulty := "normal"
@@ -347,11 +517,21 @@ func startGame(this js.Value, args []js.Value) any {
 				}
 			})
 
-			game := sim.NewGame(playerUnits, aiUnits,
+			gameOptions := []sim.OptionFunc{
 				sim.WithPlayerStrategy(sim.PlayerOne, humanStrategy),
 				sim.WithPlayerStrategy(sim.PlayerTwo, sim.SearchStrategy(aiDepth, aiBudget)),
 				sim.WithObstacles(obstacles...),
-			)
+			}
+
+			// Positions décidées pendant la phase de déploiement alterné.
+			if currentDeployment != nil && len(currentDeployment.playerPos) > 0 {
+				gameOptions = append(gameOptions, sim.WithDeployment(map[sim.PlayerID][]sim.Position{
+					sim.PlayerOne: currentDeployment.playerPos,
+					sim.PlayerTwo: currentDeployment.aiPos,
+				}))
+			}
+
+			game := sim.NewGame(playerUnits, aiUnits, gameOptions...)
 
 			for step := range game.Run() {
 				session.currentTurn = step.Turn

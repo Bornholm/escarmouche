@@ -41,8 +41,13 @@ func NewGame(player1 []Unit, player2 []Unit, funcs ...OptionFunc) *Game {
 			availablePositions[i], availablePositions[j] = availablePositions[j], availablePositions[i]
 		})
 
+		placed := opts.Deployment[playerID]
+
 		for i, u := range units {
 			pos := Position{X: availablePositions[i], Y: row}
+			if i < len(placed) {
+				pos = placed[i]
+			}
 			unit := &PlayerUnit{
 				ID:      unitID,
 				OwnerID: playerID,

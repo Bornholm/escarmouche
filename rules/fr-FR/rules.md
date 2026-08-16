@@ -62,10 +62,16 @@ principale voie vers la victoire (voir Conditions de victoire).
    de son choix, **hors de la zone centrale et hors des zones de déploiement**
    (c'est-à-dire sur les rangées 3 à 6). Le joueur qui a lancé le plus petit
    score au dé place le sien en premier
-3. Chaque joueur positionne ses unités sur **ses deux premières lignes**
-   (lignes 1-2 pour un joueur, lignes 7-8 pour l'autre)
-4. Les unités peuvent être placées librement sur ces lignes de départ
-5. Lancez un dé pour déterminer qui commence
+3. **Déploiement alterné** : en commençant par le joueur qui a placé son
+   obstacle en premier, chacun pose **une unité à la fois**, à tour de rôle,
+   sur **ses deux premières lignes** (lignes 1-2 pour un joueur, lignes 7-8
+   pour l'autre). On continue jusqu'à ce que les deux escouades soient
+   entièrement déployées
+4. Chaque joueur voit donc les unités déjà posées par son adversaire et peut
+   y répondre : le déploiement est le premier acte tactique de la partie
+5. Si un joueur a moins d'unités que l'autre, il passe simplement son tour de
+   placement une fois son escouade déployée
+6. Lancez un dé pour déterminer qui commence la partie
 
 ### Obstacles
 

@@ -1,5 +1,5 @@
 import { Evaluation, UnitStats, GeneratedUnit, Ability } from "./types";
-import { ActionDescription, BattleState } from "./battle";
+import { ActionDescription, BattleState, DeploymentState } from "./battle";
 
 declare global {
   namespace Barracks {
@@ -16,8 +16,19 @@ declare global {
       units: UnitStats[],
       difficulty: string,
       obstacle?: { x: number; y: number },
-      lowPower?: boolean
+      lowPower?: boolean,
+      /** Escouade adverse — une escouade thématique du catalogue. */
+      aiUnits?: UnitStats[]
     ): Promise<BattleState>;
+
+    /** Ouvre la phase de déploiement alterné (règles : placement tour à tour). */
+    function startDeployment(
+      playerUnits: UnitStats[],
+      aiUnits: UnitStats[],
+      obstacles: { x: number; y: number }[]
+    ): Promise<DeploymentState>;
+    /** Place l'unité courante du joueur ; l'IA répond dans la foulée. */
+    function deployUnit(x: number, y: number): Promise<DeploymentState>;
     function getValidActions(): ActionDescription[];
     function selectAction(index: number): Promise<BattleState>;
     function endGame(): void;

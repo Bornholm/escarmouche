@@ -17,6 +17,10 @@
     "controlScore": "Control de la zona",
     "defeat": "Derrota",
     "defeatMessage": "Todas tus unidades han sido eliminadas.",
+    "deployHint": "Coloca «{{unit}}» en tus dos primeras filas. El adversario responderá colocando una unidad por turno.",
+    "deployProgress": "{{n}} / {{max}} colocadas",
+    "deployReady": "Todas tus unidades están colocadas. El adversario ha terminado su despliegue.",
+    "deployTitle": "Despliegue",
     "difficulties": {
       "easy": "FÁCIL",
       "hard": "DIFÍCIL",
@@ -46,6 +50,7 @@
     "moveTo": "Moverse a {{cell}}",
     "noActions": "Ninguna acción disponible",
     "noSquads": "No se encontró ninguna escuadra. Crea una para jugar.",
+    "opponentIs": "Adversario: {{squad}}",
     "rematch": "Revancha",
     "replaying": "Acción en curso",
     "replayingHint": "El tablero está reproduciendo las acciones…",
@@ -69,6 +74,7 @@
       "untargetable": "INS"
     },
     "title": "Batalla",
+    "toDeployment": "Desplegar unidades",
     "toSetup": "Preparar la batalla",
     "turn": "Turno {{turn}}",
     "useDefault": "Escuadra de demostración",

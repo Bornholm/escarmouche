@@ -61,10 +61,15 @@ main path to victory (see Victory conditions).
    their choice, **outside the central zone and outside the deployment zones**
    (that is, on rows 3 to 6). The player who rolled the lowest die places
    theirs first
-3. Each player positions their units on **their two first rows**
-   (rows 1-2 for one player, rows 7-8 for the other)
-4. Units can be placed freely on these starting rows
-5. Roll a die to determine who goes first
+3. **Alternating deployment**: starting with the player who placed their
+   obstacle first, each player sets down **one unit at a time**, in turn, on
+   **their two first rows** (rows 1-2 for one player, rows 7-8 for the
+   other). Continue until both squads are fully deployed
+4. Each player therefore sees the units their opponent has already placed and
+   can respond to them: deployment is the game's first tactical act
+5. If one player has fewer units than the other, they simply skip their
+   placement turn once their squad is deployed
+6. Roll a die to determine who takes the first turn
 
 ### Obstacles
 

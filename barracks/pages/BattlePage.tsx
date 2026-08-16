@@ -2,11 +2,11 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router";
 import { useTranslation } from "react-i18next";
 import { Squad, Unit } from "../types";
-import { ActionDescription, BattleState, Difficulty } from "../battle";
+import { ActionDescription, BattleState, DeploymentState, Difficulty } from "../battle";
 import { BattleBoard, cellName } from "../components/BattleBoard";
 import { ReplayLogEntry, useBattleReplay } from "../hooks/useBattleReplay";
 import { useAbilities } from "../hooks/useAbilities";
-import { DefaultUnits } from "../util/defaults";
+import { DefaultSquads, DefaultUnits } from "../util/defaults";
 import { StatIcon } from "../components/Icons";
 
 interface BattlePageProps {
@@ -20,8 +20,12 @@ export const BattlePage: React.FC<BattlePageProps> = ({ squads, units }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
-  const [step, setStep] = useState<"select" | "setup" | "battle">("select");
+  const [step, setStep] = useState<"select" | "setup" | "deploy" | "battle">("select");
   const [obstacle, setObstacle] = useState<{ x: number; y: number } | null>(null);
+  // Escouade adverse : une escouade thématique du catalogue, différente de
+  // celle du joueur — l'IA a ainsi un nom, un lore et des illustrations.
+  const [aiSquad, setAiSquad] = useState<Squad | null>(null);
+  const [deployment, setDeployment] = useState<DeploymentState | null>(null);
   const [battleState, setBattleState] = useState<BattleState | null>(null);
   const [selectedUnitID, setSelectedUnitID] = useState<number | null>(null);
   const [hoveredAction, setHoveredAction] = useState<ActionDescription | null>(null);
@@ -95,6 +99,58 @@ export const BattlePage: React.FC<BattlePageProps> = ({ squads, units }) => {
       .filter((u): u is Unit => !!u);
   };
 
+  /** Tire une escouade adverse parmi les escouades thématiques, en évitant
+      celle que le joueur a choisie. */
+  const pickAiSquad = (): Squad => {
+    const candidates = DefaultSquads.filter((s) => s.id !== selectedSquadID);
+    const pool = candidates.length > 0 ? candidates : DefaultSquads;
+    return pool[Math.floor(Math.random() * pool.length)];
+  };
+
+  const resolveSquadUnits = (squad: Squad): Unit[] =>
+    squad.units
+      .map((u) => units.find((full) => full.id === u.id) ?? u)
+      .filter((u): u is Unit => !!u);
+
+  const toInputs = (list: Unit[]) =>
+    list.map((u) => ({
+      health: u.health,
+      range: u.range,
+      move: u.move,
+      power: u.power,
+      abilities: u.abilities,
+      name: u.name,
+      imageUrl: u.imageUrl ?? "",
+    }));
+
+  /** Ouvre la phase de déploiement alterné une fois l'obstacle posé. */
+  const handleStartDeployment = async (placedObstacle: { x: number; y: number }) => {
+    const mine = getSelectedUnits();
+    const opponent = pickAiSquad();
+    setAiSquad(opponent);
+
+    try {
+      const state = (await Barracks.startDeployment(
+        toInputs(mine),
+        toInputs(resolveSquadUnits(opponent)),
+        [placedObstacle]
+      )) as unknown as DeploymentState;
+      setDeployment(state);
+      setStep("deploy");
+    } catch (error) {
+      console.error("startDeployment failed", error);
+    }
+  };
+
+  const handleDeployAt = async (x: number, y: number) => {
+    try {
+      const state = (await Barracks.deployUnit(x, y)) as unknown as DeploymentState;
+      setDeployment(state);
+    } catch (error) {
+      console.error("deployUnit failed", error);
+    }
+  };
+
   const handleStartBattle = async (squadUnits: Unit[], placedObstacle: { x: number; y: number }) => {
     const unitInputs = squadUnits.map((u) => ({
       health: u.health,
@@ -116,7 +172,8 @@ export const BattlePage: React.FC<BattlePageProps> = ({ squads, units }) => {
         unitInputs,
         difficulty,
         placedObstacle,
-        lowPower
+        lowPower,
+        aiSquad ? toInputs(resolveSquadUnits(aiSquad)) : undefined
       )) as unknown as BattleState;
       setBattleState(state);
       setStep("battle");
@@ -328,7 +385,116 @@ export const BattlePage: React.FC<BattlePageProps> = ({ squads, units }) => {
             <button
               className="btn btn--primary"
               disabled={!obstacle}
-              onClick={() => obstacle && handleStartBattle(getSelectedUnits(), obstacle)}
+              onClick={() => obstacle && handleStartDeployment(obstacle)}
+            >
+              {t("battle.toDeployment")}
+            </button>
+          </div>
+        </div>
+      </>
+    );
+  }
+
+  /* ---------------------------------------------------------------------------
+     Déploiement alterné : le joueur place une unité, l'IA répond, et ainsi de
+     suite — comme au vrai jeu, chaque camp voit ce que l'autre a posé.
+     ------------------------------------------------------------------------ */
+  if (step === "deploy" && deployment) {
+    const mine = getSelectedUnits();
+    const nextUnit = mine[deployment.playerPositions.length];
+    const rows = Array.from({ length: 8 }, (_, i) => 7 - i);
+
+    const occupied = new Map<string, "player" | "ai">();
+    deployment.playerPositions.forEach((p) => occupied.set(`${p.x},${p.y}`, "player"));
+    deployment.aiPositions.forEach((p) => occupied.set(`${p.x},${p.y}`, "ai"));
+    const obstacleSet = new Set(deployment.obstacles.map((o) => `${o.x},${o.y}`));
+
+    return (
+      <>
+        <div className="page__head">
+          <button className="btn btn--sm" onClick={() => setStep("setup")}>
+            {t("battle.back")}
+          </button>
+          <h1 className="page__title">{t("battle.deployTitle")}</h1>
+          <div className="spacer" />
+          <span className="section-label">
+            {t("battle.deployProgress", {
+              n: deployment.playerPositions.length,
+              max: deployment.playerTotal,
+            })}
+          </span>
+        </div>
+
+        <div className="panel__section">
+          {aiSquad && (
+            <div className="notice">
+              {t("battle.opponentIs", { squad: aiSquad.name })}
+            </div>
+          )}
+
+          <p className="empty__text" style={{ maxWidth: 560 }}>
+            {deployment.done
+              ? t("battle.deployReady")
+              : t("battle.deployHint", { unit: nextUnit?.name ?? "" })}
+          </p>
+
+          <div className="board-wrap">
+            <div className="board">
+              {rows.flatMap((y) =>
+                Array.from({ length: 8 }, (_, x) => {
+                  const key = `${x},${y}`;
+                  const side = occupied.get(key);
+                  const isObjective = x >= 3 && x <= 4 && y >= 3 && y <= 4;
+                  const isObstacle = obstacleSet.has(key);
+                  const inMyZone = y <= 1;
+                  const placeable = !deployment.done && inMyZone && !side && !isObstacle;
+
+                  return (
+                    <div
+                      key={key}
+                      role={placeable ? "button" : undefined}
+                      tabIndex={placeable ? 0 : undefined}
+                      aria-label={cellName(x, y)}
+                      className={[
+                        "cell",
+                        (x + y) % 2 === 0 ? "cell--dark" : "cell--light",
+                        isObjective ? "cell--objective" : "",
+                        isObstacle ? "cell--obstacle" : "",
+                        placeable ? "cell--placeable" : "",
+                      ].join(" ")}
+                      onClick={() => placeable && handleDeployAt(x, y)}
+                      onKeyDown={(event) => {
+                        if (placeable && (event.key === "Enter" || event.key === " ")) {
+                          event.preventDefault();
+                          handleDeployAt(x, y);
+                        }
+                      }}
+                    >
+                      {isObstacle && (
+                        <svg className="mark mark--obstacle" viewBox="0 0 24 24" aria-hidden="true">
+                          <path d="M4 20h16M6 20l2-9h8l2 9M9 11l1-5h4l1 5" />
+                        </svg>
+                      )}
+                      {side && (
+                        <div className={`token ${side === "player" ? "token--player" : "token--ai"}`}>
+                          <div className="token__owner" />
+                          <div className="token__art">
+                            <span aria-hidden="true">◆</span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })
+              )}
+            </div>
+          </div>
+
+          <div className="row row--2">
+            <button
+              className="btn btn--primary"
+              disabled={!deployment.done}
+              onClick={() => obstacle && handleStartBattle(mine, obstacle)}
             >
               {t("battle.startBattle")}
             </button>

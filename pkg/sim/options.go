@@ -6,6 +6,11 @@ type Options struct {
 	// Obstacles : emplacements choisis pendant la mise en place (un par
 	// joueur). Vide = tirage aléatoire parmi les emplacements valides.
 	Obstacles []Position
+	// Deployment : position de chaque unité, indexée par joueur puis par rang
+	// dans la liste d'unités fournie à NewGame. Vide = placement aléatoire sur
+	// la première rangée (comportement historique, utile aux tests et au
+	// balancer qui n'ont pas de phase de mise en place).
+	Deployment map[PlayerID][]Position
 }
 
 type OptionFunc func(opts *Options)
@@ -31,6 +36,14 @@ func NewOptions(funcs ...OptionFunc) *Options {
 func WithMaxTurns(maxTurns uint) OptionFunc {
 	return func(opts *Options) {
 		opts.MaxTurns = maxTurns
+	}
+}
+
+// WithDeployment fixe la position initiale de chaque unité, telle que décidée
+// pendant la phase de déploiement alterné.
+func WithDeployment(deployment map[PlayerID][]Position) OptionFunc {
+	return func(opts *Options) {
+		opts.Deployment = deployment
 	}
 }
 

@@ -62,10 +62,15 @@ la principal vía hacia la victoria (ver Condiciones de victoria).
    libre de su elección, **fuera de la zona central y fuera de las zonas de
    despliegue** (es decir, en las filas 3 a 6). El jugador con la menor tirada
    de dado coloca el suyo primero
-3. Cada jugador posiciona sus unidades en **sus dos primeras filas**
-   (filas 1-2 para un jugador, filas 7-8 para el otro)
-4. Las unidades pueden colocarse libremente en estas filas de salida
-5. Lanza un dado para determinar quién empieza
+3. **Despliegue alterno**: empezando por el jugador que colocó su obstáculo
+   primero, cada uno coloca **una unidad a la vez**, por turnos, en **sus dos
+   primeras filas** (filas 1-2 para un jugador, filas 7-8 para el otro). Se
+   continúa hasta que ambas escuadras estén completamente desplegadas
+4. Cada jugador ve por tanto las unidades ya colocadas por su adversario y
+   puede responder a ellas: el despliegue es el primer acto táctico
+5. Si un jugador tiene menos unidades que el otro, simplemente pasa su turno
+   de colocación una vez desplegada su escuadra
+6. Lanza un dado para determinar quién empieza la partida
 
 ### Obstáculos
 
