@@ -2,7 +2,7 @@ import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Squad } from "../types";
 import { useEvaluations } from "../hooks/useEvaluations";
-import { maxSquadRankPoints, maxSquadSize, rankPoints } from "../util/rank";
+import { formatCost, maxSquadSize, squadBudget } from "../util/rank";
 import { RankIcon, TrashIcon } from "./Icons";
 
 interface SquadCardProps {
@@ -14,9 +14,9 @@ interface SquadCardProps {
 export const SquadCard: React.FC<SquadCardProps> = ({ squad, onEdit, onDelete }) => {
   const { t } = useTranslation();
   const evaluations = useEvaluations(squad.units);
-  const maxPoints = maxSquadRankPoints();
+  const maxPoints = squadBudget();
   const spent = useMemo(
-    () => squad.units.reduce((total, unit) => total + rankPoints(evaluations[unit.id]?.rank), 0),
+    () => squad.units.reduce((total, unit) => total + (evaluations[unit.id]?.cost ?? 0), 0),
     [squad.units, evaluations]
   );
 
@@ -32,10 +32,10 @@ export const SquadCard: React.FC<SquadCardProps> = ({ squad, onEdit, onDelete })
 
         <div className="stack" >
           <span className="num" style={{ fontSize: "var(--type-xl)", fontWeight: 700 }}>
-            {spent}
+            {formatCost(Math.round(spent * 10) / 10)}
           </span>
 
-          <span className="section-label">/ {maxPoints} {t("card.rankPointsShort")}</span>
+          <span className="section-label">/ {maxPoints} pts</span>
         </div>
       </div>
       {/* La consommation du budget est le véhicule visuel principal, ici aussi */}
@@ -66,7 +66,7 @@ export const SquadCard: React.FC<SquadCardProps> = ({ squad, onEdit, onDelete })
               <RankIcon rank={evaluations[unit.id]?.rank} size={13} color="var(--accent)" />
 
               <span className="break-anywhere">{unit.name}</span>
-              <span className="squad-card__unit-points">{rankPoints(evaluations[unit.id]?.rank)}</span>
+              <span className="squad-card__unit-points">{formatCost(evaluations[unit.id]?.cost)}</span>
             </div>
           ))
         )}

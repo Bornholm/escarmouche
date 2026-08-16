@@ -7,6 +7,8 @@ export type Difficulty = "easy" | "normal" | "hard";
  * plateau sauterait directement à l'état final du tour adverse.
  */
 export interface BattleFrame {
+  controlPointsP1: number;
+  controlPointsP2: number;
   units: {
     id: number;
     x: number;
@@ -58,6 +60,8 @@ export interface BattleUnit {
 
 export interface BattleState {
   units: BattleUnit[];
+  obstacles: { x: number; y: number }[];
+  controlPoints: { player: number; ai: number };
   currentPlayerID: number;
   humanPlayerID: number;
   actionsLeft: number;

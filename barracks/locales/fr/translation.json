@@ -14,6 +14,7 @@
     "aiTurn": "Tour de l'IA",
     "aiUnits": "Ennemies",
     "back": "Retour",
+    "controlScore": "Contrôle de la zone",
     "defeat": "Défaite",
     "defeatMessage": "Toutes vos unités ont été éliminées.",
     "difficulties": {
@@ -51,6 +52,8 @@
     "selectedUnit": "Unité sélectionnée",
     "selectSquad": "Choisissez votre escouade",
     "selectUnitHint": "Sélectionnez une de vos unités sur le plateau.",
+    "setupHint": "Placez votre obstacle : une case, hors de la zone centrale et des zones de déploiement. Il bloque les déplacements et la ligne de vue. L'IA placera le sien.",
+    "setupTitle": "Mise en place",
     "startBattle": "Lancer la bataille",
     "status": {
       "defensiveStance": "Posture défensive",
@@ -65,6 +68,7 @@
       "untargetable": "INC"
     },
     "title": "Bataille",
+    "toSetup": "Préparer la bataille",
     "turn": "Tour {{turn}}",
     "useDefault": "Escouade de démonstration",
     "validActions": "Actions valides · {{n}}",
@@ -76,9 +80,8 @@
   "card": {
     "noAbility": "Aucune capacité",
     "noIllustration": "Aucune illustration",
-    "rankPoints": "{{points}} PR",
-    "rankPointsFull": "Points de rang",
-    "rankPointsShort": "PR"
+    "points": "{{points}} pts",
+    "pointsFull": "Coût en points"
   },
   "navigation": {
     "battle": "Bataille",
@@ -117,10 +120,10 @@
     "create": "Créer l'escouade",
     "currentSquad": "Escouade actuelle",
     "edit": "Enregistrer l'escouade",
-    "exceedsBudget": "Dépasse le budget de {{points}} PR",
-    "freeSlots": "{{slots}} emplacements libres · {{points}} PR disponibles",
+    "exceedsBudget": "Dépasse le budget de {{points}} pts",
+    "freeSlots": "{{slots}} emplacements libres · {{points}} pts disponibles",
     "noAvailableUnits": "Aucune unité disponible. Créez d'abord des unités dans la section Unités.",
-    "pointsSpent": "Points de rang consommés",
+    "pointsSpent": "Points dépensés",
     "remaining": "il reste {{points}}",
     "remove": "Retirer",
     "squadFull": "Escouade complète",
@@ -178,6 +181,7 @@
     "increase": "Augmenter",
     "invalidFile": "Fichier invalide",
     "name": "Nom",
+    "narrativeRank": "titre narratif",
     "nextNotchHint": "Le cran suivant est chiffré en marge",
     "overBudget": "Cette unité dépasse le coût maximum de {{max}}.",
     "preview": "Aperçu",

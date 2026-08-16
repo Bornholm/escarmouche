@@ -14,6 +14,7 @@
     "aiTurn": "Turno de la IA",
     "aiUnits": "Enemigas",
     "back": "Volver",
+    "controlScore": "Control de la zona",
     "defeat": "Derrota",
     "defeatMessage": "Todas tus unidades han sido eliminadas.",
     "difficulties": {
@@ -51,6 +52,8 @@
     "selectedUnit": "Unidad seleccionada",
     "selectSquad": "Elige tu escuadra",
     "selectUnitHint": "Selecciona una de tus unidades en el tablero.",
+    "setupHint": "Coloca tu obstáculo: una casilla, fuera de la zona central y de las zonas de despliegue. Bloquea el movimiento y la línea de visión. La IA colocará el suyo.",
+    "setupTitle": "Preparación",
     "startBattle": "Iniciar la batalla",
     "status": {
       "defensiveStance": "Postura defensiva",
@@ -65,6 +68,7 @@
       "untargetable": "INS"
     },
     "title": "Batalla",
+    "toSetup": "Preparar la batalla",
     "turn": "Turno {{turn}}",
     "useDefault": "Escuadra de demostración",
     "validActions": "Acciones válidas · {{n}}",
@@ -76,9 +80,8 @@
   "card": {
     "noAbility": "Sin habilidad",
     "noIllustration": "Sin ilustración",
-    "rankPoints": "{{points}} PR",
-    "rankPointsFull": "Puntos de rango",
-    "rankPointsShort": "PR"
+    "points": "{{points}} pts",
+    "pointsFull": "Coste en puntos"
   },
   "navigation": {
     "battle": "Batalla",
@@ -117,10 +120,10 @@
     "create": "Crear escuadra",
     "currentSquad": "Escuadra actual",
     "edit": "Guardar escuadra",
-    "exceedsBudget": "Excede el presupuesto en {{points}} PR",
-    "freeSlots": "{{slots}} espacios libres · {{points}} PR disponibles",
+    "exceedsBudget": "Excede el presupuesto en {{points}} pts",
+    "freeSlots": "{{slots}} espacios libres · {{points}} pts disponibles",
     "noAvailableUnits": "No hay unidades disponibles. Crea unidades en la sección Unidades primero.",
-    "pointsSpent": "Puntos de rango consumidos",
+    "pointsSpent": "Puntos gastados",
     "remaining": "quedan {{points}}",
     "remove": "Quitar",
     "squadFull": "Escuadra completa",
@@ -178,6 +181,7 @@
     "increase": "Aumentar",
     "invalidFile": "Archivo no válido",
     "name": "Nombre",
+    "narrativeRank": "título narrativo",
     "nextNotchHint": "El siguiente escalón está cifrado al margen",
     "overBudget": "Esta unidad supera el coste máximo de {{max}}.",
     "preview": "Vista previa",

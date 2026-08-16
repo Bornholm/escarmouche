@@ -7,6 +7,7 @@ const COLUMNS = ["A", "B", "C", "D", "E", "F", "G", "H"];
 
 interface BattleBoardProps {
   units: BattleUnit[];
+  obstacles: { x: number; y: number }[];
   validActions: ActionDescription[];
   selectedUnitID: number | null;
   humanPlayerID: number;
@@ -56,6 +57,7 @@ const ABILITY_FAMILY: Record<string, string> = {
    ========================================================================== */
 export const BattleBoard: React.FC<BattleBoardProps> = ({
   units,
+  obstacles,
   validActions,
   selectedUnitID,
   humanPlayerID,
@@ -72,6 +74,13 @@ export const BattleBoard: React.FC<BattleBoardProps> = ({
     for (const unit of units) map[`${unit.x},${unit.y}`] = unit;
     return map;
   }, [units]);
+
+  const obstacleSet = useMemo(
+    () => new Set(obstacles.map((o) => `${o.x},${o.y}`)),
+    [obstacles]
+  );
+
+  const isObjective = (x: number, y: number) => x >= 3 && x <= 4 && y >= 3 && y <= 4;
 
   const selectedUnit = units.find((u) => u.id === selectedUnitID) ?? null;
 
@@ -186,6 +195,7 @@ export const BattleBoard: React.FC<BattleBoardProps> = ({
                 const isAbilityCell = !unit && abilityCells.has(posKey);
                 const isAbilityUnit = !!unit && abilityCells.has(`unit:${unit.id}`);
                 const isDark = (x + y) % 2 === 0;
+                const isObstacle = obstacleSet.has(posKey);
 
                 const state = isMove
                   ? "move"
@@ -216,6 +226,8 @@ export const BattleBoard: React.FC<BattleBoardProps> = ({
                     className={[
                       "cell",
                       isDark ? "cell--dark" : "cell--light",
+                      isObjective(x, y) ? "cell--objective" : "",
+                      isObstacle ? "cell--obstacle" : "",
                       state ? `cell--${state}` : "",
                       state ? "cell--reveal" : "",
                       hoveredKey === posKey ? "cell--hovered" : "",
@@ -229,6 +241,11 @@ export const BattleBoard: React.FC<BattleBoardProps> = ({
                       }
                     }}
                   >
+                    {isObstacle && (
+                      <svg className="mark mark--obstacle" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M4 20h16M6 20l2-9h8l2 9M9 11l1-5h4l1 5" />
+                      </svg>
+                    )}
                     {isMove && !unit && <span className="mark mark--move" aria-hidden="true" />}
                     {isAbilityCell && (
                       <svg className="mark mark--ability" viewBox="0 0 24 24" aria-hidden="true">

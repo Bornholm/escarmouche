@@ -20,7 +20,8 @@ export const BattlePage: React.FC<BattlePageProps> = ({ squads, units }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
-  const [step, setStep] = useState<"select" | "battle">("select");
+  const [step, setStep] = useState<"select" | "setup" | "battle">("select");
+  const [obstacle, setObstacle] = useState<{ x: number; y: number } | null>(null);
   const [battleState, setBattleState] = useState<BattleState | null>(null);
   const [selectedUnitID, setSelectedUnitID] = useState<number | null>(null);
   const [hoveredAction, setHoveredAction] = useState<ActionDescription | null>(null);
@@ -90,7 +91,7 @@ export const BattlePage: React.FC<BattlePageProps> = ({ squads, units }) => {
       .filter((u): u is Unit => !!u);
   };
 
-  const handleStartBattle = async (squadUnits: Unit[]) => {
+  const handleStartBattle = async (squadUnits: Unit[], placedObstacle: { x: number; y: number }) => {
     const unitInputs = squadUnits.map((u) => ({
       health: u.health,
       range: u.range,
@@ -102,7 +103,11 @@ export const BattlePage: React.FC<BattlePageProps> = ({ squads, units }) => {
     }));
 
     try {
-      const state = (await Barracks.startGame(unitInputs, difficulty)) as unknown as BattleState;
+      const state = (await Barracks.startGame(
+        unitInputs,
+        difficulty,
+        placedObstacle
+      )) as unknown as BattleState;
       setBattleState(state);
       setStep("battle");
       setSelectedUnitID(null);
@@ -142,13 +147,13 @@ export const BattlePage: React.FC<BattlePageProps> = ({ squads, units }) => {
 
   const handleRematch = async () => {
     const squadUnits = getSelectedUnits();
-    if (squadUnits.length === 0) {
+    if (squadUnits.length === 0 || !obstacle) {
       setStep("select");
       return;
     }
     setBattleState(null);
     setStep("battle");
-    await handleStartBattle(squadUnits);
+    await handleStartBattle(squadUnits, obstacle);
   };
 
   const quitBattle = () => {
@@ -226,9 +231,9 @@ export const BattlePage: React.FC<BattlePageProps> = ({ squads, units }) => {
             <button
               className="btn btn--primary"
               disabled={chosen.length === 0}
-              onClick={() => handleStartBattle(chosen)}
+              onClick={() => setStep("setup")}
             >
-              {t("battle.startBattle")}
+              {t("battle.toSetup")}
             </button>
             <button className="btn" onClick={() => navigate("/squads")}>
               {t("battle.back")}
@@ -236,6 +241,85 @@ export const BattlePage: React.FC<BattlePageProps> = ({ squads, units }) => {
           </div>
 
           {squads.length === 0 && <div className="notice">{t("battle.noSquads")}</div>}
+        </div>
+      </>
+    );
+  }
+
+  /* ---------------------------------------------------------------------------
+     Mise en place : le joueur pose son obstacle (1 case, hors zone centrale
+     et zones de déploiement), puis la partie démarre — l'IA pose le sien.
+     ------------------------------------------------------------------------ */
+  if (step === "setup") {
+    const valid = new Set(
+      (Barracks.ValidObstaclePositions ?? []).map((p) => `${p.x},${p.y}`)
+    );
+    const rows = Array.from({ length: 8 }, (_, i) => 7 - i);
+
+    return (
+      <>
+        <div className="page__head">
+          <button className="btn btn--sm" onClick={() => setStep("select")}>
+            {t("battle.back")}
+          </button>
+          <h1 className="page__title">{t("battle.setupTitle")}</h1>
+          <div className="spacer" />
+        </div>
+
+        <div className="panel__section">
+          <p className="empty__text" style={{ maxWidth: 520 }}>
+            {t("battle.setupHint")}
+          </p>
+
+          <div className="board-wrap">
+            <div className="board">
+              {rows.flatMap((y) =>
+                Array.from({ length: 8 }, (_, x) => {
+                  const key = `${x},${y}`;
+                  const isObjective = x >= 3 && x <= 4 && y >= 3 && y <= 4;
+                  const placeable = valid.has(key);
+                  const chosen = obstacle?.x === x && obstacle?.y === y;
+                  return (
+                    <div
+                      key={key}
+                      role={placeable ? "button" : undefined}
+                      tabIndex={placeable ? 0 : undefined}
+                      className={[
+                        "cell",
+                        (x + y) % 2 === 0 ? "cell--dark" : "cell--light",
+                        isObjective ? "cell--objective" : "",
+                        placeable ? "cell--placeable" : "",
+                        chosen ? "cell--selected" : "",
+                      ].join(" ")}
+                      onClick={() => placeable && setObstacle({ x, y })}
+                      onKeyDown={(event) => {
+                        if (placeable && (event.key === "Enter" || event.key === " ")) {
+                          event.preventDefault();
+                          setObstacle({ x, y });
+                        }
+                      }}
+                    >
+                      {chosen && (
+                        <svg className="mark mark--obstacle" viewBox="0 0 24 24" aria-hidden="true">
+                          <path d="M4 20h16M6 20l2-9h8l2 9M9 11l1-5h4l1 5" />
+                        </svg>
+                      )}
+                    </div>
+                  );
+                })
+              )}
+            </div>
+          </div>
+
+          <div className="row row--2">
+            <button
+              className="btn btn--primary"
+              disabled={!obstacle}
+              onClick={() => obstacle && handleStartBattle(getSelectedUnits(), obstacle)}
+            >
+              {t("battle.startBattle")}
+            </button>
+          </div>
         </div>
       </>
     );
@@ -303,6 +387,7 @@ export const BattlePage: React.FC<BattlePageProps> = ({ squads, units }) => {
         <div className="battle__board">
           <BattleBoard
             units={display}
+            obstacles={battleState.obstacles ?? []}
             validActions={battleState.validActions}
             selectedUnitID={selectedUnitID}
             humanPlayerID={battleState.humanPlayerID}
@@ -334,6 +419,32 @@ export const BattlePage: React.FC<BattlePageProps> = ({ squads, units }) => {
               </div>
               <div className="spacer" />
               <span className="section-label">{t("battle.turn", { turn: battleState.turn })}</span>
+            </div>
+
+            <div className="control-score">
+              <span className="field__label">{t("battle.controlScore")}</span>
+              <div className="spacer" />
+              <div className="control-score__pips" title={t("battle.yourUnits")}>
+                {Array.from({ length: Barracks.ControlPointsToWin ?? 3 }, (_, i) => (
+                  <span
+                    key={i}
+                    className={`control-score__pip ${
+                      i < (battleState.controlPoints?.player ?? 0) ? "control-score__pip--filled" : ""
+                    }`}
+                  />
+                ))}
+              </div>
+              <span className="section-label">vs</span>
+              <div className="control-score__pips" title={t("battle.aiUnits")}>
+                {Array.from({ length: Barracks.ControlPointsToWin ?? 3 }, (_, i) => (
+                  <span
+                    key={i}
+                    className={`control-score__pip control-score__pip--ai ${
+                      i < (battleState.controlPoints?.ai ?? 0) ? "control-score__pip--filled" : ""
+                    }`}
+                  />
+                ))}
+              </div>
             </div>
 
             <div className="stack stack--2">

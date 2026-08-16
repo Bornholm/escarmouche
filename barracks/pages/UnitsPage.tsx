@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router";
 import { useTranslation } from "react-i18next";
 import { Rank, Unit } from "../types";
 import { useEvaluations } from "../hooks/useEvaluations";
-import { rankPoints, RANK_ORDER } from "../util/rank";
+import { formatCost, RANK_ORDER } from "../util/rank";
 import {
   PlusIcon,
   PrintIcon,
@@ -154,8 +154,8 @@ export const UnitsPage: React.FC<UnitsPageProps> = ({ units, onDeleteUnit }) => 
               <div className="unit-tile__art">
                 {unit.imageUrl && <img src={unit.imageUrl} alt="" />}
                 {evaluation && (
-                  <div className="unit-tile__cost" title={t("card.rankPointsFull")}>
-                    {rankPoints(evaluation.rank)}
+                  <div className="unit-tile__cost" title={t("card.pointsFull")}>
+                    {formatCost(evaluation.cost)}
                   </div>
                 )}
               </div>

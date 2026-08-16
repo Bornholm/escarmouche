@@ -9,7 +9,7 @@ import { BASE_URL } from "../util/baseUrl";
 import { useAsyncMemo } from "../hooks/useAsyncMemo";
 import { useAbilities, resolveAbilities } from "../hooks/useAbilities";
 import { useMarginalCosts } from "../hooks/useMarginalCosts";
-import { formatCost, maxUnitCost, rankLadder, rankPoints } from "../util/rank";
+import { formatCost, maxUnitCost, rankLadder, RANK_COST_TARGETS } from "../util/rank";
 import {
   ArchetypeIcon,
   BackIcon,
@@ -125,7 +125,10 @@ export const UnitEditorPage: React.FC<UnitEditorPageProps> = ({ units, onSave })
   const handleGenerate = async () => {
     setIsGenerating(true);
     try {
-      const generated: GeneratedUnit = await Barracks.generateUnit(selectedRank, selectedArchetype);
+      const generated: GeneratedUnit = await Barracks.generateUnit(
+        RANK_COST_TARGETS[selectedRank],
+        selectedArchetype
+      );
       setFormData((prev) => ({
         ...prev,
         id: prev.id || generateId(),
@@ -469,9 +472,7 @@ export const UnitEditorPage: React.FC<UnitEditorPageProps> = ({ units, onSave })
                   {evaluation ? t(`ranks.${evaluation.rank}` as never) : "—"}
                 </div>
 
-                <div className="section-label">
-                  {t("card.rankPoints", { points: rankPoints(evaluation?.rank) })}
-                </div>
+                <div className="section-label">{t("unitEditor.narrativeRank")}</div>
               </div>
             </div>
 
@@ -481,7 +482,7 @@ export const UnitEditorPage: React.FC<UnitEditorPageProps> = ({ units, onSave })
                   <div
                     key={step.rank}
                     className={`ladder__seg ${step.reached ? "ladder__seg--reached" : ""}`}
-                    style={{ flex: step.points }}
+                    style={{ flex: step.width }}
                   />
                 ))}
               </div>

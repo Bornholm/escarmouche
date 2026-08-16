@@ -1,15 +1,14 @@
 import { Rank } from "../types";
 
 /* =============================================================================
-   Deux échelles distinctes, qu'il ne faut pas confondre :
+   Le COÛT est l'unique monnaie du jeu : les escouades se composent dans un
+   budget de points de coût (`Barracks.SquadBudget`).
 
-   - le COÛT d'une unité : un flottant borné par `Barracks.MaxUnitCost` (30),
-     calculé par le moteur à partir des caractéristiques et des capacités ;
-   - les POINTS DE RANG (PR) : la valeur discrète du rang atteint (1, 3, 6, 10,
-     15), seule monnaie qui compte pour composer une escouade (30 PR maximum).
-
-   Le rang est déduit du coût par les règles floues du moteur, pas par un seuil
-   fixe : on ne peut donc pas recalculer l'un depuis l'autre côté front.
+   Le RANG n'est qu'un titre narratif dérivé de bandes de coût fixes — il
+   habille la carte, il ne se paie pas. L'ancien système à double monnaie
+   (coût continu → rang flou → points de rang discrets) détruisait
+   l'information : deux unités au même prix d'escouade pouvaient différer de
+   50 % en valeur réelle.
    ========================================================================== */
 
 export const RANK_ORDER: Rank[] = [
@@ -20,46 +19,47 @@ export const RANK_ORDER: Rank[] = [
   Rank.Paragon,
 ];
 
-/** Repli si le moteur n'a pas encore répondu — remplacé par Barracks.RankPointCosts. */
-const FALLBACK_RANK_POINTS: Record<string, number> = {
-  [Rank.Trooper]: 1,
-  [Rank.Veteran]: 3,
-  [Rank.Elite]: 6,
-  [Rank.Champion]: 10,
-  [Rank.Paragon]: 15,
+/** Bornes hautes des bandes de coût de chaque rang (sur MaxUnitCost = 30). */
+export const RANK_COST_CEILINGS: Record<Rank, number> = {
+  [Rank.Trooper]: 10,
+  [Rank.Veteran]: 16,
+  [Rank.Elite]: 22,
+  [Rank.Champion]: 27,
+  [Rank.Paragon]: 30,
 };
 
-export const rankPoints = (rank?: Rank | string): number => {
-  if (!rank) return 0;
-  const fromEngine = typeof Barracks !== "undefined" ? Barracks.RankPointCosts : undefined;
-  return fromEngine?.[rank] ?? FALLBACK_RANK_POINTS[rank] ?? 0;
+/** Gabarits de coût proposés par le générateur aléatoire, un par rang. */
+export const RANK_COST_TARGETS: Record<Rank, number> = {
+  [Rank.Trooper]: 8,
+  [Rank.Veteran]: 14,
+  [Rank.Elite]: 20,
+  [Rank.Champion]: 26,
+  [Rank.Paragon]: 30,
 };
 
 export const rankIndex = (rank?: Rank | string): number => RANK_ORDER.indexOf(rank as Rank);
 
-/** Segments de la jauge de rangs, proportionnels au coût en PR de chaque rang. */
+/** Segments de la jauge de rangs, proportionnels à la largeur de chaque bande. */
 export const rankLadder = (rank?: Rank | string) => {
   const current = rankIndex(rank);
-  return RANK_ORDER.map((r, i) => ({
-    rank: r,
-    points: rankPoints(r),
-    reached: current >= i,
-    current: current === i,
-  }));
-};
-
-/** Le rang suivant, ou undefined si l'unité est déjà Parangon. */
-export const nextRank = (rank?: Rank | string): Rank | undefined => {
-  const index = rankIndex(rank);
-  if (index === -1 || index >= RANK_ORDER.length - 1) return undefined;
-  return RANK_ORDER[index + 1];
+  let previousCeiling = 0;
+  return RANK_ORDER.map((r, i) => {
+    const width = RANK_COST_CEILINGS[r] - previousCeiling;
+    previousCeiling = RANK_COST_CEILINGS[r];
+    return {
+      rank: r,
+      width,
+      reached: current >= i,
+      current: current === i,
+    };
+  });
 };
 
 export const maxUnitCost = (): number =>
   (typeof Barracks !== "undefined" ? Barracks.MaxUnitCost : undefined) ?? 30;
 
-export const maxSquadRankPoints = (): number =>
-  (typeof Barracks !== "undefined" ? Barracks.MaxSquadRankPoints : undefined) ?? 30;
+export const squadBudget = (): number =>
+  (typeof Barracks !== "undefined" ? Barracks.SquadBudget : undefined) ?? 100;
 
 export const maxSquadSize = (): number =>
   (typeof Barracks !== "undefined" ? Barracks.MaxSquadSize : undefined) ?? 6;

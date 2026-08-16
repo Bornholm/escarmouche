@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Evaluation, Unit } from "../types";
 import { useAsyncMemo } from "../hooks/useAsyncMemo";
 import { useAbilities, resolveAbilities } from "../hooks/useAbilities";
-import { rankPoints } from "../util/rank";
+import { formatCost } from "../util/rank";
 import { NoImageIcon, RankIcon, StatIcon, StatKey, rankCode } from "./Icons";
 
 interface UnitCardProps {
@@ -30,7 +30,6 @@ export const UnitCard: React.FC<UnitCardProps> = ({ unit, variant = "full", clas
   const catalog = useAbilities();
   const evaluation = useAsyncMemo<Evaluation>(() => Barracks.evaluateUnit(unit), [unit]);
   const abilities = resolveAbilities(unit.abilities, catalog);
-  const points = rankPoints(evaluation?.rank);
 
   return (
     <article className={`unit-card ${variant === "preview" ? "unit-card--preview" : ""} ${className ?? ""}`}>
@@ -61,7 +60,7 @@ export const UnitCard: React.FC<UnitCardProps> = ({ unit, variant = "full", clas
           </div>
         )}
         {evaluation && (
-          <div className="unit-card__cost">{t("card.rankPoints", { points })}</div>
+          <div className="unit-card__cost">{t("card.points", { points: formatCost(evaluation?.cost) })}</div>
         )}
       </div>
 

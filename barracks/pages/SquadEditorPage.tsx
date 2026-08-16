@@ -5,7 +5,7 @@ import { Squad, Unit } from "../types";
 import { generateId } from "../util/storage";
 import { useEvaluations } from "../hooks/useEvaluations";
 import { useAbilities, resolveAbilities } from "../hooks/useAbilities";
-import { maxSquadRankPoints, maxSquadSize, rankPoints } from "../util/rank";
+import { formatCost, maxSquadSize, squadBudget } from "../util/rank";
 import { LockIcon, MinusIcon, PlusIcon, RankIcon } from "../components/Icons";
 
 interface SquadEditorPageProps {
@@ -34,13 +34,13 @@ export const SquadEditorPage: React.FC<SquadEditorPageProps> = ({
   const [squad, setSquad] = useState<Squad>({ id: generateId(), name: "", units: [] });
   const catalog = useAbilities();
   const evaluations = useEvaluations(availableUnits);
-  const maxPoints = maxSquadRankPoints();
+  const maxPoints = squadBudget();
   const maxSize = maxSquadSize();
   useEffect(() => {
     if (existingSquad) setSquad({ ...existingSquad });
   }, [existingSquad]);
   const spent = useMemo(
-    () => squad.units.reduce((total, unit) => total + rankPoints(evaluations[unit.id]?.rank), 0),
+    () => squad.units.reduce((total, unit) => total + (evaluations[unit.id]?.cost ?? 0), 0),
     [squad.units, evaluations]
   );
   const remaining = maxPoints - spent;
@@ -54,7 +54,7 @@ export const SquadEditorPage: React.FC<SquadEditorPageProps> = ({
 
   const addUnit = (unit: Unit) => {
     if (freeSlots <= 0) return;
-    if (rankPoints(evaluations[unit.id]?.rank) > remaining) return;
+    if ((evaluations[unit.id]?.cost ?? 0) > remaining) return;
     setSquad((prev) => ({ ...prev, units: [...prev.units, unit] }));
   };
 
@@ -93,7 +93,7 @@ export const SquadEditorPage: React.FC<SquadEditorPageProps> = ({
                 <div className="spacer" />
 
                 <span className="num" className="meta-sm">
-                  {t("squadEditor.remaining", { points: remaining })}
+                  {t("squadEditor.remaining", { points: formatCost(remaining) })}
                 </span>
               </div>
               {/* Jauge de budget : un segment par unité, à l'échelle de son coût */}
@@ -118,8 +118,8 @@ export const SquadEditorPage: React.FC<SquadEditorPageProps> = ({
 
             <div className="squad-bar__totals">
               <div className="row row--2" >
-                <span className="squad-bar__spent">{spent}</span>
-                <span className="eval__max">/ {maxPoints} {t("card.rankPointsShort")}</span>
+                <span className="squad-bar__spent">{formatCost(Math.round(spent * 10) / 10)}</span>
+                <span className="eval__max">/ {maxPoints} pts</span>
               </div>
 
               <div className="section-label">
@@ -158,7 +158,7 @@ export const SquadEditorPage: React.FC<SquadEditorPageProps> = ({
                 <div className="squad-row__meta">{describe(unit)}</div>
               </div>
 
-              <div className="squad-row__points num">{rankPoints(evaluations[unit.id]?.rank)}</div>
+              <div className="squad-row__points num">{formatCost(evaluations[unit.id]?.cost)}</div>
               <button
                 type="button"
                 className="iconbtn"
@@ -173,7 +173,7 @@ export const SquadEditorPage: React.FC<SquadEditorPageProps> = ({
             <div className="squad-row__art squad-row__art--empty" />
 
             <div className="hint">
-              {t("squadEditor.freeSlots", { slots: freeSlots, points: remaining })}
+              {t("squadEditor.freeSlots", { slots: freeSlots, points: formatCost(remaining) })}
             </div>
           </div>
         </section>
@@ -189,7 +189,7 @@ export const SquadEditorPage: React.FC<SquadEditorPageProps> = ({
             </div>
           )}
           {availableUnits.map((unit) => {
-            const points = rankPoints(evaluations[unit.id]?.rank);
+            const points = evaluations[unit.id]?.cost ?? 0;
             const overrun = points - remaining;
             const unaffordable = overrun > 0 || freeSlots <= 0;
 
@@ -222,7 +222,7 @@ export const SquadEditorPage: React.FC<SquadEditorPageProps> = ({
                   <div className="squad-row__name">{unit.name}</div>
                   <div className={`squad-row__meta ${unaffordable ? "squad-row__meta--over" : ""}`}>
                     {overrun > 0
-                      ? t("squadEditor.exceedsBudget", { points: overrun })
+                      ? t("squadEditor.exceedsBudget", { points: formatCost(overrun) })
                       : freeSlots <= 0
                       ? t("squadEditor.squadFull")
                       : describe(unit)}
@@ -230,7 +230,7 @@ export const SquadEditorPage: React.FC<SquadEditorPageProps> = ({
                 </div>
 
                 <div className={`squad-row__points num ${overrun > 0 ? "squad-row__points--over" : ""}`}>
-                  {points}
+                  {formatCost(points)}
                 </div>
                 {unaffordable ? (
                   <div className="squad-row__lock" aria-hidden="true">

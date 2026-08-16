@@ -14,6 +14,7 @@
     "aiTurn": "AI turn",
     "aiUnits": "Enemy",
     "back": "Back",
+    "controlScore": "Zone control",
     "defeat": "Defeat",
     "defeatMessage": "All your units have been eliminated.",
     "difficulties": {
@@ -51,6 +52,8 @@
     "selectedUnit": "Selected unit",
     "selectSquad": "Choose your squad",
     "selectUnitHint": "Select one of your units on the board.",
+    "setupHint": "Place your obstacle: one square, outside the central zone and the deployment zones. It blocks movement and line of sight. The AI will place its own.",
+    "setupTitle": "Setup",
     "startBattle": "Start the battle",
     "status": {
       "defensiveStance": "Defensive stance",
@@ -65,6 +68,7 @@
       "untargetable": "UNT"
     },
     "title": "Battle",
+    "toSetup": "Prepare the battle",
     "turn": "Turn {{turn}}",
     "useDefault": "Demo squad",
     "validActions": "Valid actions · {{n}}",
@@ -76,9 +80,8 @@
   "card": {
     "noAbility": "No ability",
     "noIllustration": "No illustration",
-    "rankPoints": "{{points}} RP",
-    "rankPointsFull": "Rank points",
-    "rankPointsShort": "RP"
+    "points": "{{points}} pts",
+    "pointsFull": "Point cost"
   },
   "navigation": {
     "battle": "Battle",
@@ -117,10 +120,10 @@
     "create": "Create squad",
     "currentSquad": "Current squad",
     "edit": "Save squad",
-    "exceedsBudget": "Exceeds budget by {{points}} RP",
-    "freeSlots": "{{slots}} free slots · {{points}} RP available",
+    "exceedsBudget": "Exceeds budget by {{points}} pts",
+    "freeSlots": "{{slots}} free slots · {{points}} pts available",
     "noAvailableUnits": "No unit available. Create units in the Units section first.",
-    "pointsSpent": "Rank points spent",
+    "pointsSpent": "Points spent",
     "remaining": "{{points}} left",
     "remove": "Remove",
     "squadFull": "Squad full",
@@ -178,6 +181,7 @@
     "increase": "Increase",
     "invalidFile": "Invalid file",
     "name": "Name",
+    "narrativeRank": "narrative title",
     "nextNotchHint": "The next notch is priced in the margin",
     "overBudget": "This unit exceeds the maximum cost of {{max}}.",
     "preview": "Preview",

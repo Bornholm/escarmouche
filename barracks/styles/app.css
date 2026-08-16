@@ -1842,3 +1842,46 @@
    l'historique — distinguer qui a fait quoi est le minimum pour suivre. */
 .action-btn__damage { font-size: var(--type-xs); color: var(--act-attack-mark); flex: none; }
 .log__you { color: var(--text); }
+
+/* -----------------------------------------------------------------------------
+   Zone d'objectif et obstacles
+   La zone centrale 2×2 est marquée en permanence : c'est la condition de
+   victoire, elle doit se lire d'un coup d'œil. Les obstacles bloquent
+   mouvement et ligne de vue.
+   -------------------------------------------------------------------------- */
+.cell--objective {
+  box-shadow: inset 0 0 0 var(--stroke-hairline) var(--accent);
+}
+.cell--objective.cell--dark { background-color: var(--accent-wash); }
+.cell--objective.cell--light { background-color: var(--accent-wash); }
+
+.cell--obstacle { cursor: default; }
+.mark--obstacle {
+  width: 62%;
+  height: 62%;
+  fill: none;
+  stroke: var(--text-faint);
+  stroke-width: 1.6;
+}
+
+/* Phase de mise en place : cases candidates pour l'obstacle */
+.cell--placeable {
+  cursor: pointer;
+  box-shadow: inset 0 0 0 var(--stroke-hairline) var(--warning);
+}
+.cell--placeable:hover { box-shadow: inset 0 0 0 var(--stroke-emphasis) var(--warning); }
+
+/* Score de contrôle */
+.control-score {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+.control-score__pips { display: flex; gap: var(--space-1); }
+.control-score__pip {
+  width: 12px;
+  height: 12px;
+  border: var(--stroke-hairline) solid var(--border-strong);
+}
+.control-score__pip--filled { background: var(--accent); border-color: var(--accent); }
+.control-score__pip--ai.control-score__pip--filled { background: var(--owner-ai); border-color: var(--owner-ai); }
