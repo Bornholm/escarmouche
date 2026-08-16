@@ -49,6 +49,7 @@
     "rematch": "Rematch",
     "replaying": "Action in progress",
     "replayingHint": "The board is replaying the actions…",
+    "scoreSeparator": "vs",
     "selectedUnit": "Selected unit",
     "selectSquad": "Choose your squad",
     "selectUnitHint": "Select one of your units on the board.",
@@ -81,7 +82,8 @@
     "noAbility": "No ability",
     "noIllustration": "No illustration",
     "points": "{{points}} pts",
-    "pointsFull": "Point cost"
+    "pointsFull": "Point cost",
+    "pointsShort": "pts"
   },
   "navigation": {
     "battle": "Battle",

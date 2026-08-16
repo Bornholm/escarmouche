@@ -49,6 +49,7 @@
     "rematch": "Revanche",
     "replaying": "Action en cours",
     "replayingHint": "Le plateau rejoue les actions…",
+    "scoreSeparator": "vs",
     "selectedUnit": "Unité sélectionnée",
     "selectSquad": "Choisissez votre escouade",
     "selectUnitHint": "Sélectionnez une de vos unités sur le plateau.",
@@ -81,7 +82,8 @@
     "noAbility": "Aucune capacité",
     "noIllustration": "Aucune illustration",
     "points": "{{points}} pts",
-    "pointsFull": "Coût en points"
+    "pointsFull": "Coût en points",
+    "pointsShort": "pts"
   },
   "navigation": {
     "battle": "Bataille",

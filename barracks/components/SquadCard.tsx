@@ -35,7 +35,7 @@ export const SquadCard: React.FC<SquadCardProps> = ({ squad, onEdit, onDelete })
             {formatCost(Math.round(spent * 10) / 10)}
           </span>
 
-          <span className="section-label">/ {maxPoints} pts</span>
+          <span className="section-label">/ {maxPoints} {t("card.pointsShort")}</span>
         </div>
       </div>
       {/* La consommation du budget est le véhicule visuel principal, ici aussi */}

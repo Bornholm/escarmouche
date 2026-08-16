@@ -368,7 +368,7 @@ export const UnitEditorPage: React.FC<UnitEditorPageProps> = ({ units, onSave })
                     <option value="">{t("unitEditor.addAbility")}</option>
                     {availableToAdd.map((ability) => (
                       <option key={ability.id} value={ability.id}>
-                        {ability.label} (+{ability.cost})
+                        {`${ability.label} (+${ability.cost})`}
                       </option>
                     ))}
                   </select>

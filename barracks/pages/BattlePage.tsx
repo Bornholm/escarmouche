@@ -434,7 +434,7 @@ export const BattlePage: React.FC<BattlePageProps> = ({ squads, units }) => {
                   />
                 ))}
               </div>
-              <span className="section-label">vs</span>
+              <span className="section-label">{t("battle.scoreSeparator")}</span>
               <div className="control-score__pips" title={t("battle.aiUnits")}>
                 {Array.from({ length: Barracks.ControlPointsToWin ?? 3 }, (_, i) => (
                   <span

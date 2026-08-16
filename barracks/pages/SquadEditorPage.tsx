@@ -130,7 +130,7 @@ export const SquadEditorPage: React.FC<SquadEditorPageProps> = ({
             <div className="squad-bar__totals">
               <div className="row row--2" >
                 <span className="squad-bar__spent">{formatCost(Math.round(spent * 10) / 10)}</span>
-                <span className="eval__max">/ {maxPoints} pts</span>
+                <span className="eval__max">/ {maxPoints} {t("card.pointsShort")}</span>
               </div>
 
               <div className="section-label">

@@ -49,6 +49,7 @@
     "rematch": "Revancha",
     "replaying": "Acción en curso",
     "replayingHint": "El tablero está reproduciendo las acciones…",
+    "scoreSeparator": "vs",
     "selectedUnit": "Unidad seleccionada",
     "selectSquad": "Elige tu escuadra",
     "selectUnitHint": "Selecciona una de tus unidades en el tablero.",
@@ -81,7 +82,8 @@
     "noAbility": "Sin habilidad",
     "noIllustration": "Sin ilustración",
     "points": "{{points}} pts",
-    "pointsFull": "Coste en puntos"
+    "pointsFull": "Coste en puntos",
+    "pointsShort": "pts"
   },
   "navigation": {
     "battle": "Batalla",
