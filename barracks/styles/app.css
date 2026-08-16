@@ -135,8 +135,12 @@
 .topbar__burger { display: none; }
 
 @media (max-width: 820px) {
-  .topbar { flex-wrap: wrap; }
+  .topbar { flex-wrap: wrap; align-items: center; }
   .topbar__brand { flex: 1; border-right: none; }
+  /* Le séparateur garde son ordre par défaut : sans cela il reste sur la
+     première ligne, partage l'espace avec la marque (tous deux en flex:1) et
+     repousse le burger au milieu de la barre au lieu du bord droit. */
+  .topbar__spacer { display: none; }
   .topbar__burger {
     display: flex;
     align-items: center;
