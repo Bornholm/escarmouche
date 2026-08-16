@@ -61,6 +61,7 @@
     "setupHint": "Placez votre obstacle : une case, hors de la zone centrale et des zones de déploiement. Il bloque les déplacements et la ligne de vue. L'IA placera le sien.",
     "setupTitle": "Mise en place",
     "startBattle": "Lancer la bataille",
+    "starting": "La partie commence…",
     "status": {
       "defensiveStance": "Posture défensive",
       "overcharged": "Surcharge",

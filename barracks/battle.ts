@@ -59,6 +59,8 @@ export interface BattleUnit {
 }
 
 export interface BattleState {
+  /** false tant que la partie n'a pas été démarrée par `beginBattle`. */
+  started: boolean;
   units: BattleUnit[];
   obstacles: { x: number; y: number }[];
   controlPoints: { player: number; ai: number };

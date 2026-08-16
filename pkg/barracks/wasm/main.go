@@ -4,8 +4,8 @@
 package main
 
 import (
-	"math/rand"
 	"fmt"
+	"math/rand"
 	"slices"
 	"sync"
 	"syscall/js"
@@ -34,22 +34,23 @@ func main() {
 	}
 
 	js.Global().Set("Barracks", map[string]any{
-		"evaluateUnit":            js.FuncOf(evaluateUnit),
-		"generateSquad":           js.FuncOf(generateSquad),
-		"generateUnit":            js.FuncOf(generateUnit),
-		"getAvailableAbilities":   js.FuncOf(getAvailableAbilities),
-		"startDeployment":         js.FuncOf(startDeployment),
-		"deployUnit":              js.FuncOf(deployUnit),
-		"startGame":               js.FuncOf(startGame),
-		"getValidActions":         js.FuncOf(getValidActionsJS),
-		"selectAction":            js.FuncOf(selectAction),
-		"endGame":                 js.FuncOf(endGame),
-		"MaxSquadSize":            js.ValueOf(gen.DefaultMaxSquadSize),
-		"SquadBudget":             js.ValueOf(gen.DefaultSquadBudget),
-		"MaxUnitCost":             js.ValueOf(core.DefaultCosts.MaxTotal),
-		"ControlPointsToWin":      js.ValueOf(sim.ControlPointsToWin),
-		"ObjectiveZone":           js.ValueOf(objectiveZone),
-		"ValidObstaclePositions":  js.ValueOf(obstaclePositions),
+		"evaluateUnit":           js.FuncOf(evaluateUnit),
+		"generateSquad":          js.FuncOf(generateSquad),
+		"generateUnit":           js.FuncOf(generateUnit),
+		"getAvailableAbilities":  js.FuncOf(getAvailableAbilities),
+		"startDeployment":        js.FuncOf(startDeployment),
+		"deployUnit":             js.FuncOf(deployUnit),
+		"startGame":              js.FuncOf(startGame),
+		"beginBattle":            js.FuncOf(beginBattle),
+		"getValidActions":        js.FuncOf(getValidActionsJS),
+		"selectAction":           js.FuncOf(selectAction),
+		"endGame":                js.FuncOf(endGame),
+		"MaxSquadSize":           js.ValueOf(gen.DefaultMaxSquadSize),
+		"SquadBudget":            js.ValueOf(gen.DefaultSquadBudget),
+		"MaxUnitCost":            js.ValueOf(core.DefaultCosts.MaxTotal),
+		"ControlPointsToWin":     js.ValueOf(sim.ControlPointsToWin),
+		"ObjectiveZone":          js.ValueOf(objectiveZone),
+		"ValidObstaclePositions": js.ValueOf(obstaclePositions),
 	})
 
 	select {}
@@ -213,6 +214,13 @@ type gameSession struct {
 	validActions   []sim.Action
 	originalUnits  map[sim.UnitID]originalUnitData
 	currentTurn    uint
+	// La partie est construite par startGame mais N'EST PAS lancée : le front
+	// doit d'abord afficher le plateau de départ. C'est beginBattle qui
+	// démarre la boucle. Sans cette séparation, une IA tirée en premier jouait
+	// son tour avant que l'interface n'existe — le joueur découvrait le
+	// plateau déjà entamé et avait l'impression d'un coup d'avance volé.
+	run     func()
+	started bool
 }
 
 var (
@@ -483,56 +491,56 @@ func startGame(this js.Value, args []js.Value) any {
 			obstacles = append(obstacles, aiObstacle)
 		}
 
-		go func() {
-			// Chaque action jouée depuis la dernière main rendue au joueur, avec
-			// l'instantané du plateau juste après son application. C'est ce qui
-			// permet au front de REJOUER le tour au lieu de téléporter le
-			// plateau à l'état final : sans ces images intermédiaires, le joueur
-			// subit le résultat sans jamais voir la cause.
-			recentSteps := []map[string]any{}
+		// Chaque action jouée depuis la dernière main rendue au joueur, avec
+		// l'instantané du plateau juste après son application. C'est ce qui
+		// permet au front de REJOUER le tour au lieu de téléporter le
+		// plateau à l'état final : sans ces images intermédiaires, le joueur
+		// subit le résultat sans jamais voir la cause.
+		recentSteps := []map[string]any{}
 
-			humanStrategy := sim.StrategyFunc(func(state sim.GameState, playerID sim.PlayerID) sim.Action {
-				validActions := sim.GetValidActionsForPlayer(state, playerID)
-				session.validActions = validActions
+		humanStrategy := sim.StrategyFunc(func(state sim.GameState, playerID sim.PlayerID) sim.Action {
+			validActions := sim.GetValidActionsForPlayer(state, playerID)
+			session.validActions = validActions
 
-				replay := recentSteps
-				recentSteps = nil
+			replay := recentSteps
+			recentSteps = nil
 
-				jsState := serializeState(state, validActions, session, false, -1, int(session.currentTurn), replay)
+			jsState := serializeState(state, validActions, session, false, -1, int(session.currentTurn), replay)
 
-				select {
-				case session.pendingStateCh <- jsState:
-				case <-session.doneCh:
-					return nil
-				}
-
-				select {
-				case idx := <-session.actionCh:
-					if idx >= 0 && idx < len(validActions) {
-						return validActions[idx]
-					}
-					return nil
-				case <-session.doneCh:
-					return nil
-				}
-			})
-
-			gameOptions := []sim.OptionFunc{
-				sim.WithPlayerStrategy(sim.PlayerOne, humanStrategy),
-				sim.WithPlayerStrategy(sim.PlayerTwo, sim.SearchStrategy(aiDepth, aiBudget)),
-				sim.WithObstacles(obstacles...),
+			select {
+			case session.pendingStateCh <- jsState:
+			case <-session.doneCh:
+				return nil
 			}
 
-			// Positions décidées pendant la phase de déploiement alterné.
-			if currentDeployment != nil && len(currentDeployment.playerPos) > 0 {
-				gameOptions = append(gameOptions, sim.WithDeployment(map[sim.PlayerID][]sim.Position{
-					sim.PlayerOne: currentDeployment.playerPos,
-					sim.PlayerTwo: currentDeployment.aiPos,
-				}))
+			select {
+			case idx := <-session.actionCh:
+				if idx >= 0 && idx < len(validActions) {
+					return validActions[idx]
+				}
+				return nil
+			case <-session.doneCh:
+				return nil
 			}
+		})
 
-			game := sim.NewGame(playerUnits, aiUnits, gameOptions...)
+		gameOptions := []sim.OptionFunc{
+			sim.WithPlayerStrategy(sim.PlayerOne, humanStrategy),
+			sim.WithPlayerStrategy(sim.PlayerTwo, sim.SearchStrategy(aiDepth, aiBudget)),
+			sim.WithObstacles(obstacles...),
+		}
 
+		// Positions décidées pendant la phase de déploiement alterné.
+		if currentDeployment != nil && len(currentDeployment.playerPos) > 0 {
+			gameOptions = append(gameOptions, sim.WithDeployment(map[sim.PlayerID][]sim.Position{
+				sim.PlayerOne: currentDeployment.playerPos,
+				sim.PlayerTwo: currentDeployment.aiPos,
+			}))
+		}
+
+		game := sim.NewGame(playerUnits, aiUnits, gameOptions...)
+
+		session.run = func() {
 			for step := range game.Run() {
 				session.currentTurn = step.Turn
 
@@ -561,11 +569,40 @@ func startGame(this js.Value, args []js.Value) any {
 					return
 				}
 			}
-		}()
+		}
+
+		// On rend le plateau de DÉPART, avant le moindre coup : le joueur voit
+		// son déploiement, sait qui ouvre la partie, puis appelle beginBattle.
+		initial := serializeState(game.State(), nil, session, false, -1, 0, nil)
+		initial["started"] = false
+		return initial, nil
+	})
+}
+
+// beginBattle démarre effectivement la partie, une fois l'interface affichée.
+// Si l'IA ouvre, son tour est joué ici et revient au front sous forme
+// d'actions rejouables — le joueur la voit donc jouer, au lieu de découvrir
+// un plateau déjà entamé.
+func beginBattle(this js.Value, args []js.Value) any {
+	return withPromise(func() (map[string]any, error) {
+		sessionMu.Lock()
+		session := currentSession
+		sessionMu.Unlock()
+
+		if session == nil || session.run == nil {
+			return nil, errors.New("no game to begin")
+		}
+		if session.started {
+			return nil, errors.New("game already started")
+		}
+		session.started = true
+
+		go session.run()
 
 		select {
-		case initialState := <-session.pendingStateCh:
-			return initialState, nil
+		case state := <-session.pendingStateCh:
+			state["started"] = true
+			return state, nil
 		case <-session.doneCh:
 			return nil, errors.New("game cancelled before start")
 		}
@@ -608,6 +645,7 @@ func selectAction(this js.Value, args []js.Value) any {
 
 		select {
 		case nextState := <-session.pendingStateCh:
+			nextState["started"] = true
 			return nextState, nil
 		case <-session.doneCh:
 			return nil, errors.New("game ended")
@@ -642,20 +680,20 @@ func serializeState(state sim.GameState, validActions []sim.Action, session *gam
 		}
 
 		units = append(units, map[string]any{
-			"id":              int(unit.ID),
-			"ownerID":         int(unit.OwnerID),
-			"name":            orig.Name,
-			"imageURL":        orig.ImageURL,
-			"health":          health,
-			"maxHealth":       unit.Stats.Health,
-			"range":           unit.Stats.Range,
-			"power":           unit.Stats.Power,
-			"move":            unit.Stats.Move,
-			"abilities":       abilities,
-			"x":               pos.X,
-			"y":               pos.Y,
-			"suppressed":      state.Get(unit.ID, sim.CounterSuppressed, 0) > 0,
-			"untargetable":    state.Get(unit.ID, sim.CounterUntargetable, 0) > 0,
+			"id":           int(unit.ID),
+			"ownerID":      int(unit.OwnerID),
+			"name":         orig.Name,
+			"imageURL":     orig.ImageURL,
+			"health":       health,
+			"maxHealth":    unit.Stats.Health,
+			"range":        unit.Stats.Range,
+			"power":        unit.Stats.Power,
+			"move":         unit.Stats.Move,
+			"abilities":    abilities,
+			"x":            pos.X,
+			"y":            pos.Y,
+			"suppressed":   state.Get(unit.ID, sim.CounterSuppressed, 0) > 0,
+			"untargetable": state.Get(unit.ID, sim.CounterUntargetable, 0) > 0,
 			"overcharged": state.Get(unit.ID, sim.CounterOverchargePending, 0) > 0 ||
 				state.Get(unit.ID, sim.CounterOverchargeLock, 0) > 0,
 			"defensiveStance": state.Get(unit.ID, sim.CounterDefensiveStance, 0) > 0,
@@ -711,12 +749,12 @@ func serializeFrame(state sim.GameState) map[string]any {
 	for _, unit := range state.Units {
 		pos := state.Positions[unit.ID]
 		units = append(units, map[string]any{
-			"id":              int(unit.ID),
-			"x":               pos.X,
-			"y":               pos.Y,
-			"health":          state.Get(unit.ID, sim.CounterHealth, 0),
-			"suppressed":      state.Get(unit.ID, sim.CounterSuppressed, 0) > 0,
-			"untargetable":    state.Get(unit.ID, sim.CounterUntargetable, 0) > 0,
+			"id":           int(unit.ID),
+			"x":            pos.X,
+			"y":            pos.Y,
+			"health":       state.Get(unit.ID, sim.CounterHealth, 0),
+			"suppressed":   state.Get(unit.ID, sim.CounterSuppressed, 0) > 0,
+			"untargetable": state.Get(unit.ID, sim.CounterUntargetable, 0) > 0,
 			"overcharged": state.Get(unit.ID, sim.CounterOverchargePending, 0) > 0 ||
 				state.Get(unit.ID, sim.CounterOverchargeLock, 0) > 0,
 			"defensiveStance": state.Get(unit.ID, sim.CounterDefensiveStance, 0) > 0,

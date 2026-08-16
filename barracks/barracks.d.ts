@@ -21,6 +21,13 @@ declare global {
       aiUnits?: UnitStats[]
     ): Promise<BattleState>;
 
+    /**
+     * Démarre effectivement la partie, une fois l'interface affichée.
+     * `startGame` ne fait que préparer le plateau : sans cet appel, une IA
+     * tirée en premier jouerait avant que le joueur n'ait rien vu.
+     */
+    function beginBattle(): Promise<BattleState>;
+
     /** Ouvre la phase de déploiement alterné (règles : placement tour à tour). */
     function startDeployment(
       playerUnits: UnitStats[],

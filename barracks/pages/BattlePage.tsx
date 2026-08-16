@@ -16,6 +16,9 @@ interface BattlePageProps {
 
 const DIFFICULTIES: Difficulty[] = ["easy", "normal", "hard"];
 
+/** Temps laissé au joueur pour lire le plateau de départ avant le coup d'envoi. */
+const OPENING_PAUSE = 900;
+
 export const BattlePage: React.FC<BattlePageProps> = ({ squads, units }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -78,11 +81,40 @@ export const BattlePage: React.FC<BattlePageProps> = ({ squads, units }) => {
     };
   }, []);
 
+  // La partie n'est lancée qu'une fois le plateau de départ peint : le joueur
+  // voit son déploiement et sait qui ouvre avant que le premier coup ne parte.
+  // `requestAnimationFrame` garantit qu'au moins une image a été rendue.
+  useEffect(() => {
+    if (step !== "battle" || !battleState || battleState.started) return;
+
+    let cancelled = false;
+    const id = requestAnimationFrame(() => {
+      setTimeout(async () => {
+        if (cancelled) return;
+        setIsResolving(true);
+        try {
+          const state = (await Barracks.beginBattle()) as unknown as BattleState;
+          if (!cancelled) setBattleState(state);
+        } catch (error) {
+          console.error("beginBattle failed", error);
+        } finally {
+          if (!cancelled) setIsResolving(false);
+        }
+      }, OPENING_PAUSE);
+    });
+
+    return () => {
+      cancelled = true;
+      cancelAnimationFrame(id);
+    };
+  }, [step, battleState]);
+
   // On ne rend la main qu'une fois la mise en scène terminée : cliquer pendant
   // le rejeu reviendrait à jouer sur un plateau qui n'est pas encore le bon.
   const isHumanTurn = useMemo(() => {
     if (!battleState) return false;
     return (
+      battleState.started !== false &&
       battleState.currentPlayerID === battleState.humanPlayerID &&
       !battleState.isOver &&
       !isReplaying &&
@@ -587,10 +619,22 @@ export const BattlePage: React.FC<BattlePageProps> = ({ squads, units }) => {
                   changement de main ne doit pas passer inaperçu. */}
               <div
                 className="turn__who turn__banner"
-                key={isResolving ? "resolve" : isReplaying ? "replay" : isHumanTurn ? "you" : "ai"}
+                key={
+                  battleState.started === false
+                    ? "start"
+                    : isResolving
+                    ? "resolve"
+                    : isReplaying
+                    ? "replay"
+                    : isHumanTurn
+                    ? "you"
+                    : "ai"
+                }
               >
                 <span className={`turn__dot ${isHumanTurn ? "" : "turn__dot--ai"}`} />
-                {isResolving
+                {battleState.started === false
+                  ? t("battle.starting")
+                  : isResolving
                   ? t("battle.aiTurn")
                   : isReplaying
                   ? t("battle.replaying")
@@ -631,14 +675,20 @@ export const BattlePage: React.FC<BattlePageProps> = ({ squads, units }) => {
             <div className="stack stack--2">
               <span className="field__label">{t("battle.actionsLeftLabel")}</span>
               <div className="actions-left">
-                {[0, 1].map((index) => (
-                  <div
-                    key={index}
-                    className={`actions-left__slot ${index >= actionsLeft ? "actions-left__slot--used" : ""}`}
-                  >
-                    {index >= actionsLeft ? t("battle.actionUsed") : "●"}
-                  </div>
-                ))}
+                {[0, 1].map((index) => {
+                  // Avant le coup d'envoi, le moteur n'a pas encore ouvert de
+                  // tour : afficher « utilisée » donnerait l'impression que
+                  // des actions ont déjà été jouées.
+                  const left = battleState.started === false ? 2 : actionsLeft;
+                  return (
+                    <div
+                      key={index}
+                      className={`actions-left__slot ${index >= left ? "actions-left__slot--used" : ""}`}
+                    >
+                      {index >= left ? t("battle.actionUsed") : "●"}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>
