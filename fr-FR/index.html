@@ -81,35 +81,51 @@
 <li>1 plateau de jeu 8×8 cases (échiquier)</li>
 <li>Unités, figurines ou pions personnalisables (1 à 6 par joueur)</li>
 <li>Cartes descriptives (1 par unité)</li>
-<li>Marqueurs de dégâts ou de statut</li>
+<li>2 marqueurs d'obstacle (1 par joueur)</li>
+<li>Marqueurs de dégâts, de statut et de contrôle</li>
 <li>1 dé pour déterminer le premier joueur</li>
 </ul>
 <h4 id="composition-des-escouades">Composition des escouades</h4>
 <p>Chaque joueur assemble son escouade en respectant les contraintes suivantes :</p>
 <ul>
 <li><strong>1 à 6 unités</strong> maximum</li>
-<li><strong>30 points de rang (RP)</strong> cumulés maximum (voir ci dessous)</li>
+<li><strong>100 points</strong> de coût cumulé maximum</li>
 </ul>
-<p>Chaque unité a un rang, représentant sa puissance globale, identifié sur sa carte descriptive. Les rangs sont les suivants:</p>
-<ul>
-<li><strong>Soldat</strong>: 1 RP</li>
-<li><strong>Vétéran</strong>: 3 RP</li>
-<li><strong>Élite</strong>: 6 RP</li>
-<li><strong>Champion</strong>: 10 RP</li>
-<li><strong>Parangon</strong>: 15 RP</li>
-</ul>
-<p>Une escouade peut ainsi donc être composée:</p>
-<ul>
-<li>De 2 Parangons;</li>
-<li>De 2 Champions, 1 Élite, 1 Vétéran et 1 Soldat;</li>
-<li>Etc</li>
-</ul>
+<p>Le coût de chaque unité est indiqué sur sa carte descriptive. C'est l'unique monnaie du jeu : chaque point dépensé achète la même valeur, quelle que soit l'unité.</p>
+<p>Chaque unité porte également un <strong>titre</strong> (Soldat, Vétéran, Élite, Champion, Parangon) selon sa bande de coût. Ce titre est purement narratif : il habille la carte et raconte la puissance de l'unité, mais n'entre dans aucun calcul.</p>
+<table>
+<thead>
+<tr>
+<th>Titre</th>
+<th>Coût de l'unité</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Soldat</strong></td>
+<td>10 points ou moins</td>
+</tr>
+<tr>
+<td><strong>Vétéran</strong></td>
+<td>11 à 16 points</td>
+</tr>
+<tr>
+<td><strong>Élite</strong></td>
+<td>17 à 22 points</td>
+</tr>
+<tr>
+<td><strong>Champion</strong></td>
+<td>23 à 27 points</td>
+</tr>
+<tr>
+<td><strong>Parangon</strong></td>
+<td>28 points et plus</td>
+</tr>
+</tbody>
+</table>
 <p>Pour faciliter la création et la composition de vos escouades, une application est disponible en ligne, <a href="https://bornholm.github.io/escarmouche/barracks/"><strong>la Caserne</strong></a>.</p>
-<blockquote>
-<p>Le calcul du rang de chaque unité est basé sur une formule complexe mais permettant d'équilibrer les escouades, quelles que soient les combinaisons utilisées par le joueur.</p>
-</blockquote>
 <h4 id="caractristiques-des-units">Caractéristiques des unités</h4>
-<p>Chaque unité possède également 4 caractéristiques principales :</p>
+<p>Chaque unité possède 4 caractéristiques principales :</p>
 <table>
 <thead>
 <tr>
@@ -136,14 +152,22 @@
 </tr>
 </tbody>
 </table>
-<p><em>Note : Les déplacements en diagonale sont autorisés.</em></p>
+<p><em>Note : les distances se comptent en cases, <strong>diagonales comprises</strong> — un pas en diagonale compte pour une case, pour le mouvement comme pour la portée.</em></p>
+<h4 id="la-zone-centrale">La zone centrale</h4>
+<p>Les <strong>4 cases centrales</strong> du plateau (le carré 2×2 au croisement des colonnes D-E et des rangées 4-5) forment la <strong>zone d'objectif</strong>. La contrôler est la principale voie vers la victoire (voir Conditions de victoire).</p>
 <h4 id="mise-en-place">Mise en place</h4>
 <ol>
 <li>Placez le plateau entre les deux joueurs</li>
+<li><strong>Obstacles</strong> : chaque joueur place 1 marqueur d'obstacle sur une case libre de son choix, <strong>hors de la zone centrale et hors des zones de déploiement</strong> (c'est-à-dire sur les rangées 3 à 6). Le joueur qui a lancé le plus petit score au dé place le sien en premier</li>
 <li>Chaque joueur positionne ses unités sur <strong>ses deux premières lignes</strong> (lignes 1-2 pour un joueur, lignes 7-8 pour l'autre)</li>
 <li>Les unités peuvent être placées librement sur ces lignes de départ</li>
 <li>Lancez un dé pour déterminer qui commence</li>
 </ol>
+<h5 id="obstacles">Obstacles</h5>
+<ul>
+<li>Une case d'obstacle est <strong>infranchissable</strong> : aucune unité ne peut s'y arrêter ni la traverser</li>
+<li>Un obstacle <strong>bloque la ligne de vue</strong> (couvert total)</li>
+</ul>
 <h4 id="droulement-dun-tour">Déroulement d'un tour</h4>
 <p>À son tour, le joueur actif effectue <strong>exactement 2 actions</strong> parmi :</p>
 <h5 id="actions-disponibles">Actions disponibles</h5>
@@ -159,6 +183,8 @@
 <li><strong>Restriction</strong> : Une unité ne peut effectuer qu'<strong>1 seule attaque par tour</strong> et n'activer qu'<strong>1 seule capacité par tour</strong></li>
 <li>Une unité peut donc <strong>attaquer et utiliser une capacité</strong> dans le même tour (si chacune est effectuée comme une action séparée)</li>
 </ul>
+<h5 id="fin-de-tour--contrle-de-la-zone">Fin de tour : contrôle de la zone</h5>
+<p>À la <strong>fin de son tour</strong>, le joueur actif vérifie s'il <strong>contrôle la zone centrale</strong> : au moins une de ses unités s'y trouve et <strong>aucune</strong> unité adverse ne s'y trouve. Si c'est le cas, il gagne <strong>1 marqueur de contrôle</strong>.</p>
 <h4 id="combat">Combat</h4>
 <h5 id="attaque">Attaque</h5>
 <ol>
@@ -171,20 +197,24 @@
 <ul>
 <li>Une unité peut attaquer si une <strong>ligne droite ininterrompue</strong> peut être tracée entre elle et sa cible</li>
 <li>Cette ligne peut partir de <strong>n'importe quel coin</strong> de la case de l'attaquant</li>
-<li>Les <strong>autres unités</strong> (alliées ou ennemies) bloquent la ligne de vue</li>
+<li>Les <strong>autres unités</strong> (alliées ou ennemies) et les <strong>obstacles</strong> bloquent la ligne de vue</li>
 <li><strong>Obstacle = Couvert total</strong> (attaque impossible)</li>
 </ul>
 <h4 id="conditions-de-victoire">Conditions de victoire</h4>
-<h5 id="victoire-standard">Victoire Standard</h5>
-<p>Le premier joueur à éliminer <strong>toutes les unités adverses</strong> remporte la partie.</p>
-<h5 id="parties-scnarises">Parties scénarisées</h5>
-<p><code>TODO</code></p>
+<p>La partie se gagne de l'une des deux façons suivantes :</p>
+<h5 id="victoire-par-capture">Victoire par capture</h5>
+<p>Le premier joueur à accumuler <strong>3 marqueurs de contrôle</strong> de la zone centrale remporte immédiatement la partie.</p>
+<h5 id="victoire-par-limination">Victoire par élimination</h5>
+<p>Un joueur qui élimine <strong>toutes les unités adverses</strong> remporte immédiatement la partie.</p>
+<blockquote>
+<p>Conseil : la zone centrale force l'engagement. Camper dans son coin, c'est laisser l'adversaire accumuler tranquillement ses marqueurs de contrôle.</p>
+</blockquote>
 <h4 id="points-de-rgles-importantes">Points de règles importantes</h4>
 <h5 id="mouvement">Mouvement</h5>
 <ul>
 <li>Le mouvement en diagonale est autorisé</li>
 <li>Une unité peut s'arrêter à tout moment avant d'avoir utilisé tout son Déplacement</li>
-<li>Impossible de traverser une occupée par une autre unité</li>
+<li>Impossible de traverser une case occupée par une autre unité ou un obstacle</li>
 </ul>
 <h5 id="capacits-spciales">Capacités spéciales</h5>
 <ul>
@@ -193,7 +223,7 @@
 <li>Certaines capacités peuvent modifier les règles standard ou appliquer des effets de statut</li>
 </ul>
 <h5 id="effets-de-statut">Effets de statut</h5>
-<p>Certaines capacités appliquent des effets persistants sur les unités :</p>
+<p>Certaines capacités appliquent des effets persistants sur les unités. Les durées se lisent toujours <strong>du point de vue du propriétaire de l'unité affectée</strong> :</p>
 <table>
 <thead>
 <tr>
@@ -206,17 +236,22 @@
 <tr>
 <td><strong>Suppression</strong></td>
 <td>Tir de Suppression</td>
-<td>L'unité ciblée ne peut effectuer aucune action lors de son prochain tour</td>
+<td>L'unité ciblée ne peut effectuer qu'<strong>une seule action</strong> lors de son prochain tour</td>
 </tr>
 <tr>
 <td><strong>Inciblable</strong></td>
 <td>Repli Tactique</td>
-<td>L'unité ne peut pas être ciblée par des attaques jusqu'à la fin du tour adverse</td>
+<td>L'unité ne peut pas être ciblée par des attaques jusqu'au début de son prochain tour</td>
 </tr>
 <tr>
 <td><strong>Surcharge</strong></td>
 <td>Surcharge</td>
 <td>L'unité ne peut pas attaquer lors de son prochain tour</td>
+</tr>
+<tr>
+<td><strong>Posture Défensive</strong></td>
+<td>Posture Défensive</td>
+<td>Le prochain point de dégât infligé à l'unité est annulé (non cumulable)</td>
 </tr>
 <tr>
 <td><strong>Protection</strong></td>
@@ -256,7 +291,7 @@ elle ne peut effectuer qu'1 seule action à son prochain tour.</li>
 <h4 id="00004-tactical-retreat">5. Repli Tactique</h4>
 <ul>
 <li><strong>Description</strong>: Effectuez une action de mouvement. Cette unité ne peut pas être
-la cible d'attaques jusqu'à la fin du tour adverse.</li>
+la cible d'attaques jusqu'au début de son prochain tour.</li>
 <li><strong>Coût</strong>: <code>2</code></li>
 </ul>
 <p></p>

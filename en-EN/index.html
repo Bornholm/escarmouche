@@ -75,41 +75,57 @@
 <h3 id="introduction">Introduction</h3>
 <p><strong>Escarmouche</strong> is a tactical strategy game for 2 players where each commands a squad of units (customizable figures or tokens) on a combat board. Your objective: eliminate all enemy units through a clever combination of movement, attack, and special abilities.</p>
 <p><em>Inspired by the game <a href="https://www.youtube.com/watch?v=wD2rijeN2Bg">&quot;Motley Crew&quot;</a> by <a href="https://www.youtube.com/@_nubmark">_nubmark</a></em></p>
-<h3 id="game-rules">Game Rules</h3>
-<h4 id="materials">Materials</h4>
+<h3 id="game-rules">Game rules</h3>
+<h4 id="components">Components</h4>
 <ul>
-<li>1 game board 8×8 squares (chessboard)</li>
-<li>Units, customizable figures or tokens (1 to 6 per player)</li>
+<li>1 game board of 8×8 squares (chessboard)</li>
+<li>Customizable units, miniatures or tokens (1 to 6 per player)</li>
 <li>Descriptive cards (1 per unit)</li>
-<li>Damage or status markers</li>
+<li>2 obstacle markers (1 per player)</li>
+<li>Damage, status and control markers</li>
 <li>1 die to determine the first player</li>
 </ul>
-<h4 id="squad-composition">Squad Composition</h4>
+<h4 id="squad-building">Squad building</h4>
 <p>Each player assembles their squad while respecting the following constraints:</p>
 <ul>
 <li><strong>1 to 6 units</strong> maximum</li>
-<li><strong>30 rank points (RP)</strong> cumulative maximum (see below)</li>
+<li><strong>100 points</strong> of cumulative cost maximum</li>
 </ul>
-<p>Each unit has a rank, representing its overall power, identified on its descriptive card. The ranks are as follows:</p>
-<ul>
-<li><strong>Soldier</strong>: 1 RP</li>
-<li><strong>Veteran</strong>: 3 RP</li>
-<li><strong>Elite</strong>: 6 RP</li>
-<li><strong>Champion</strong>: 10 RP</li>
-<li><strong>Paragon</strong>: 15 RP</li>
-</ul>
-<p>A squad can thus be composed of:</p>
-<ul>
-<li>2 Paragons;</li>
-<li>2 Champions, 1 Elite, 1 Veteran and 1 Soldier;</li>
-<li>Etc</li>
-</ul>
-<p>To facilitate the creation and composition of your squads, an application is available online, <a href="https://bornholm.github.io/escarmouche/barracks/"><strong>the Barracks</strong></a>.</p>
-<blockquote>
-<p>The calculation of each unit's rank is based on a complex formula that allows balancing squads, regardless of the combinations used by the player.</p>
-</blockquote>
-<h4 id="unit-characteristics">Unit Characteristics</h4>
-<p>Each unit also has 4 main characteristics:</p>
+<p>Each unit's cost is shown on its descriptive card. It is the game's only currency: every point spent buys the same value, whatever the unit.</p>
+<p>Each unit also bears a <strong>title</strong> (Trooper, Veteran, Elite, Champion, Paragon) according to its cost band. This title is purely narrative: it dresses the card and tells the unit's power, but enters no calculation.</p>
+<table>
+<thead>
+<tr>
+<th>Title</th>
+<th>Unit cost</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Trooper</strong></td>
+<td>10 points or less</td>
+</tr>
+<tr>
+<td><strong>Veteran</strong></td>
+<td>11 to 16 points</td>
+</tr>
+<tr>
+<td><strong>Elite</strong></td>
+<td>17 to 22 points</td>
+</tr>
+<tr>
+<td><strong>Champion</strong></td>
+<td>23 to 27 points</td>
+</tr>
+<tr>
+<td><strong>Paragon</strong></td>
+<td>28 points and more</td>
+</tr>
+</tbody>
+</table>
+<p>To make creating and assembling your squads easier, an online application is available, <a href="https://bornholm.github.io/escarmouche/barracks/"><strong>the Barracks</strong></a>.</p>
+<h4 id="unit-characteristics">Unit characteristics</h4>
+<p>Each unit has 4 main characteristics:</p>
 <table>
 <thead>
 <tr>
@@ -131,69 +147,83 @@
 <td>Damage dealt per attack</td>
 </tr>
 <tr>
-<td><strong>Movement</strong></td>
-<td>Number of squares traversable per movement action</td>
+<td><strong>Move</strong></td>
+<td>Number of squares traveled per movement action</td>
 </tr>
 </tbody>
 </table>
-<p><em>Note: Diagonal movements are allowed.</em></p>
+<p><em>Note: distances are counted in squares, <strong>diagonals included</strong> — a diagonal step counts as one square, for movement as well as for range.</em></p>
+<h4 id="the-central-zone">The central zone</h4>
+<p>The <strong>4 central squares</strong> of the board (the 2×2 square at the crossing of columns D-E and rows 4-5) form the <strong>objective zone</strong>. Controlling it is the main path to victory (see Victory conditions).</p>
 <h4 id="setup">Setup</h4>
 <ol>
 <li>Place the board between the two players</li>
-<li>Each player positions their units on <strong>their first two rows</strong> (rows 1-2 for one player, rows 7-8 for the other)</li>
+<li><strong>Obstacles</strong>: each player places 1 obstacle marker on a free square of their choice, <strong>outside the central zone and outside the deployment zones</strong> (that is, on rows 3 to 6). The player who rolled the lowest die places theirs first</li>
+<li>Each player positions their units on <strong>their two first rows</strong> (rows 1-2 for one player, rows 7-8 for the other)</li>
 <li>Units can be placed freely on these starting rows</li>
 <li>Roll a die to determine who goes first</li>
 </ol>
-<h4 id="turn-sequence">Turn Sequence</h4>
-<p>On their turn, the active player performs <strong>exactly 2 actions</strong> from:</p>
-<h5 id="available-actions">Available Actions</h5>
+<h5 id="obstacles">Obstacles</h5>
 <ul>
-<li><strong>Movement</strong>: Move a unit up to its Movement value</li>
+<li>An obstacle square is <strong>impassable</strong>: no unit may stop on it or move through it</li>
+<li>An obstacle <strong>blocks line of sight</strong> (full cover)</li>
+</ul>
+<h4 id="turn-sequence">Turn sequence</h4>
+<p>On their turn, the active player performs <strong>exactly 2 actions</strong> among:</p>
+<h5 id="available-actions">Available actions</h5>
+<ul>
+<li><strong>Movement</strong>: Move a unit up to its Move value</li>
 <li><strong>Attack</strong>: Attack an enemy unit within range and line of sight</li>
 <li><strong>Ability</strong>: Activate a special ability (if available)</li>
 </ul>
-<h5 id="action-rules">Action Rules</h5>
+<h5 id="action-rules">Action rules</h5>
 <ul>
-<li>The 2 actions can be performed by the <strong>same unit</strong> or <strong>distributed</strong> across 2 different units</li>
-<li>The same unit can perform multiple actions in the turn</li>
-<li><strong>Restriction</strong>: A unit can only perform <strong>1 attack per turn</strong> and activate <strong>1 ability per turn</strong></li>
-<li>A unit may therefore <strong>attack and use an ability</strong> in the same turn (if each is performed as a separate action)</li>
+<li>The 2 actions can be performed by the <strong>same unit</strong> or <strong>split</strong> between 2 different units</li>
+<li>The same unit can perform several actions in the turn</li>
+<li><strong>Restriction</strong>: A unit can only perform <strong>1 attack per turn</strong> and activate only <strong>1 ability per turn</strong></li>
+<li>A unit can therefore <strong>attack and use an ability</strong> in the same turn (if each is performed as a separate action)</li>
 </ul>
+<h5 id="end-of-turn-zone-control">End of turn: zone control</h5>
+<p>At the <strong>end of their turn</strong>, the active player checks whether they <strong>control the central zone</strong>: at least one of their units is inside it and <strong>no</strong> enemy unit is. If so, they gain <strong>1 control marker</strong>.</p>
 <h4 id="combat">Combat</h4>
 <h5 id="attack">Attack</h5>
 <ol>
 <li><strong>Declaration</strong>: Choose a target within range and line of sight</li>
-<li><strong>Resolution</strong>: The attack succeeds automatically (unless a contrary ability)</li>
+<li><strong>Resolution</strong>: The attack automatically succeeds (unless an ability says otherwise)</li>
 <li><strong>Damage</strong>: The target loses a number of Health points equal to the attacker's Power</li>
-<li><strong>Elimination</strong>: If Health drops to 0 or less, remove the unit from the board</li>
+<li><strong>Elimination</strong>: If Health drops to 0 or below, remove the unit from the board</li>
 </ol>
-<h5 id="line-of-sight-and-cover">Line of Sight and Cover</h5>
+<h5 id="line-of-sight-and-cover">Line of sight and cover</h5>
 <ul>
 <li>A unit can attack if an <strong>uninterrupted straight line</strong> can be drawn between it and its target</li>
 <li>This line can start from <strong>any corner</strong> of the attacker's square</li>
-<li><strong>Other units</strong> (allied or enemy) block line of sight</li>
-<li><strong>Obstacle = Total cover</strong> (attack impossible)</li>
+<li><strong>Other units</strong> (allied or enemy) and <strong>obstacles</strong> block line of sight</li>
+<li><strong>Obstacle = Full cover</strong> (attack impossible)</li>
 </ul>
-<h4 id="victory-conditions">Victory Conditions</h4>
-<h5 id="standard-victory">Standard Victory</h5>
-<p>The first player to eliminate <strong>all enemy units</strong> wins the game.</p>
-<h5 id="scenario-games">Scenario Games</h5>
-<p><code>TODO</code></p>
-<h4 id="important-rule-points">Important Rule Points</h4>
+<h4 id="victory-conditions">Victory conditions</h4>
+<p>The game is won in either of the following ways:</p>
+<h5 id="victory-by-capture">Victory by capture</h5>
+<p>The first player to accumulate <strong>3 control markers</strong> of the central zone immediately wins the game.</p>
+<h5 id="victory-by-elimination">Victory by elimination</h5>
+<p>A player who eliminates <strong>all enemy units</strong> immediately wins the game.</p>
+<blockquote>
+<p>Tip: the central zone forces engagement. Camping in your corner means letting your opponent quietly stack up control markers.</p>
+</blockquote>
+<h4 id="important-rule-points">Important rule points</h4>
 <h5 id="movement">Movement</h5>
 <ul>
 <li>Diagonal movement is allowed</li>
-<li>A unit can stop at any time before using all its Movement</li>
-<li>Impossible to move through a square occupied by another unit</li>
+<li>A unit can stop at any time before using all of its Move</li>
+<li>It is impossible to move through a square occupied by another unit or an obstacle</li>
 </ul>
-<h5 id="special-abilities">Special Abilities</h5>
+<h5 id="special-abilities">Special abilities</h5>
 <ul>
 <li>Abilities are a <strong>third type of action</strong>, distinct from Movement and Attack</li>
-<li>Refer to the specific text of each ability card for its effects</li>
-<li>Some abilities may modify standard rules or apply status effects</li>
+<li>Refer to each ability card's specific text for its effects</li>
+<li>Some abilities can modify standard rules or apply status effects</li>
 </ul>
-<h5 id="status-effects">Status Effects</h5>
-<p>Some abilities apply persistent effects to units:</p>
+<h5 id="status-effects">Status effects</h5>
+<p>Some abilities apply persistent effects on units. Durations are always read <strong>from the point of view of the affected unit's owner</strong>:</p>
 <table>
 <thead>
 <tr>
@@ -204,22 +234,27 @@
 </thead>
 <tbody>
 <tr>
-<td><strong>Suppressed</strong></td>
+<td><strong>Suppression</strong></td>
 <td>Suppressing Fire</td>
-<td>The targeted unit cannot perform any action on its next turn</td>
+<td>The targeted unit can only perform <strong>one single action</strong> on its next turn</td>
 </tr>
 <tr>
 <td><strong>Untargetable</strong></td>
 <td>Tactical Retreat</td>
-<td>The unit cannot be targeted by attacks until the end of the opponent's turn</td>
+<td>The unit cannot be targeted by attacks until the start of its next turn</td>
 </tr>
 <tr>
-<td><strong>Overcharged</strong></td>
+<td><strong>Overcharge</strong></td>
 <td>Overcharge</td>
 <td>The unit cannot attack on its next turn</td>
 </tr>
 <tr>
-<td><strong>Protected</strong></td>
+<td><strong>Defensive Stance</strong></td>
+<td>Defensive Stance</td>
+<td>The next point of damage dealt to the unit is canceled (not stackable)</td>
+</tr>
+<tr>
+<td><strong>Protection</strong></td>
 <td>Guardian</td>
 <td>Damage received by an adjacent allied unit is redirected to the guardian unit until the start of its next turn</td>
 </tr>
@@ -256,7 +291,7 @@ it can only perform 1 action on its next turn.</li>
 <h4 id="00004-tactical-retreat">5. Tactical Retreat</h4>
 <ul>
 <li><strong>Description</strong>: Perform a movement action. This unit cannot be targeted by attacks
-until the end of the opponent's turn.</li>
+until the start of its next turn.</li>
 <li><strong>Coût</strong>: <code>2</code></li>
 </ul>
 <p></p>

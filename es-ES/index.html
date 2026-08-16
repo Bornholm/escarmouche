@@ -78,38 +78,54 @@
 <h3 id="reglas-del-juego">Reglas del juego</h3>
 <h4 id="material">Material</h4>
 <ul>
-<li>1 tablero de juego 8×8 casillas (tablero de ajedrez)</li>
-<li>Unidades, figuras o fichas personalizables (1 a 6 por jugador)</li>
+<li>1 tablero de juego de 8×8 casillas (tablero de ajedrez)</li>
+<li>Unidades, miniaturas o fichas personalizables (1 a 6 por jugador)</li>
 <li>Cartas descriptivas (1 por unidad)</li>
-<li>Marcadores de daño o estado</li>
+<li>2 marcadores de obstáculo (1 por jugador)</li>
+<li>Marcadores de daño, de estado y de control</li>
 <li>1 dado para determinar el primer jugador</li>
 </ul>
 <h4 id="composicin-de-las-escuadras">Composición de las escuadras</h4>
-<p>Cada jugador ensambla su escuadra respetando las siguientes restricciones:</p>
+<p>Cada jugador forma su escuadra respetando las siguientes restricciones:</p>
 <ul>
 <li><strong>1 a 6 unidades</strong> máximo</li>
-<li><strong>30 puntos de rango (RP)</strong> acumulados máximo (ver abajo)</li>
+<li><strong>100 puntos</strong> de coste acumulado máximo</li>
 </ul>
-<p>Cada unidad tiene un rango, representando su poder global, identificado en su carta descriptiva. Los rangos son los siguientes:</p>
-<ul>
-<li><strong>Soldado</strong>: 1 RP</li>
-<li><strong>Veterano</strong>: 3 RP</li>
-<li><strong>Élite</strong>: 6 RP</li>
-<li><strong>Campeón</strong>: 10 RP</li>
-<li><strong>Parangón</strong>: 15 RP</li>
-</ul>
-<p>Una escuadra puede así estar compuesta:</p>
-<ul>
-<li>De 2 Parangones;</li>
-<li>De 2 Campeones, 1 Élite, 1 Veterano y 1 Soldado;</li>
-<li>Etc</li>
-</ul>
-<p>Para facilitar la creación y composición de tus escuadras, una aplicación está disponible en línea, <a href="https://bornholm.github.io/escarmouche/barracks/"><strong>el Cuartel</strong></a>.</p>
-<blockquote>
-<p>El cálculo del rango de cada unidad se basa en una fórmula compleja pero que permite equilibrar las escuadras, independientemente de las combinaciones utilizadas por el jugador.</p>
-</blockquote>
+<p>El coste de cada unidad figura en su carta descriptiva. Es la única moneda del juego: cada punto gastado compra el mismo valor, sea cual sea la unidad.</p>
+<p>Cada unidad lleva además un <strong>título</strong> (Soldado, Veterano, Élite, Campeón, Parangón) según su banda de coste. Este título es puramente narrativo: viste la carta y cuenta el poder de la unidad, pero no entra en ningún cálculo.</p>
+<table>
+<thead>
+<tr>
+<th>Título</th>
+<th>Coste de la unidad</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Soldado</strong></td>
+<td>10 puntos o menos</td>
+</tr>
+<tr>
+<td><strong>Veterano</strong></td>
+<td>11 a 16 puntos</td>
+</tr>
+<tr>
+<td><strong>Élite</strong></td>
+<td>17 a 22 puntos</td>
+</tr>
+<tr>
+<td><strong>Campeón</strong></td>
+<td>23 a 27 puntos</td>
+</tr>
+<tr>
+<td><strong>Parangón</strong></td>
+<td>28 puntos o más</td>
+</tr>
+</tbody>
+</table>
+<p>Para facilitar la creación y composición de tus escuadras, hay una aplicación disponible en línea, <a href="https://bornholm.github.io/escarmouche/barracks/"><strong>el Cuartel</strong></a>.</p>
 <h4 id="caractersticas-de-las-unidades">Características de las unidades</h4>
-<p>Cada unidad posee también 4 características principales:</p>
+<p>Cada unidad posee 4 características principales:</p>
 <table>
 <thead>
 <tr>
@@ -120,7 +136,7 @@
 <tbody>
 <tr>
 <td><strong>Salud</strong></td>
-<td>Puntos de vida máximos (cuando se reducen a 0, la unidad es eliminada)</td>
+<td>Puntos de vida máximos (al llegar a 0, la unidad es eliminada)</td>
 </tr>
 <tr>
 <td><strong>Alcance</strong></td>
@@ -136,55 +152,69 @@
 </tr>
 </tbody>
 </table>
-<p><em>Nota: Los movimientos en diagonal están permitidos.</em></p>
+<p><em>Nota: las distancias se cuentan en casillas, <strong>diagonales incluidas</strong> — un paso en diagonal cuenta como una casilla, tanto para el movimiento como para el alcance.</em></p>
+<h4 id="la-zona-central">La zona central</h4>
+<p>Las <strong>4 casillas centrales</strong> del tablero (el cuadrado 2×2 en el cruce de las columnas D-E y las filas 4-5) forman la <strong>zona de objetivo</strong>. Controlarla es la principal vía hacia la victoria (ver Condiciones de victoria).</p>
 <h4 id="preparacin">Preparación</h4>
 <ol>
 <li>Coloca el tablero entre los dos jugadores</li>
+<li><strong>Obstáculos</strong>: cada jugador coloca 1 marcador de obstáculo en una casilla libre de su elección, <strong>fuera de la zona central y fuera de las zonas de despliegue</strong> (es decir, en las filas 3 a 6). El jugador con la menor tirada de dado coloca el suyo primero</li>
 <li>Cada jugador posiciona sus unidades en <strong>sus dos primeras filas</strong> (filas 1-2 para un jugador, filas 7-8 para el otro)</li>
-<li>Las unidades pueden ser colocadas libremente en estas filas de inicio</li>
-<li>Lanza un dado para determinar quién comienza</li>
+<li>Las unidades pueden colocarse libremente en estas filas de salida</li>
+<li>Lanza un dado para determinar quién empieza</li>
 </ol>
+<h5 id="obstculos">Obstáculos</h5>
+<ul>
+<li>Una casilla de obstáculo es <strong>infranqueable</strong>: ninguna unidad puede detenerse en ella ni atravesarla</li>
+<li>Un obstáculo <strong>bloquea la línea de visión</strong> (cobertura total)</li>
+</ul>
 <h4 id="desarrollo-de-un-turno">Desarrollo de un turno</h4>
-<p>En su turno, el jugador activo realiza <strong>exactamente 2 acciones</strong> entre:</p>
+<p>En su turno, el jugador activo efectúa <strong>exactamente 2 acciones</strong> entre:</p>
 <h5 id="acciones-disponibles">Acciones disponibles</h5>
 <ul>
-<li><strong>Movimiento</strong>: Mover una unidad de su valor de Movimiento máximo</li>
-<li><strong>Ataque</strong>: Atacar una unidad enemiga al alcance y en línea de vista</li>
+<li><strong>Movimiento</strong>: Desplazar una unidad hasta su valor de Movimiento</li>
+<li><strong>Ataque</strong>: Atacar una unidad enemiga a alcance y en línea de visión</li>
 <li><strong>Habilidad</strong>: Activar una habilidad especial (si está disponible)</li>
 </ul>
 <h5 id="reglas-de-las-acciones">Reglas de las acciones</h5>
 <ul>
-<li>Las 2 acciones pueden ser realizadas por la <strong>misma unidad</strong> o <strong>repartidas</strong> en 2 unidades diferentes</li>
-<li>Una misma unidad puede realizar varias acciones en el turno</li>
-<li><strong>Restricción</strong>: Una unidad solo puede realizar <strong>1 solo ataque por turno</strong> y activar <strong>1 sola habilidad por turno</strong></li>
-<li>Una unidad puede por tanto <strong>atacar y usar una habilidad</strong> en el mismo turno (si cada una se realiza como una acción separada)</li>
+<li>Las 2 acciones pueden efectuarse por la <strong>misma unidad</strong> o <strong>repartirse</strong> entre 2 unidades diferentes</li>
+<li>Una misma unidad puede efectuar varias acciones en el turno</li>
+<li><strong>Restricción</strong>: Una unidad solo puede efectuar <strong>1 ataque por turno</strong> y activar solo <strong>1 habilidad por turno</strong></li>
+<li>Una unidad puede por tanto <strong>atacar y usar una habilidad</strong> en el mismo turno (si cada una se efectúa como acción separada)</li>
 </ul>
+<h5 id="fin-de-turno-control-de-la-zona">Fin de turno: control de la zona</h5>
+<p>Al <strong>final de su turno</strong>, el jugador activo comprueba si <strong>controla la zona central</strong>: al menos una de sus unidades está dentro y <strong>ninguna</strong> unidad enemiga lo está. Si es así, gana <strong>1 marcador de control</strong>.</p>
 <h4 id="combate">Combate</h4>
 <h5 id="ataque">Ataque</h5>
 <ol>
-<li><strong>Declaración</strong>: Elegir un objetivo al alcance y en línea de vista</li>
+<li><strong>Declaración</strong>: Elegir un objetivo a alcance y en línea de visión</li>
 <li><strong>Resolución</strong>: El ataque tiene éxito automáticamente (salvo habilidad contraria)</li>
 <li><strong>Daño</strong>: El objetivo pierde un número de puntos de Salud igual a la Potencia del atacante</li>
 <li><strong>Eliminación</strong>: Si la Salud cae a 0 o menos, retira la unidad del tablero</li>
 </ol>
-<h5 id="lnea-de-vista-y-cobertura">Línea de vista y cobertura</h5>
+<h5 id="lnea-de-visin-y-cobertura">Línea de visión y cobertura</h5>
 <ul>
-<li>Una unidad puede atacar si una <strong>línea recta ininterrumpida</strong> puede ser trazada entre ella y su objetivo</li>
+<li>Una unidad puede atacar si puede trazarse una <strong>línea recta ininterrumpida</strong> entre ella y su objetivo</li>
 <li>Esta línea puede partir de <strong>cualquier esquina</strong> de la casilla del atacante</li>
-<li>Las <strong>otras unidades</strong> (aliadas o enemigas) bloquean la línea de vista</li>
+<li>Las <strong>otras unidades</strong> (aliadas o enemigas) y los <strong>obstáculos</strong> bloquean la línea de visión</li>
 <li><strong>Obstáculo = Cobertura total</strong> (ataque imposible)</li>
 </ul>
 <h4 id="condiciones-de-victoria">Condiciones de victoria</h4>
-<h5 id="victoria-estndar">Victoria Estándar</h5>
-<p>El primer jugador en eliminar <strong>todas las unidades adversarias</strong> gana la partida.</p>
-<h5 id="partidas-con-escenarios">Partidas con escenarios</h5>
-<p><code>TODO</code></p>
+<p>La partida se gana de una de las dos formas siguientes:</p>
+<h5 id="victoria-por-captura">Victoria por captura</h5>
+<p>El primer jugador en acumular <strong>3 marcadores de control</strong> de la zona central gana inmediatamente la partida.</p>
+<h5 id="victoria-por-eliminacin">Victoria por eliminación</h5>
+<p>Un jugador que elimina <strong>todas las unidades enemigas</strong> gana inmediatamente la partida.</p>
+<blockquote>
+<p>Consejo: la zona central fuerza el enfrentamiento. Acampar en tu esquina es dejar que el adversario acumule tranquilamente sus marcadores de control.</p>
+</blockquote>
 <h4 id="puntos-de-reglas-importantes">Puntos de reglas importantes</h4>
 <h5 id="movimiento">Movimiento</h5>
 <ul>
 <li>El movimiento en diagonal está permitido</li>
-<li>Una unidad puede detenerse en cualquier momento antes de haber usado todo su Movimiento</li>
-<li>Imposible atravesar una casilla ocupada por otra unidad</li>
+<li>Una unidad puede detenerse en cualquier momento antes de usar todo su Movimiento</li>
+<li>Es imposible atravesar una casilla ocupada por otra unidad o un obstáculo</li>
 </ul>
 <h5 id="habilidades-especiales">Habilidades especiales</h5>
 <ul>
@@ -193,7 +223,7 @@
 <li>Algunas habilidades pueden modificar las reglas estándar o aplicar efectos de estado</li>
 </ul>
 <h5 id="efectos-de-estado">Efectos de estado</h5>
-<p>Algunas habilidades aplican efectos persistentes sobre las unidades:</p>
+<p>Algunas habilidades aplican efectos persistentes sobre las unidades. Las duraciones se leen siempre <strong>desde el punto de vista del propietario de la unidad afectada</strong>:</p>
 <table>
 <thead>
 <tr>
@@ -204,24 +234,29 @@
 </thead>
 <tbody>
 <tr>
-<td><strong>Suprimida</strong></td>
+<td><strong>Supresión</strong></td>
 <td>Fuego de Supresión</td>
-<td>La unidad objetivo no puede realizar ninguna acción en su próximo turno</td>
+<td>La unidad objetivo solo puede efectuar <strong>una única acción</strong> en su próximo turno</td>
 </tr>
 <tr>
-<td><strong>No objetivo</strong></td>
+<td><strong>Inseleccionable</strong></td>
 <td>Retirada Táctica</td>
-<td>La unidad no puede ser objetivo de ataques hasta el final del turno adversario</td>
+<td>La unidad no puede ser objetivo de ataques hasta el inicio de su próximo turno</td>
 </tr>
 <tr>
-<td><strong>Sobrecargada</strong></td>
+<td><strong>Sobrecarga</strong></td>
 <td>Sobrecarga</td>
 <td>La unidad no puede atacar en su próximo turno</td>
 </tr>
 <tr>
-<td><strong>Protegida</strong></td>
+<td><strong>Postura Defensiva</strong></td>
+<td>Postura Defensiva</td>
+<td>El próximo punto de daño infligido a la unidad queda anulado (no acumulable)</td>
+</tr>
+<tr>
+<td><strong>Protección</strong></td>
 <td>Guardián</td>
-<td>Los daños recibidos por una unidad aliada adyacente son redirigidos hacia la unidad guardiana hasta el inicio de su próximo turno</td>
+<td>El daño recibido por una unidad aliada adyacente se redirige a la unidad guardiana hasta el inicio de su próximo turno</td>
 </tr>
 </tbody>
 </table>
@@ -255,8 +290,8 @@ solo puede realizar 1 acción en su próximo turno.</li>
 <p></p>
 <h4 id="00004-tactical-retreat">5. Retirada Táctica</h4>
 <ul>
-<li><strong>Description</strong>: Realiza una acción de movimiento. Esta unidad no puede ser objetivo
-de ataques hasta el final del turno del oponente.</li>
+<li><strong>Description</strong>: Realiza una acción de movimiento. Esta unidad no puede ser
+objetivo de ataques hasta el inicio de su próximo turno.</li>
 <li><strong>Coût</strong>: <code>2</code></li>
 </ul>
 <p></p>
