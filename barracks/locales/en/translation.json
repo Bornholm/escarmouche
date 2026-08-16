@@ -61,6 +61,7 @@
     "setupHint": "Place your obstacle: one square, outside the central zone and the deployment zones. It blocks movement and line of sight. The AI will place its own.",
     "setupTitle": "Setup",
     "startBattle": "Start the battle",
+    "starting": "The battle begins…",
     "status": {
       "defensiveStance": "Defensive stance",
       "overcharged": "Overcharge",

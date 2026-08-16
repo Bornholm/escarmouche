@@ -61,6 +61,7 @@
     "setupHint": "Coloca tu obstáculo: una casilla, fuera de la zona central y de las zonas de despliegue. Bloquea el movimiento y la línea de visión. La IA colocará el suyo.",
     "setupTitle": "Preparación",
     "startBattle": "Iniciar la batalla",
+    "starting": "La partida comienza…",
     "status": {
       "defensiveStance": "Postura defensiva",
       "overcharged": "Sobrecarga",
