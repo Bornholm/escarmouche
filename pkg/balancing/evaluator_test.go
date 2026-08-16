@@ -10,7 +10,6 @@ func TestEvaluator_Creation(t *testing.T) {
 	evaluator := NewEvaluator(
 		WithPopulationSize(10),
 		WithMutationRate(0.2),
-		WithSquadsPerEval(3),
 		WithMaxGenerations(50),
 	)
 
@@ -20,10 +19,6 @@ func TestEvaluator_Creation(t *testing.T) {
 
 	if evaluator.mutationRate != 0.2 {
 		t.Errorf("Expected mutation rate 0.2, got %f", evaluator.mutationRate)
-	}
-
-	if evaluator.squadsPerEval != 3 {
-		t.Errorf("Expected squads per eval 3, got %d", evaluator.squadsPerEval)
 	}
 
 	if evaluator.maxGenerations != 50 {

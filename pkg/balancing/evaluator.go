@@ -41,7 +41,6 @@ type Evaluator struct {
 	crossoverRate        float64
 	eliteSize            int
 	tournamentSize       int
-	squadsPerEval        int
 	maxGenerations       int
 	convergenceThreshold float64
 }
@@ -60,13 +59,6 @@ func WithPopulationSize(size int) EvaluatorOption {
 func WithMutationRate(rate float64) EvaluatorOption {
 	return func(e *Evaluator) {
 		e.mutationRate = rate
-	}
-}
-
-// WithSquadsPerEval sets how many squads to simulate per fitness evaluation
-func WithSquadsPerEval(games int) EvaluatorOption {
-	return func(e *Evaluator) {
-		e.squadsPerEval = games
 	}
 }
 
@@ -151,11 +143,14 @@ func (e *Evaluator) evaluatePopulation(ctx context.Context) error {
 
 // TournamentResult holds the results of a tournament simulation
 type TournamentResult struct {
-	WinShares    []float64
-	TotalGames   int64
-	HHI          float64
-	Fitness      float64
-	SquadResults []SquadResult
+	WinShares      []float64
+	TotalGames     int64
+	TimedOutGames  int64
+	HHI            float64
+	ArchetypeSkew  float64
+	Fitness        float64
+	SquadResults   []SquadResult
+	SquadArchetype []string
 }
 
 // SquadResult contains statistics for a single squad in the tournament
@@ -168,79 +163,119 @@ type SquadResult struct {
 
 // FitnessConfig holds configuration parameters for fitness evaluation
 type FitnessConfig struct {
-	MaxRankPoints   int
-	MaxSquadSize    int
-	ScalingExponent float64
-	MaxSimSteps     int // Prevent infinite simulations
+	SquadBudget  float64
+	MaxSquadSize int
+	MaxSimSteps  int // Prevent infinite simulations
+	// Repetitions : nombre de tournois indépendants moyennés par évaluation.
+	// Une seule mesure sur des escouades aléatoires est dominée par le bruit
+	// d'échantillonnage — l'ancien fitness promouvait des individus chanceux.
+	Repetitions int
+	// SearchDepth / SearchBudget : force de l'IA pendant les simulations.
+	// L'équilibre mesuré est celui du niveau de jeu qui le mesure : une IA
+	// myope sous-évalue mobilité et capacités de tempo.
+	SearchDepth  int
+	SearchBudget int
 }
 
 // DefaultFitnessConfig returns sensible default configuration
 func DefaultFitnessConfig() FitnessConfig {
 	return FitnessConfig{
-		MaxRankPoints:   30,
-		MaxSquadSize:    gen.DefaultMaxSquadSize,
-		ScalingExponent: 2.0,
-		MaxSimSteps:     250, // Prevent runaway simulations
+		SquadBudget:  gen.DefaultSquadBudget,
+		MaxSquadSize: gen.DefaultMaxSquadSize,
+		MaxSimSteps:  60,
+		Repetitions:  3,
+		SearchDepth:  2,
+		SearchBudget: 4000,
 	}
 }
 
-// evaluateFitness runs tournament simulations to determine balance quality using Herfindahl-Hirschman Index.
-// It generates squads using the provided costs, runs a round-robin tournament, and calculates
-// fitness based on how balanced the win rates are across all squads.
+// evaluateFitness mesure la qualité d'équilibrage d'un jeu de coûts.
+//
+// Trois composantes :
+//   - 1-HHI : les victoires ne se concentrent pas sur quelques escouades ;
+//   - biais d'archétype : chaque tournoi aligne une escouade mono-archétype
+//     par archétype — leur écart de win-rate mesure directement si un profil
+//     de jeu domine, ce que le HHI brut ne voit pas ;
+//   - pénalité de non-terminaison : une partie qui atteint la limite de tours
+//     signale un système qui encourage l'attentisme.
+//
+// Le score est moyenné sur plusieurs tournois indépendants pour amortir le
+// bruit d'échantillonnage.
 func (e *Evaluator) evaluateFitness(ctx context.Context, costs core.Costs) (float64, error) {
-	if e.squadsPerEval <= 0 {
-		return 0, errors.New("squadsPerEval must be positive")
-	}
-	if e.squadsPerEval == 1 {
-		return 0, errors.New("need at least 2 squads for tournament evaluation")
-	}
-
 	config := DefaultFitnessConfig()
 
-	// Generate tournament squads
-	squads, err := e.generateTournamentSquads(ctx, costs, config)
-	if err != nil {
-		return 0, errors.Wrap(err, "failed to generate tournament squads")
+	total := 0.0
+	for rep := 0; rep < config.Repetitions; rep++ {
+		select {
+		case <-ctx.Done():
+			return 0, ctx.Err()
+		default:
+		}
+
+		squads, labels, err := e.generateTournamentSquads(ctx, costs, config)
+		if err != nil {
+			return 0, errors.Wrap(err, "failed to generate tournament squads")
+		}
+
+		result, err := e.runTournament(ctx, squads, labels, config)
+		if err != nil {
+			return 0, errors.Wrap(err, "failed to run tournament")
+		}
+
+		timeoutRate := 0.0
+		if result.TotalGames > 0 {
+			timeoutRate = float64(result.TimedOutGames) / float64(result.TotalGames)
+		}
+
+		fitness := (1-result.HHI)*0.5 + (1-result.ArchetypeSkew)*0.4 - timeoutRate*0.3
+		if fitness < 0 {
+			fitness = 0
+		}
+		total += fitness
 	}
 
-	// Run tournament simulations
-	result, err := e.runTournament(ctx, squads, config)
-	if err != nil {
-		return 0, errors.Wrap(err, "failed to run tournament")
-	}
-
-	// Calculate and return fitness score
-	fitness := 1 - result.HHI
+	fitness := total / float64(config.Repetitions)
 
 	if log.Default() != nil {
-		log.Printf("Tournament completed: %d games, HHI=%.6f, fitness=%.6f",
-			result.TotalGames, result.HHI, fitness)
+		log.Printf("Fitness evaluation completed: fitness=%.6f", fitness)
 	}
 
 	return fitness, nil
 }
 
-// generateTournamentSquads creates squads for the tournament using the given costs
-func (e *Evaluator) generateTournamentSquads(ctx context.Context, costs core.Costs, config FitnessConfig) ([][]sim.Unit, error) {
-	squads := make([][]sim.Unit, 0, e.squadsPerEval)
+// generateTournamentSquads compose le plateau du tournoi : une escouade
+// mono-archétype par archétype (pour mesurer le biais), plus deux escouades
+// mixtes.
+func (e *Evaluator) generateTournamentSquads(ctx context.Context, costs core.Costs, config FitnessConfig) ([][]sim.Unit, []string, error) {
+	type squadSpec struct {
+		label      string
+		archetypes []gen.Archetype
+	}
 
-	for i := 0; i < e.squadsPerEval; i++ {
+	specs := make([]squadSpec, 0, len(gen.DefaultArchetypes)+2)
+	for _, archetype := range gen.DefaultArchetypes {
+		specs = append(specs, squadSpec{label: archetype.Name, archetypes: []gen.Archetype{archetype}})
+	}
+	specs = append(specs,
+		squadSpec{label: "mixed-1", archetypes: gen.DefaultArchetypes},
+		squadSpec{label: "mixed-2", archetypes: gen.DefaultArchetypes},
+	)
+
+	squads := make([][]sim.Unit, 0, len(specs))
+	labels := make([]string, 0, len(specs))
+
+	for _, spec := range specs {
 		select {
 		case <-ctx.Done():
-			return nil, ctx.Err()
+			return nil, nil, ctx.Err()
 		default:
 		}
 
-		squad, err := gen.RandomSquad(config.MaxRankPoints, config.MaxSquadSize, gen.DefaultRankPointCosts, costs)
+		squad, err := gen.RandomSquad(config.SquadBudget, config.MaxSquadSize, costs, spec.archetypes...)
 		if err != nil {
-			return nil, errors.Wrapf(err, "failed to generate squad %d", i)
+			return nil, nil, errors.Wrapf(err, "failed to generate squad '%s'", spec.label)
 		}
 
-		if len(squad) == 0 {
-			return nil, errors.Errorf("generated empty squad %d", i)
-		}
-
-		// Convert to sim.Unit format efficiently
 		units := make([]sim.Unit, len(squad))
 		for j, u := range squad {
 			units[j] = sim.Unit{
@@ -249,9 +284,10 @@ func (e *Evaluator) generateTournamentSquads(ctx context.Context, costs core.Cos
 			}
 		}
 		squads = append(squads, units)
+		labels = append(labels, spec.label)
 	}
 
-	return squads, nil
+	return squads, labels, nil
 }
 
 // gameJob represents a single game to be played in the tournament
@@ -263,10 +299,11 @@ type gameJob struct {
 type gameResult struct {
 	winnerIndex int
 	completed   bool
+	timedOut    bool
 }
 
 // runTournament executes a round-robin tournament between all squads
-func (e *Evaluator) runTournament(ctx context.Context, squads [][]sim.Unit, config FitnessConfig) (*TournamentResult, error) {
+func (e *Evaluator) runTournament(ctx context.Context, squads [][]sim.Unit, labels []string, config FitnessConfig) (*TournamentResult, error) {
 	numSquads := len(squads)
 	if numSquads < 2 {
 		return nil, errors.New("need at least 2 squads for tournament")
@@ -304,6 +341,7 @@ func (e *Evaluator) runTournament(ctx context.Context, squads [][]sim.Unit, conf
 	// Collect results
 	wins := make([]int, numSquads)
 	totalGames := 0
+	timedOut := 0
 
 	go func() {
 		wg.Wait()
@@ -314,6 +352,9 @@ func (e *Evaluator) runTournament(ctx context.Context, squads [][]sim.Unit, conf
 		if result.completed {
 			wins[result.winnerIndex]++
 			totalGames++
+			if result.timedOut {
+				timedOut++
+			}
 		}
 	}
 
@@ -325,15 +366,11 @@ func (e *Evaluator) runTournament(ctx context.Context, squads [][]sim.Unit, conf
 	totalWins := float64(totalGames)
 
 	winShares := make([]float64, numSquads)
-	squadResults := make([]SquadResult, numSquads)
+	squadResults := make([]SquadResult, 0, numSquads)
 	gamesPerSquad := (numSquads - 1) * 2
 
 	for i := 0; i < numSquads; i++ {
-		if totalWins > 0 {
-			winShares[i] = float64(wins[i]) / totalWins
-		} else {
-			winShares[i] = 0.0
-		}
+		winShares[i] = float64(wins[i]) / totalWins
 
 		squadResults = append(squadResults, SquadResult{
 			Index:   i,
@@ -345,11 +382,27 @@ func (e *Evaluator) runTournament(ctx context.Context, squads [][]sim.Unit, conf
 
 	hhi := e.calculateHHI(winShares)
 
+	// Biais d'archétype : écart maximal du win-rate des escouades
+	// mono-archétype à l'équilibre parfait (50 %), ramené dans [0, 1].
+	skew := 0.0
+	for i, label := range labels {
+		if label == "mixed-1" || label == "mixed-2" {
+			continue
+		}
+		deviation := math.Abs(squadResults[i].WinRate-0.5) * 2
+		if deviation > skew {
+			skew = deviation
+		}
+	}
+
 	return &TournamentResult{
-		WinShares:    winShares,
-		TotalGames:   int64(totalGames),
-		HHI:          hhi,
-		SquadResults: squadResults,
+		WinShares:      winShares,
+		TotalGames:     int64(totalGames),
+		TimedOutGames:  int64(timedOut),
+		HHI:            hhi,
+		ArchetypeSkew:  skew,
+		SquadResults:   squadResults,
+		SquadArchetype: labels,
 	}, nil
 }
 
@@ -367,7 +420,7 @@ func (e *Evaluator) tournamentWorker(ctx context.Context, wg *sync.WaitGroup, sq
 		default:
 		}
 
-		winner, err := e.runSingleGame(ctx, squads[job.squad1Index], squads[job.squad2Index], config)
+		winner, timedOut, err := e.runSingleGame(ctx, squads[job.squad1Index], squads[job.squad2Index], config)
 		if err != nil {
 			// Log error but continue with tournament
 			if log.Default() != nil {
@@ -385,32 +438,35 @@ func (e *Evaluator) tournamentWorker(ctx context.Context, wg *sync.WaitGroup, sq
 		results <- gameResult{
 			winnerIndex: winnerIndex,
 			completed:   true,
+			timedOut:    timedOut,
 		}
 	}
 }
 
-// runSingleGame executes a single simulation between two squads
-func (e *Evaluator) runSingleGame(ctx context.Context, squad1, squad2 []sim.Unit, config FitnessConfig) (sim.PlayerID, error) {
-	game := sim.NewGame(squad1, squad2, sim.WithLookaheadDepth(1))
+// runSingleGame executes a single simulation between two squads.
+// Le booléen retourné signale une partie départagée par la limite de tours :
+// c'est le symptôme d'attentisme que le fitness pénalise.
+func (e *Evaluator) runSingleGame(ctx context.Context, squad1, squad2 []sim.Unit, config FitnessConfig) (sim.PlayerID, bool, error) {
+	strategy := sim.SearchStrategy(config.SearchDepth, config.SearchBudget)
+	game := sim.NewGame(squad1, squad2,
+		sim.WithPlayerStrategy(sim.PlayerOne, strategy),
+		sim.WithPlayerStrategy(sim.PlayerTwo, strategy),
+		sim.WithMaxTurns(uint(config.MaxSimSteps)),
+	)
 
 	for step := range game.Run() {
 		select {
 		case <-ctx.Done():
-			return -1, ctx.Err()
+			return -1, false, ctx.Err()
 		default:
-			if step.Turn >= uint(config.MaxSimSteps) {
-				return sim.GetHealthWinner(game.State()), nil
-			}
-
 			if step.IsOver {
-				return step.Winner, nil
+				timedOut := step.Turn >= uint(config.MaxSimSteps)
+				return step.Winner, timedOut, nil
 			}
 		}
-
 	}
 
-	// If we range max steps, declare it a draw (return player one arbitrarily)
-	return sim.PlayerOne, errors.New("simulation exceeded maximum steps")
+	return sim.GetWinnerOnTimeout(game.State()), true, nil
 }
 
 // calculateOptimalWorkers determines the optimal number of workers for the tournament
@@ -443,36 +499,6 @@ func (e *Evaluator) calculateHHI(shares []float64) float64 {
 	normalized := (hhi - best) / (1 - best)
 
 	return normalized
-}
-
-// calculateFitnessFromHHI converts HHI to a fitness score in [0,1] range
-func (e *Evaluator) calculateFitnessFromHHI(hhi float64, numSquads int) float64 {
-	if numSquads <= 0 {
-		return 0.0
-	}
-
-	// Perfect balance: each squad has equal win rate (1/n)
-	perfectHHI := 1.0 / float64(numSquads)
-
-	// Worst case: one squad wins everything
-	worstHHI := 1.0
-
-	// Clamp HHI to valid range
-	if hhi > worstHHI {
-		hhi = worstHHI
-	}
-	if hhi < perfectHHI {
-		hhi = perfectHHI
-	}
-
-	// Convert to fitness: lower HHI = better balance = higher fitness
-	fitness := (worstHHI - hhi) / (worstHHI - perfectHHI)
-
-	// Apply scaling to make convergence more challenging
-	fitness = math.Pow(fitness, 2.0)
-
-	// Ensure fitness is in [0, 1] range
-	return math.Max(0.0, math.Min(1.0, fitness))
 }
 
 // calculateStats computes statistics for the current generation
@@ -655,7 +681,6 @@ func NewEvaluator(options ...EvaluatorOption) *Evaluator {
 		crossoverRate:        0.8,
 		eliteSize:            5,
 		tournamentSize:       3,
-		squadsPerEval:        10,
 		maxGenerations:       100,
 		convergenceThreshold: 0.001, // More strict convergence threshold
 	}

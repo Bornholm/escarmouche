@@ -26,6 +26,14 @@ func NewOptions(funcs ...OptionFunc) *Options {
 	return opts
 }
 
+// WithMaxTurns borne la durée d'une partie (départage par points de
+// contrôle puis santé, cf. GetWinnerOnTimeout).
+func WithMaxTurns(maxTurns uint) OptionFunc {
+	return func(opts *Options) {
+		opts.MaxTurns = maxTurns
+	}
+}
+
 // WithObstacles fixe les obstacles posés pendant la mise en place.
 func WithObstacles(positions ...Position) OptionFunc {
 	return func(opts *Options) {

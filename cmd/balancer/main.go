@@ -13,14 +13,12 @@ import (
 
 var (
 	populationSize = 100
-	squadsPerEval  = 100
 	mutationRate   = 0.1
 	maxGenerations = 1000
 )
 
 func init() {
 	flag.IntVar(&populationSize, "population-size", populationSize, "population size")
-	flag.IntVar(&squadsPerEval, "squads-per-eval", squadsPerEval, "number of squads to create for each tournament evaluation")
 	flag.Float64Var(&mutationRate, "mutation-rate", mutationRate, "mutation rate")
 	flag.IntVar(&maxGenerations, "max-generations", maxGenerations, "maximum number of generations")
 }
@@ -38,14 +36,12 @@ func main() {
 	// Create evaluator with custom settings
 	evaluator := balancing.NewEvaluator(
 		balancing.WithPopulationSize(populationSize),
-		balancing.WithSquadsPerEval(squadsPerEval),
 		balancing.WithMutationRate(mutationRate),
 		balancing.WithMaxGenerations(maxGenerations),
 	)
 
 	fmt.Printf("Starting with:\n")
 	fmt.Printf("- Population size: %d\n", populationSize)
-	fmt.Printf("- Squads per evaluation: %d\n", squadsPerEval)
 	fmt.Printf("- Mutation rate: %v%%\n", mutationRate*100)
 	fmt.Printf("- Max generations: %d\n", maxGenerations)
 	fmt.Println()
