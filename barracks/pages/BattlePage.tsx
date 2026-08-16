@@ -8,6 +8,7 @@ import { ReplayLogEntry, useBattleReplay } from "../hooks/useBattleReplay";
 import { useAbilities } from "../hooks/useAbilities";
 import { DefaultSquads, DefaultUnits } from "../util/defaults";
 import { StatIcon } from "../components/Icons";
+import { UnitCard } from "../components/UnitCard";
 
 interface BattlePageProps {
   squads: Squad[];
@@ -29,6 +30,10 @@ export const BattlePage: React.FC<BattlePageProps> = ({ squads, units }) => {
   // celle du joueur — l'IA a ainsi un nom, un lore et des illustrations.
   const [aiSquad, setAiSquad] = useState<Squad | null>(null);
   const [deployment, setDeployment] = useState<DeploymentState | null>(null);
+  // Le joueur choisit l'ordre de déploiement : `deployIndex` est l'unité
+  // qu'il s'apprête à poser, `previewIndex` celle dont il lit la carte.
+  const [deployIndex, setDeployIndex] = useState<number | null>(null);
+  const [previewIndex, setPreviewIndex] = useState<number | null>(null);
   const [battleState, setBattleState] = useState<BattleState | null>(null);
   const [selectedUnitID, setSelectedUnitID] = useState<number | null>(null);
   const [hoveredAction, setHoveredAction] = useState<ActionDescription | null>(null);
@@ -168,6 +173,7 @@ export const BattlePage: React.FC<BattlePageProps> = ({ squads, units }) => {
         [placedObstacle]
       )) as unknown as DeploymentState;
       setDeployment(state);
+      setDeployIndex(0);
       setStep("deploy");
     } catch (error) {
       console.error("startDeployment failed", error);
@@ -175,9 +181,13 @@ export const BattlePage: React.FC<BattlePageProps> = ({ squads, units }) => {
   };
 
   const handleDeployAt = async (x: number, y: number) => {
+    if (deployIndex === null) return;
     try {
-      const state = (await Barracks.deployUnit(x, y)) as unknown as DeploymentState;
+      const state = (await Barracks.deployUnit(deployIndex, x, y)) as unknown as DeploymentState;
       setDeployment(state);
+      // On enchaîne sur la première unité encore à déployer.
+      const next = state.playerPositions.findIndex((p) => p === null);
+      setDeployIndex(next === -1 ? null : next);
     } catch (error) {
       console.error("deployUnit failed", error);
     }
@@ -433,13 +443,20 @@ export const BattlePage: React.FC<BattlePageProps> = ({ squads, units }) => {
      ------------------------------------------------------------------------ */
   if (step === "deploy" && deployment) {
     const mine = getSelectedUnits();
-    const nextUnit = mine[deployment.playerPositions.length];
     const rows = Array.from({ length: 8 }, (_, i) => 7 - i);
 
-    const occupied = new Map<string, "player" | "ai">();
-    deployment.playerPositions.forEach((p) => occupied.set(`${p.x},${p.y}`, "player"));
-    deployment.aiPositions.forEach((p) => occupied.set(`${p.x},${p.y}`, "ai"));
+    // Une case porte soit une unité du joueur (on sait laquelle), soit une
+    // unité adverse déjà posée.
+    const playerAt = new Map<string, number>();
+    deployment.playerPositions.forEach((p, index) => {
+      if (p) playerAt.set(`${p.x},${p.y}`, index);
+    });
+    const aiAt = new Set(deployment.aiPositions.map((p) => `${p.x},${p.y}`));
     const obstacleSet = new Set(deployment.obstacles.map((o) => `${o.x},${o.y}`));
+
+    // La carte lue : celle survolée, sinon celle qu'on s'apprête à poser.
+    const readIndex = previewIndex ?? deployIndex;
+    const readUnit = readIndex !== null ? mine[readIndex] : null;
 
     return (
       <>
@@ -450,36 +467,82 @@ export const BattlePage: React.FC<BattlePageProps> = ({ squads, units }) => {
           <h1 className="page__title">{t("battle.deployTitle")}</h1>
           <div className="spacer" />
           <span className="section-label">
-            {t("battle.deployProgress", {
-              n: deployment.playerPositions.length,
-              max: deployment.playerTotal,
-            })}
+            {t("battle.deployProgress", { n: deployment.placed, max: deployment.playerTotal })}
           </span>
         </div>
 
-        <div className="panel__section">
-          {aiSquad && (
-            <div className="notice">
-              {t("battle.opponentIs", { squad: aiSquad.name })}
+        <div className="deploy">
+          {/* Colonne gauche : les unités à poser, dans l'ordre qu'on veut */}
+          <aside className="deploy__roster">
+            {aiSquad && (
+              <div className="notice">{t("battle.opponentIs", { squad: aiSquad.name })}</div>
+            )}
+
+            <div className="section-label">{t("battle.deployRoster")}</div>
+
+            <div className="stack stack--2">
+              {mine.map((unit, index) => {
+                const done = deployment.playerPositions[index] !== null;
+                return (
+                  <button
+                    key={`${unit.id}-${index}`}
+                    className={`deploy__unit ${deployIndex === index ? "deploy__unit--active" : ""} ${
+                      done ? "deploy__unit--done" : ""
+                    }`}
+                    disabled={done}
+                    onClick={() => setDeployIndex(index)}
+                    onMouseEnter={() => setPreviewIndex(index)}
+                    onMouseLeave={() => setPreviewIndex(null)}
+                    onFocus={() => setPreviewIndex(index)}
+                    onBlur={() => setPreviewIndex(null)}
+                  >
+                    <span className="deploy__unit-art">
+                      {unit.imageUrl && <img src={unit.imageUrl} alt="" />}
+                    </span>
+                    <span className="grow-min">
+                      <span className="deploy__unit-name">{unit.name}</span>
+                      <span className="deploy__unit-stats num">
+                        {unit.health} · {unit.range} · {unit.power} · {unit.move}
+                      </span>
+                    </span>
+                    {done && <span className="deploy__unit-check">✓</span>}
+                  </button>
+                );
+              })}
             </div>
-          )}
 
-          <p className="empty__text" style={{ maxWidth: 560 }}>
-            {deployment.done
-              ? t("battle.deployReady")
-              : t("battle.deployHint", { unit: nextUnit?.name ?? "" })}
-          </p>
+            <p className="hint">
+              {deployment.done
+                ? t("battle.deployReady")
+                : t("battle.deployHintFree")}
+            </p>
 
+            <button
+              className="btn btn--primary btn--block"
+              disabled={!deployment.done}
+              onClick={() => obstacle && handleStartBattle(mine, obstacle)}
+            >
+              {t("battle.startBattle")}
+            </button>
+          </aside>
+
+          {/* Centre : le plateau */}
           <div className="board-wrap">
             <div className="board">
               {rows.flatMap((y) =>
                 Array.from({ length: 8 }, (_, x) => {
                   const key = `${x},${y}`;
-                  const side = occupied.get(key);
+                  const mineIndex = playerAt.get(key);
+                  const isAi = aiAt.has(key);
                   const isObjective = x >= 3 && x <= 4 && y >= 3 && y <= 4;
                   const isObstacle = obstacleSet.has(key);
                   const inMyZone = y <= 1;
-                  const placeable = !deployment.done && inMyZone && !side && !isObstacle;
+                  const placeable =
+                    deployIndex !== null &&
+                    inMyZone &&
+                    mineIndex === undefined &&
+                    !isAi &&
+                    !isObstacle;
 
                   return (
                     <div
@@ -507,8 +570,26 @@ export const BattlePage: React.FC<BattlePageProps> = ({ squads, units }) => {
                           <path d="M4 20h16M6 20l2-9h8l2 9M9 11l1-5h4l1 5" />
                         </svg>
                       )}
-                      {side && (
-                        <div className={`token ${side === "player" ? "token--player" : "token--ai"}`}>
+
+                      {mineIndex !== undefined && (
+                        <div
+                          className="token token--player"
+                          onMouseEnter={() => setPreviewIndex(mineIndex)}
+                          onMouseLeave={() => setPreviewIndex(null)}
+                        >
+                          <div className="token__owner" />
+                          <div className="token__art">
+                            {mine[mineIndex]?.imageUrl ? (
+                              <img src={mine[mineIndex].imageUrl} alt="" />
+                            ) : (
+                              <span aria-hidden="true">◆</span>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {isAi && (
+                        <div className="token token--ai">
                           <div className="token__owner" />
                           <div className="token__art">
                             <span aria-hidden="true">◆</span>
@@ -522,15 +603,15 @@ export const BattlePage: React.FC<BattlePageProps> = ({ squads, units }) => {
             </div>
           </div>
 
-          <div className="row row--2">
-            <button
-              className="btn btn--primary"
-              disabled={!deployment.done}
-              onClick={() => obstacle && handleStartBattle(mine, obstacle)}
-            >
-              {t("battle.startBattle")}
-            </button>
-          </div>
+          {/* Droite : la carte de l'unité lue — la lecture stratégique */}
+          <aside className="deploy__card">
+            <div className="section-label">{t("battle.deployCard")}</div>
+            {readUnit ? (
+              <UnitCard unit={readUnit} variant="preview" />
+            ) : (
+              <p className="hint">{t("battle.deployCardEmpty")}</p>
+            )}
+          </aside>
         </div>
       </>
     );

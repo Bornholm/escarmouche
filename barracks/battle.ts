@@ -106,7 +106,9 @@ export interface BattleEffect {
  * tour à tour, chaque camp voyant ce que l'autre a posé.
  */
 export interface DeploymentState {
-  playerPositions: { x: number; y: number }[];
+  /** Une entrée par unité du joueur, `null` tant qu'elle n'est pas déployée. */
+  playerPositions: ({ x: number; y: number } | null)[];
+  placed: number;
   aiPositions: { x: number; y: number }[];
   obstacles: { x: number; y: number }[];
   playerTotal: number;

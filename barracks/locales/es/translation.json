@@ -17,9 +17,12 @@
     "controlScore": "Control de la zona",
     "defeat": "Derrota",
     "defeatMessage": "Todas tus unidades han sido eliminadas.",
-    "deployHint": "Coloca «{{unit}}» en tus dos primeras filas. El adversario responderá colocando una unidad por turno.",
+    "deployCard": "Ficha",
+    "deployCardEmpty": "Pasa el cursor sobre una unidad para leer su carta.",
+    "deployHintFree": "Elige una unidad y luego una casilla de tus dos primeras filas. El adversario responde tras cada colocación.",
     "deployProgress": "{{n}} / {{max}} colocadas",
     "deployReady": "Todas tus unidades están colocadas. El adversario ha terminado su despliegue.",
+    "deployRoster": "Tus unidades",
     "deployTitle": "Despliegue",
     "difficulties": {
       "easy": "FÁCIL",

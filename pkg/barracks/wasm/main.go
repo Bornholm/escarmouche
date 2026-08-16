@@ -237,9 +237,34 @@ var (
 type deploymentSession struct {
 	playerUnits []sim.Unit
 	aiUnits     []sim.Unit
-	playerPos   []sim.Position
-	aiPos       []sim.Position
-	obstacles   map[string]bool
+	// playerPos est indexé par unité (nil = pas encore déployée) : le joueur
+	// choisit librement l'ordre dans lequel il pose ses unités.
+	playerPos []*sim.Position
+	aiPos     []sim.Position
+	obstacles map[string]bool
+}
+
+func (d *deploymentSession) placedCount() int {
+	n := 0
+	for _, p := range d.playerPos {
+		if p != nil {
+			n++
+		}
+	}
+	return n
+}
+
+// orderedPlayerPositions rend les positions dans l'ordre des unités, tel que
+// NewGame les attend.
+func (d *deploymentSession) orderedPlayerPositions() []sim.Position {
+	out := make([]sim.Position, 0, len(d.playerPos))
+	for _, p := range d.playerPos {
+		if p == nil {
+			return nil
+		}
+		out = append(out, *p)
+	}
+	return out
 }
 
 var currentDeployment *deploymentSession
@@ -286,6 +311,16 @@ func serializeDeployment() map[string]any {
 		return out
 	}
 
+	// Une entrée par unité du joueur, null tant qu'elle n'est pas déployée.
+	playerSlots := make([]any, 0, len(d.playerPos))
+	for _, p := range d.playerPos {
+		if p == nil {
+			playerSlots = append(playerSlots, nil)
+			continue
+		}
+		playerSlots = append(playerSlots, map[string]any{"x": p.X, "y": p.Y})
+	}
+
 	obstacles := make([]any, 0, len(d.obstacles))
 	for x := 0; x < sim.BoardSize; x++ {
 		for y := 0; y < sim.BoardSize; y++ {
@@ -297,12 +332,13 @@ func serializeDeployment() map[string]any {
 	}
 
 	return map[string]any{
-		"playerPositions": toJS(d.playerPos),
+		"playerPositions": playerSlots,
 		"aiPositions":     toJS(d.aiPos),
 		"obstacles":       obstacles,
 		"playerTotal":     len(d.playerUnits),
 		"aiTotal":         len(d.aiUnits),
-		"done":            len(d.playerPos) >= len(d.playerUnits),
+		"placed":          d.placedCount(),
+		"done":            d.placedCount() >= len(d.playerUnits),
 	}
 }
 
@@ -328,7 +364,7 @@ func startDeployment(this js.Value, args []js.Value) any {
 		currentDeployment = &deploymentSession{
 			playerUnits: playerUnits,
 			aiUnits:     aiUnits,
-			playerPos:   []sim.Position{},
+			playerPos:   make([]*sim.Position, len(playerUnits)),
 			aiPos:       []sim.Position{},
 			obstacles:   obstacles,
 		}
@@ -345,18 +381,28 @@ func deployUnit(this js.Value, args []js.Value) any {
 		if d == nil {
 			return nil, errors.New("no deployment session")
 		}
-		if len(d.playerPos) >= len(d.playerUnits) {
+		if d.placedCount() >= len(d.playerUnits) {
 			return serializeDeployment(), nil
 		}
 
-		pos := sim.Position{X: args[0].Int(), Y: args[1].Int()}
+		unitIndex := args[0].Int()
+		if unitIndex < 0 || unitIndex >= len(d.playerUnits) {
+			return nil, errors.New("invalid unit index")
+		}
+		if d.playerPos[unitIndex] != nil {
+			return nil, errors.New("unit already deployed")
+		}
+
+		pos := sim.Position{X: args[1].Int(), Y: args[2].Int()}
 		if !sim.IsValidDeploymentPosition(sim.PlayerOne, pos, d.obstacles) {
 			return nil, errors.New("invalid deployment position")
 		}
 
 		occupied := map[string]bool{}
 		for _, p := range d.playerPos {
-			occupied[p.String()] = true
+			if p != nil {
+				occupied[p.String()] = true
+			}
 		}
 		for _, p := range d.aiPos {
 			occupied[p.String()] = true
@@ -365,14 +411,18 @@ func deployUnit(this js.Value, args []js.Value) any {
 			return nil, errors.New("position already occupied")
 		}
 
-		d.playerPos = append(d.playerPos, pos)
+		placed := pos
+		d.playerPos[unitIndex] = &placed
 		occupied[pos.String()] = true
 
 		// Réponse de l'IA : elle voit les unités déjà déployées par le joueur.
 		if len(d.aiPos) < len(d.aiUnits) {
 			enemies := make([]sim.DeployedUnit, 0, len(d.playerPos))
 			for i, p := range d.playerPos {
-				enemies = append(enemies, sim.DeployedUnit{Unit: d.playerUnits[i], Position: p})
+				if p == nil {
+					continue
+				}
+				enemies = append(enemies, sim.DeployedUnit{Unit: d.playerUnits[i], Position: *p})
 			}
 
 			next := d.aiUnits[len(d.aiPos)]
@@ -531,11 +581,13 @@ func startGame(this js.Value, args []js.Value) any {
 		}
 
 		// Positions décidées pendant la phase de déploiement alterné.
-		if currentDeployment != nil && len(currentDeployment.playerPos) > 0 {
-			gameOptions = append(gameOptions, sim.WithDeployment(map[sim.PlayerID][]sim.Position{
-				sim.PlayerOne: currentDeployment.playerPos,
-				sim.PlayerTwo: currentDeployment.aiPos,
-			}))
+		if currentDeployment != nil {
+			if ordered := currentDeployment.orderedPlayerPositions(); len(ordered) > 0 {
+				gameOptions = append(gameOptions, sim.WithDeployment(map[sim.PlayerID][]sim.Position{
+					sim.PlayerOne: ordered,
+					sim.PlayerTwo: currentDeployment.aiPos,
+				}))
+			}
 		}
 
 		game := sim.NewGame(playerUnits, aiUnits, gameOptions...)

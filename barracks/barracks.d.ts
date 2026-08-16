@@ -34,8 +34,12 @@ declare global {
       aiUnits: UnitStats[],
       obstacles: { x: number; y: number }[]
     ): Promise<DeploymentState>;
-    /** Place l'unité courante du joueur ; l'IA répond dans la foulée. */
-    function deployUnit(x: number, y: number): Promise<DeploymentState>;
+    /**
+     * Place l'unité choisie par le joueur ; l'IA répond dans la foulée.
+     * `unitIndex` désigne l'unité dans l'escouade — le joueur décide de
+     * l'ordre de déploiement.
+     */
+    function deployUnit(unitIndex: number, x: number, y: number): Promise<DeploymentState>;
     function getValidActions(): ActionDescription[];
     function selectAction(index: number): Promise<BattleState>;
     function endGame(): void;

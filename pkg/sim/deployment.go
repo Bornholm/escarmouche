@@ -80,9 +80,11 @@ func SuggestDeployment(
 			if prefersFront && y == frontRow {
 				score += 3
 			}
-			if !prefersBack && !prefersFront && y == frontRow {
-				score += 1
-			}
+			// Aucun bonus par défaut pour la rangée avancée : la majorité des
+			// unités n'ayant pas de profil marqué, ce bonus massait toute
+			// l'escouade de l'IA au plus près du centre — un avantage de tempo
+			// systématique vers l'objectif, que le joueur ne subissait pas
+			// puisqu'il place où il veut.
 
 			// Colonnes centrales : la zone d'objectif se joue au milieu
 			score -= math.Abs(float64(x)-3.5) * 0.8
