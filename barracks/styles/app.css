@@ -451,10 +451,20 @@
 .stepbtn:disabled { color: var(--text-faint); cursor: not-allowed; }
 
 @media (max-width: 820px) {
-  .stat-row { flex-wrap: wrap; }
-  .stat-row__label { width: auto; flex: 1; }
-  .stat-row__value { width: auto; }
-  .track { flex-basis: 100%; }
+  /* Grille explicite plutôt que flex-wrap : avec le wrap, une ligne dont le
+     libellé est plus long que les autres (« Mouvement ») basculait sa valeur
+     sur une seconde ligne, cassant l'alignement des quatre pistes.
+     Ici la structure est fixe : libellé + valeur en haut, piste en dessous. */
+  .stat-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: var(--space-2) var(--space-3);
+  }
+  .stat-row__label { width: auto; grid-column: 1; }
+  .stat-row__value { width: auto; grid-column: 2; }
+  .stat-stepper { grid-column: 1 / -1; }
+  .track { flex: 1; }
   .track__seg { height: var(--tap-target); }
 }
 
@@ -1518,7 +1528,19 @@
 .print-preview .unit-card + .unit-card { border-left: none; }
 
 @media (max-width: 820px) {
-  .print-preview { grid-template-columns: repeat(2, 238px); overflow-x: auto; }
+  /* `justify-content: center` sur une grille plus large que l'écran fait
+     déborder les cartes des DEUX côtés : la moitié gauche devient
+     inatteignable même avec overflow-x. On aligne au début et on réduit le
+     nombre de colonnes. */
+  .print-preview {
+    grid-template-columns: repeat(2, 238px);
+    justify-content: start;
+    overflow-x: auto;
+  }
+}
+
+@media (max-width: 560px) {
+  .print-preview { grid-template-columns: 238px; }
 }
 
 /* -----------------------------------------------------------------------------
@@ -2031,4 +2053,21 @@
 
 @media (prefers-reduced-motion: reduce) {
   .tour__panel { animation: none; }
+}
+
+
+/* -----------------------------------------------------------------------------
+   Plancher tactile — placé en fin de feuille À DESSEIN
+   Ces sélecteurs ont la même spécificité que leurs définitions plus haut :
+   seule la position dans la cascade fait gagner la règle. Les contrôles
+   compacts (sélecteurs segmentés, tuiles d'archétype, onglets) repassent
+   au-dessus des 44 px dès qu'on joue au doigt ou sur écran étroit.
+   -------------------------------------------------------------------------- */
+@media (pointer: coarse), (max-width: 820px) {
+  .segmented__item,
+  .tilegrid__item,
+  .editor__tab,
+  .btn--sm,
+  .iconbtn { min-height: var(--tap-target); }
+  .iconbtn { min-width: var(--tap-target); }
 }
