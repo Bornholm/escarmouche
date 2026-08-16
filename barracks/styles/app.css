@@ -2132,3 +2132,8 @@
   .deploy__card { position: static; }
   .deploy__card { align-items: center; }
 }
+
+/* L'obstacle adverse se distingue du sien : on doit savoir qui a posé quoi
+   avant de déployer. */
+.cell--obstacle-ai .mark--obstacle { stroke: var(--owner-ai); }
+.cell--obstacle-ai { box-shadow: inset 0 0 0 var(--stroke-hairline) var(--owner-ai); }

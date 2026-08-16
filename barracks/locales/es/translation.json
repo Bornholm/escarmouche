@@ -11,6 +11,7 @@
     "actionsLeftLabel": "Acciones restantes",
     "actionUsed": "USADA",
     "aiLog": "Historial",
+    "aiObstacle": "Obstáculo del adversario",
     "aiTurn": "Turno de la IA",
     "aiUnits": "Enemigas",
     "back": "Volver",
@@ -53,6 +54,7 @@
     "moveTo": "Moverse a {{cell}}",
     "noActions": "Ninguna acción disponible",
     "noSquads": "No se encontró ninguna escuadra. Crea una para jugar.",
+    "obstaclesPlaced": "Ambos obstáculos están colocados: el tuyo y el del adversario (con borde rojo).",
     "opponentIs": "Adversario: {{squad}}",
     "rematch": "Revancha",
     "replaying": "Acción en curso",
@@ -85,6 +87,7 @@
     "validActions": "Acciones válidas · {{n}}",
     "victory": "Victoria",
     "victoryMessage": "¡Has eliminado todas las unidades enemigas!",
+    "yourObstacle": "Tu obstáculo",
     "yourTurn": "Tu turno",
     "yourUnits": "Tuyas"
   },

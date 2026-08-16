@@ -478,6 +478,8 @@ export const BattlePage: React.FC<BattlePageProps> = ({ squads, units }) => {
               <div className="notice">{t("battle.opponentIs", { squad: aiSquad.name })}</div>
             )}
 
+            <div className="hint">{t("battle.obstaclesPlaced")}</div>
+
             <div className="section-label">{t("battle.deployRoster")}</div>
 
             <div className="stack stack--2">
@@ -536,6 +538,7 @@ export const BattlePage: React.FC<BattlePageProps> = ({ squads, units }) => {
                   const isAi = aiAt.has(key);
                   const isObjective = x >= 3 && x <= 4 && y >= 3 && y <= 4;
                   const isObstacle = obstacleSet.has(key);
+                  const isMyObstacle = obstacle?.x === x && obstacle?.y === y;
                   const inMyZone = y <= 1;
                   const placeable =
                     deployIndex !== null &&
@@ -555,8 +558,16 @@ export const BattlePage: React.FC<BattlePageProps> = ({ squads, units }) => {
                         (x + y) % 2 === 0 ? "cell--dark" : "cell--light",
                         isObjective ? "cell--objective" : "",
                         isObstacle ? "cell--obstacle" : "",
+                        isObstacle && !isMyObstacle ? "cell--obstacle-ai" : "",
                         placeable ? "cell--placeable" : "",
                       ].join(" ")}
+                      title={
+                        isObstacle
+                          ? isMyObstacle
+                            ? t("battle.yourObstacle")
+                            : t("battle.aiObstacle")
+                          : undefined
+                      }
                       onClick={() => placeable && handleDeployAt(x, y)}
                       onKeyDown={(event) => {
                         if (placeable && (event.key === "Enter" || event.key === " ")) {

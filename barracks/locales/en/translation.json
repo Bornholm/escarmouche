@@ -11,6 +11,7 @@
     "actionsLeftLabel": "Actions left",
     "actionUsed": "USED",
     "aiLog": "History",
+    "aiObstacle": "Opponent's obstacle",
     "aiTurn": "AI turn",
     "aiUnits": "Enemy",
     "back": "Back",
@@ -53,6 +54,7 @@
     "moveTo": "Move to {{cell}}",
     "noActions": "No action available",
     "noSquads": "No squad found. Create one to play.",
+    "obstaclesPlaced": "Both obstacles are placed: yours and your opponent's (outlined in red).",
     "opponentIs": "Opponent: {{squad}}",
     "rematch": "Rematch",
     "replaying": "Action in progress",
@@ -85,6 +87,7 @@
     "validActions": "Valid actions · {{n}}",
     "victory": "Victory",
     "victoryMessage": "You eliminated every enemy unit!",
+    "yourObstacle": "Your obstacle",
     "yourTurn": "Your turn",
     "yourUnits": "Yours"
   },

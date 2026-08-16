@@ -300,6 +300,26 @@ func parseUnits(jsUnits js.Value) ([]sim.Unit, []originalUnitData) {
 	return units, originals
 }
 
+// suggestAIObstacle choisit l'emplacement d'obstacle de l'IA : une case valide
+// de sa moitié de plateau, proche de l'axe central pour gêner l'approche
+// adverse, et distincte de celle du joueur.
+func suggestAIObstacle(taken map[string]bool) (sim.Position, bool) {
+	candidates := make([]sim.Position, 0)
+	for x := 0; x < sim.BoardSize; x++ {
+		for y := sim.BoardSize / 2; y < sim.BoardSize; y++ {
+			pos := sim.Position{X: x, Y: y}
+			if !sim.IsValidObstaclePosition(pos) || taken[pos.String()] {
+				continue
+			}
+			candidates = append(candidates, pos)
+		}
+	}
+	if len(candidates) == 0 {
+		return sim.Position{}, false
+	}
+	return candidates[rand.Intn(len(candidates))], true
+}
+
 func serializeDeployment() map[string]any {
 	d := currentDeployment
 
@@ -359,6 +379,15 @@ func startDeployment(this js.Value, args []js.Value) any {
 					obstacles[pos.String()] = true
 				}
 			}
+		}
+
+		// L'IA pose son obstacle MAINTENANT, pendant la mise en place, comme le
+		// veulent les règles — et non au lancement de la bataille. Sans cela le
+		// joueur déployait ses unités sans voir un obstacle qui existait déjà,
+		// et le découvrait au premier tour.
+		aiObstacle, ok := suggestAIObstacle(obstacles)
+		if ok {
+			obstacles[aiObstacle.String()] = true
 		}
 
 		currentDeployment = &deploymentSession{
@@ -533,12 +562,18 @@ func startGame(this js.Value, args []js.Value) any {
 				obstacles = append(obstacles, pos)
 			}
 		}
-		if len(obstacles) > 0 {
-			aiObstacle := sim.Position{X: 2 + rand.Intn(4), Y: 5}
-			if aiObstacle == obstacles[0] {
-				aiObstacle.X = (aiObstacle.X+1)%4 + 2
+		// Les obstacles ont été fixés pendant la mise en place (le joueur puis
+		// l'IA) : on les reprend tels quels, sans en générer de nouveaux.
+		if currentDeployment != nil && len(currentDeployment.obstacles) > 0 {
+			obstacles = obstacles[:0]
+			for x := 0; x < sim.BoardSize; x++ {
+				for y := 0; y < sim.BoardSize; y++ {
+					pos := sim.Position{X: x, Y: y}
+					if currentDeployment.obstacles[pos.String()] {
+						obstacles = append(obstacles, pos)
+					}
+				}
 			}
-			obstacles = append(obstacles, aiObstacle)
 		}
 
 		// Chaque action jouée depuis la dernière main rendue au joueur, avec

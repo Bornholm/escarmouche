@@ -11,6 +11,7 @@
     "actionsLeftLabel": "Actions restantes",
     "actionUsed": "UTILISÉE",
     "aiLog": "Historique",
+    "aiObstacle": "Obstacle de l'adversaire",
     "aiTurn": "Tour de l'IA",
     "aiUnits": "Ennemies",
     "back": "Retour",
@@ -53,6 +54,7 @@
     "moveTo": "Se déplacer en {{cell}}",
     "noActions": "Aucune action disponible",
     "noSquads": "Aucune escouade trouvée. Créez-en une pour jouer.",
+    "obstaclesPlaced": "Les deux obstacles sont posés : le vôtre et celui de l'adversaire (cerclé de rouge).",
     "opponentIs": "Adversaire : {{squad}}",
     "rematch": "Revanche",
     "replaying": "Action en cours",
@@ -85,6 +87,7 @@
     "validActions": "Actions valides · {{n}}",
     "victory": "Victoire",
     "victoryMessage": "Vous avez éliminé toutes les unités ennemies !",
+    "yourObstacle": "Votre obstacle",
     "yourTurn": "Votre tour",
     "yourUnits": "Vôtres"
   },
