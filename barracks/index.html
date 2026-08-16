@@ -1,13 +1,30 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="fr" data-mode="dark" data-universe="neutral">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>La Caserne | Escarmouche</title>
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    />
+    <script>
+      // Le mode est posé avant la première peinture : sans cela, un utilisateur
+      // en thème clair verrait un éclair sombre au chargement.
+      (function () {
+        try {
+          var stored = localStorage.getItem("escarmouche_mode");
+          var mode =
+            stored === "dark" || stored === "light"
+              ? stored
+              : matchMedia("(prefers-color-scheme: light)").matches
+              ? "light"
+              : "dark";
+          document.documentElement.dataset.mode = mode;
+          document.documentElement.style.colorScheme = mode;
+          var universe = localStorage.getItem("escarmouche_universe");
+          if (universe) document.documentElement.dataset.universe = universe;
+        } catch (err) {
+          /* localStorage indisponible : on garde le mode sombre par défaut */
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="app"></div>

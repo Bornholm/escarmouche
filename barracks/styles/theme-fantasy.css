@@ -1,0 +1,90 @@
+/* =============================================================================
+   La Caserne — theme-fantasy.css
+   EXEMPLE DE COUCHE 3 : un univers complet, en un seul fichier.
+   -----------------------------------------------------------------------------
+   Ce fichier est le patron à copier pour ajouter un univers (steampunk,
+   western, animaux de la ferme…). Aucun composant, aucun gabarit, aucune règle
+   de mise en page ne doit être touché pour cela — c'est le test du quatrième
+   univers.
+
+   Chargement à la demande depuis util/theme.ts : le module n'est importé que
+   si l'utilisateur choisit cet univers, pour ne pas faire payer plusieurs
+   couples typographiques à tout le monde.
+
+   Le thème d'univers est INDÉPENDANT du mode clair/sombre : il ne déclare que
+   des teintes et des familles, et les deux modes de tokens.css les résolvent.
+   ========================================================================== */
+
+/* La police auto-hébergée (@fontsource/eb-garamond) est chargée par
+   util/theme.ts en même temps que ce fichier, et pas avant. Pas de CDN.
+   EB Garamond tient le rôle d'une garalde sobre : ce qui dit « fantasy » ici
+   n'est pas une calligraphie, c'est une respiration de serif. */
+
+
+/* -----------------------------------------------------------------------------
+   LA SURCHARGE. Neuf déclarations, rien de plus.
+
+   Évocation sobre, pas déguisement : ni parchemin brûlé, ni calligraphie
+   illisible. Ce qui dit « fantasy » ici, c'est une teinte de neutres qui verse
+   vers la pierre verte, un accent laiton mat, et un cadre de carte à cartouche.
+   -------------------------------------------------------------------------- */
+[data-universe="fantasy"] {
+  /* 1-2 · Couple typographique */
+  --font-ui:  "EB Garamond", Georgia, serif;
+  --font-num: "Space Mono", ui-monospace, monospace;
+
+  /* 3-6 · Quatre nombres, et toute la palette des deux modes en découle */
+  --hue-accent:      88;      /* laiton verdâtre, mat */
+  --chroma-accent:   0.10;
+  --hue-neutral:     120;     /* neutres légèrement pierre-verte */
+  --chroma-neutral:  0.008;
+
+  /* 7 · Traitement de bordure de carte et de cadre */
+  --card-frame: cartouche;    /* double filet + coins rentrants */
+
+  /* 8 · Trame du damier de bataille (la GÉOMÉTRIE 8×8 ne change pas).
+         Dalle irrégulière, en SVG inline pour rester sans dépendance. */
+  --board-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Cpath d='M0 11h24M11 0v24' stroke='%23000' stroke-opacity='.14' stroke-width='1'/%3E%3C/svg%3E");
+
+  /* 9 · Jeu de pictogrammes : ici le figuratif serait autorisé, contrairement
+         au thème neutre — mais la SÉMANTIQUE de chaque pictogramme est fixe.
+         Le jeu neutre est conservé tant qu'un jeu dessiné n'est pas livré. */
+  --icon-set: "fantasy";
+}
+
+
+/* -----------------------------------------------------------------------------
+   Ajustements de lisibilité admis
+   Un serif a besoin d'un peu plus de graisse en inversé pour tenir le même
+   contraste apparent. C'est la SEULE catégorie d'exception : elle ne touche
+   ni la taille, ni le rythme, ni la position.
+   -------------------------------------------------------------------------- */
+[data-universe="fantasy"][data-mode="dark"] {
+  --font-weight-body: 450;
+}
+
+
+/* =============================================================================
+   HORS LIMITES — ce qu'un fichier d'univers ne doit JAMAIS déclarer.
+   Chacune de ces propriétés déplacerait un élément au changement de thème et
+   casserait le critère « changer d'univers ne déplace aucun pixel ».
+
+     --space-*            l'échelle d'espacement
+     --type-*             l'échelle typographique et le rythme vertical
+     --leading-*          les interlignes
+     --tap-target         les cibles tactiles
+     --board-cell*        la taille de case
+     --card-ratio         le format de la carte
+     --stroke-*           les épaisseurs de trait structurelles
+     --radius             au-delà de 4px
+     --rank-*-shape       le NOMBRE de rangs et leur ORDRE (les formes,
+                          elles, sont redessinables)
+     --act-*, --shape-*   le code des surbrillances de bataille
+     width/height/padding/margin/position/inset sur un sélecteur de composant
+
+   Vérification, avant de proposer un univers :
+     1. capturer chaque écran en thème neutre ;
+     2. basculer data-universe ;
+     3. recapturer et comparer la position de chaque nœud — la différence
+        doit être nulle.
+   ========================================================================== */

@@ -1,6 +1,9 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Squad } from "../types";
+import { useEvaluations } from "../hooks/useEvaluations";
+import { maxSquadRankPoints, maxSquadSize, rankPoints } from "../util/rank";
+import { RankIcon, TrashIcon } from "./Icons";
 
 interface SquadCardProps {
   squad: Squad;
@@ -8,100 +11,84 @@ interface SquadCardProps {
   onDelete?: () => void;
 }
 
-export const SquadCard: React.FC<SquadCardProps> = ({
-  squad,
-  onEdit,
-  onDelete,
-}) => {
+export const SquadCard: React.FC<SquadCardProps> = ({ squad, onEdit, onDelete }) => {
   const { t } = useTranslation();
+  const evaluations = useEvaluations(squad.units);
+  const maxPoints = maxSquadRankPoints();
+  const spent = useMemo(
+    () => squad.units.reduce((total, unit) => total + rankPoints(evaluations[unit.id]?.rank), 0),
+    [squad.units, evaluations]
+  );
+
   return (
-    <div
-      className="box"
-      style={{
-        background:
-          "linear-gradient(340deg, rgba(255, 247, 217, 1) 0%, rgba(247, 247, 247, 1) 100%)",
-        border: "2px solid #333",
-        borderRadius: "10px",
-        width: "300px",
-        height: "420px",
-        position: "relative",
-      }}
-    >
-      <div className="content">
-        <div className="level is-mobile mb-4">
-          <div className="level-left">
-            <div className="level-item">
-              <div>
-                <h3 className="title is-5 has-text-dark mb-1">{squad.name}</h3>
-                <p className="subtitle is-6 has-text-grey is-italic">
-                  {squad.units.length}/{Barracks.MaxSquadSize}{" "}
-                  {t("squads.units")}
-                </p>
-              </div>
-            </div>
+    <article className="squad-card">
+      <div className="squad-card__head">
+        <div className="grow-min">
+          <div className="squad-card__name">{squad.name}</div>
+          <div className="section-label">
+            {t("squadEditor.unitCount", { n: squad.units.length, max: maxSquadSize() })}
           </div>
         </div>
 
-        <div className="content has-text-dark">
-          {squad.units.length === 0 ? (
-            <p className="has-text-grey is-italic">
-              {t("squads.noUnitsInSquad")}
-            </p>
-          ) : (
-            <ul>
-              {squad.units.map((unit, index) => (
-                <li key={index} className="is-size-7">
-                  {unit.name}
-                </li>
-              ))}
-            </ul>
-          )}
+        <div className="stack" >
+          <span className="num" style={{ fontSize: "var(--type-xl)", fontWeight: 700 }}>
+            {spent}
+          </span>
+
+          <span className="section-label">/ {maxPoints} {t("card.rankPointsShort")}</span>
         </div>
       </div>
+      {/* La consommation du budget est le véhicule visuel principal, ici aussi */}
+      <div className="budget">
+        {squad.units.map((unit, index) => {
+          const points = rankPoints(evaluations[unit.id]?.rank);
 
+          return (
+            <div
+              key={`${unit.id}-${index}`}
+              className="budget__seg"
+              style={{ width: `${(points / maxPoints) * 100}%` }}
+              title={`${unit.name} — ${points}`}
+>
+              {points}
+            </div>
+          );
+        })}
+        <div className="budget__rest">{maxPoints}</div>
+      </div>
+
+      <div className="squad-card__roster">
+        {squad.units.length === 0 ? (
+          <span className="hint">{t("squads.noUnitsInSquad")}</span>
+        ) : (
+          squad.units.map((unit, index) => (
+            <div key={`${unit.id}-${index}`} className="squad-card__unit">
+              <RankIcon rank={evaluations[unit.id]?.rank} size={13} color="var(--accent)" />
+
+              <span className="break-anywhere">{unit.name}</span>
+              <span className="squad-card__unit-points">{rankPoints(evaluations[unit.id]?.rank)}</span>
+            </div>
+          ))
+        )}
+      </div>
       {(onEdit || onDelete) && (
-        <div
-          className="squad-buttons"
-          style={{
-            position: "absolute",
-            top: "1rem",
-            right: "1rem",
-            opacity: 0,
-            transition: "opacity 0.2s",
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.opacity = "1";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.opacity = "0";
-          }}
-        >
-          <div className="buttons are-small">
-            {onEdit && (
-              <button
-                onClick={onEdit}
-                className="button is-success is-small"
-                title={t("squads.editSquad")}
-              >
-                <span className="icon is-small">
-                  <i className="fas fa-edit"></i>
-                </span>
-              </button>
-            )}
-            {onDelete && (
-              <button
-                onClick={onDelete}
-                className="button is-danger is-small"
-                title={t("squads.deleteSquad")}
-              >
-                <span className="icon is-small">
-                  <i className="fas fa-trash"></i>
-                </span>
-              </button>
-            )}
-          </div>
+        <div className="row row--2">
+          {onEdit && (
+            <button className="btn btn--sm" style={{ flex: 1 }} onClick={onEdit}>
+              {t("squads.edit")}
+            </button>
+          )}
+          {onDelete && (
+            <button
+              className="iconbtn"
+              aria-label={`${t("squads.delete")} — ${squad.name}`}
+              onClick={onDelete}
+>
+              <TrashIcon />
+            </button>
+          )}
         </div>
       )}
-    </div>
+    </article>
   );
 };

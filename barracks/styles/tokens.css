@@ -1,0 +1,311 @@
+/* =============================================================================
+   La Caserne — tokens.css
+   Architecture à trois couches : SOCLE · MODE · UNIVERS
+   -----------------------------------------------------------------------------
+   Ordre de chargement :
+     1. tokens.css                (ce fichier — socle + modes + univers neutre)
+     2. theme-<univers>.css       (une surcharge par univers, chargée à la demande)
+   Application sur la racine :
+     <html data-mode="dark" data-universe="neutral">
+   ========================================================================== */
+
+
+/* =============================================================================
+   COUCHE 1 — SOCLE
+   Ne change jamais. Aucun thème d'univers, aucun mode, ne redéfinit ces valeurs.
+   Toute fuite d'une de ces propriétés dans un fichier d'univers provoque un
+   décalage de mise en page au changement de thème : c'est le bug à interdire.
+   ========================================================================== */
+:root {
+  /* Espacement — pas de 4px, échelle non linéaire assumée */
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 22px;
+  --space-6: 28px;
+  --space-7: 44px;
+  --space-8: 64px;
+
+  /* Échelle typographique */
+  --type-2xs: 10px;   /* libellés en chasse fixe, capitales espacées */
+  --type-xs:  11px;
+  --type-sm:  12px;
+  --type-md:  13px;   /* corps d'interface */
+  --type-lg:  15px;
+  --type-xl:  20px;
+  --type-2xl: 24px;
+  --type-3xl: 34px;
+  --type-4xl: 44px;
+  --type-num-card: 20px;  /* valeur de caractéristique sur la carte */
+  --type-num-hero: 52px;  /* coût dans le bloc d'évaluation */
+
+  --leading-tight: 1.15;
+  --leading-body:  1.55;
+  --tracking-caps: 0.2em;
+  --tracking-tight: -0.01em;
+
+  /* Traits et rayons — le châssis est fait de filets, pas d'ombres */
+  --stroke-hairline: 1px;
+  --stroke-emphasis: 2px;
+  --stroke-frame:    3px;   /* cadre du plateau */
+  --radius: 0px;            /* aucun arrondi dans le châssis neutre ;
+                               un univers peut monter jusqu'à 4px, pas au-delà */
+
+  /* Mouvement */
+  --dur-instant: 90ms;
+  --dur-fast:   160ms;
+  --dur-rank:   400ms;      /* franchissement de rang — le seul geste animé */
+  --ease-out: cubic-bezier(0.2, 0.8, 0.3, 1);
+
+  /* Ergonomie */
+  --tap-target: 44px;
+  --board-cell-max: 62px;
+  --board-cell: min(8vw, var(--board-cell-max));
+
+  /* Points de rupture (en requêtes média, pour mémoire) */
+  --bp-mobile:  480px;
+  --bp-tablet:  820px;
+  --bp-desktop: 1200px;
+
+  /* Géométrie de la carte d'unité — carte à jouer standard 63 × 88 mm */
+  --card-ratio: 0.7159;
+  --card-print-w: 63mm;
+  --card-print-h: 88mm;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-instant: 0ms;
+    --dur-fast:    0ms;
+    --dur-rank:    0ms;
+  }
+}
+
+
+/* =============================================================================
+   COUCHE 3 (base) — UNIVERS NEUTRE
+   Un univers ne fournit que : deux familles de polices, trois nombres de
+   couleur, un traitement de cadre, une trame de plateau, un jeu d'icônes.
+   Les couleurs concrètes en découlent (couche 2), donc un univers hérite
+   gratuitement d'une palette cohérente dans les deux modes.
+   ========================================================================== */
+:root,
+[data-universe="neutral"] {
+  --font-ui:  "Public Sans", system-ui, -apple-system, sans-serif;
+  --font-num: "Space Mono", ui-monospace, monospace;
+
+  --hue-accent:      272;    /* indigo mat */
+  --chroma-accent:   0.13;
+  --hue-neutral:     255;    /* neutres très légèrement froids */
+  --chroma-neutral:  0.006;
+
+  --card-frame: double;               /* double | single | open-corner */
+  --board-pattern: none;              /* damier plein par défaut */
+  --icon-set: "neutral";              /* pictogrammes abstraits */
+}
+
+
+/* =============================================================================
+   COUCHE 2 — MODE SOMBRE
+   Mode « table de jeu » : écran posé à côté du plateau, faible luminosité.
+   Défaut de l'application.
+   ========================================================================== */
+[data-mode="dark"] {
+  --canvas:        oklch(14% var(--chroma-neutral) var(--hue-neutral));
+  --surface:       oklch(17% var(--chroma-neutral) var(--hue-neutral));
+  --surface-raised: oklch(21% var(--chroma-neutral) var(--hue-neutral));
+  --surface-inset: oklch(24% var(--chroma-neutral) var(--hue-neutral));
+  --surface-hover: oklch(19% var(--chroma-neutral) var(--hue-neutral));
+
+  --border:        oklch(30% var(--chroma-neutral) var(--hue-neutral));
+  --border-strong: oklch(38% var(--chroma-neutral) var(--hue-neutral));
+
+  --text:          oklch(92% var(--chroma-neutral) var(--hue-neutral));
+  --text-dim:      oklch(70% var(--chroma-neutral) var(--hue-neutral));
+  --text-faint:    oklch(53% var(--chroma-neutral) var(--hue-neutral));
+
+  --accent:        oklch(56% var(--chroma-accent) var(--hue-accent));
+  --accent-hover:  oklch(62% var(--chroma-accent) var(--hue-accent));
+  --accent-text:   oklch(76% var(--chroma-accent) var(--hue-accent));
+  --accent-wash:   oklch(24% 0.05 var(--hue-accent));
+  --accent-on:     oklch(99% 0 0);
+
+  --success:       oklch(62% 0.12 152);
+  --warning:       oklch(72% 0.13  85);
+  --danger:        oklch(55% 0.16  27);
+  --danger-text:   oklch(72% 0.14  27);
+}
+
+
+/* =============================================================================
+   COUCHE 2 — MODE CLAIR
+   Mode « atelier de conception », et mode d'impression des cartes.
+   Ce n'est pas l'inverse du sombre : les fonds sont légèrement chauds et
+   l'accent est assombri pour tenir 4,5:1 sur blanc.
+   ========================================================================== */
+[data-mode="light"] {
+  --canvas:        oklch(97.5% 0.004  85);
+  --surface:       oklch(99%   0.003  85);
+  --surface-raised: oklch(100%  0      0);
+  --surface-inset: oklch(95.5% 0.005  85);
+  --surface-hover: oklch(96.5% 0.005  85);
+
+  --border:        oklch(86% 0.006 85);
+  --border-strong: oklch(79% 0.008 85);
+
+  --text:          oklch(21% 0.006 var(--hue-neutral));
+  --text-dim:      oklch(45% 0.006 var(--hue-neutral));
+  --text-faint:    oklch(60% 0.006 85);
+
+  --accent:        oklch(42% var(--chroma-accent) var(--hue-accent));
+  --accent-hover:  oklch(37% var(--chroma-accent) var(--hue-accent));
+  --accent-text:   oklch(42% var(--chroma-accent) var(--hue-accent));
+  --accent-wash:   oklch(95% 0.03 var(--hue-accent));
+  --accent-on:     oklch(100% 0 0);
+
+  --success:       oklch(48% 0.13 152);
+  --warning:       oklch(58% 0.13  85);
+  --danger:        oklch(48% 0.17  27);
+  --danger-text:   oklch(45% 0.17  27);
+}
+
+
+/* =============================================================================
+   SÉMANTIQUES MÉTIER
+   Ces jetons sont partagés par tous les univers. Les surbrillances de plateau
+   sont volontairement hors de la couche 3 : le code d'action doit rester
+   identique d'un univers à l'autre, sous peine de faire réapprendre le jeu.
+   ========================================================================== */
+:root {
+  /* Actions en bataille — jamais redéfinies par un univers.
+     Chaque état porte AUSSI une forme et un style de trait (cf. --shape-*),
+     pour ne rien faire dépendre de la teinte. */
+  --act-move-bg:      oklch(28% 0.05 255);
+  --act-move-line:    oklch(48% 0.09 255);
+  --act-move-mark:    oklch(75% 0.09 255);
+  --act-attack-bg:    oklch(26% 0.06  27);
+  --act-attack-line:  oklch(45% 0.12  27);
+  --act-attack-mark:  oklch(74% 0.12  27);
+  --act-ability-bg:   oklch(26% 0.05  90);
+  --act-ability-line: oklch(52% 0.09  90);
+  --act-ability-mark: oklch(82% 0.12  90);
+  --act-blocked-hatch: oklch(30% var(--chroma-neutral) var(--hue-neutral));
+  --act-selected:     var(--accent);
+
+  /* Appartenance des jetons */
+  --owner-player: oklch(62% 0.11 250);
+  --owner-ai:     oklch(58% 0.15  27);
+
+  /* Santé du jeton — trois paliers, doublés par la largeur de la barre */
+  --hp-high: var(--success);
+  --hp-mid:  var(--warning);
+  --hp-low:  var(--danger);
+}
+
+/* Le mode clair a besoin de surbrillances de plateau plus soutenues :
+   les fonds sombres d'action ne tiennent pas sur un damier clair. */
+[data-mode="light"] {
+  --act-move-bg:      oklch(88% 0.06 255);
+  --act-move-line:    oklch(55% 0.12 255);
+  --act-move-mark:    oklch(40% 0.14 255);
+  --act-attack-bg:    oklch(89% 0.06  27);
+  --act-attack-line:  oklch(55% 0.15  27);
+  --act-attack-mark:  oklch(42% 0.17  27);
+  --act-ability-bg:   oklch(91% 0.07  90);
+  --act-ability-line: oklch(60% 0.11  90);
+  --act-ability-mark: oklch(45% 0.10  90);
+  --act-blocked-hatch: oklch(80% 0.006 85);
+}
+
+
+/* =============================================================================
+   RÉINITIALISATION MINIMALE
+   ========================================================================== */
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--canvas);
+  color: var(--text);
+  font-family: var(--font-ui);
+  font-size: var(--type-md);
+  line-height: var(--leading-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: var(--accent-text); text-decoration: none; }
+a:hover { color: var(--accent-hover); text-decoration: underline; }
+
+/* Focus cohérent sur tout l'écran — jamais supprimé */
+:focus-visible {
+  outline: var(--stroke-emphasis) solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Toute valeur numérique passe en chasse fixe et en chiffres tabulaires :
+   un coût qui passe de 9 à 10 ne doit pas faire sauter la mise en page. */
+.num, output, [data-num] {
+  font-family: var(--font-num);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Cibles tactiles : plancher absolu, y compris pour les boutons d'icône */
+@media (pointer: coarse) {
+  button, [role="button"], a[href], input, select {
+    min-height: var(--tap-target);
+  }
+}
+
+
+/* =============================================================================
+   IMPRESSION — la carte d'unité
+   Le mode clair est forcé, quel que soit le réglage de l'utilisateur.
+   ========================================================================== */
+@page {
+  size: A4;
+  margin: 10mm;
+}
+
+@media print {
+  :root { color-scheme: light; }
+
+  html {
+    /* On force la résolution du mode clair sans toucher à data-mode */
+    --canvas: #fff;
+    --surface: #fff;
+    --surface-raised: #fff;
+    --surface-inset: #f4f2ee;
+    --border: #d8d5ce;
+    --border-strong: #000;
+    --text: #000;
+    --text-dim: #3a3e44;
+    --text-faint: #77736c;
+    --accent: #000;
+    --accent-text: #000;
+  }
+
+  .print-sheet {
+    display: grid;
+    grid-template-columns: repeat(3, var(--card-print-w));
+    grid-auto-rows: var(--card-print-h);
+    gap: 0;                       /* cartes jointives : moins de coups de cutter */
+    justify-content: center;
+    align-content: center;
+  }
+
+  .unit-card {
+    break-inside: avoid;
+    width: var(--card-print-w);
+    height: var(--card-print-h);
+    border: var(--stroke-hairline) solid var(--border-strong);
+  }
+
+  /* Version lisible en noir et blanc : l'illustration est le seul élément
+     qui perd de l'information, on relève son contraste. */
+  .unit-card__art img { filter: grayscale(1) contrast(1.35); }
+
+  .screen-only { display: none !important; }
+}

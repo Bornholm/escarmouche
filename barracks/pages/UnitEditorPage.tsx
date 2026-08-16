@@ -1,146 +1,142 @@
-import React, { useState, useEffect, useRef } from "react";
-import { useNavigate, useParams } from "react-router";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useNavigate, useParams, useSearchParams } from "react-router";
 import { useTranslation } from "react-i18next";
-import { Unit, Rank, Archetype, GeneratedUnit, Ability } from "../types";
-import { Card } from "../components/Card";
+import { Unit, Rank, Archetype, GeneratedUnit } from "../types";
+import { UnitCard } from "../components/UnitCard";
 import { generateId } from "../util/storage";
-import {
-  fileToBase64,
-  validateImageFile,
-  resizeImage,
-} from "../components/imageUtils";
+import { fileToBase64, validateImageFile, resizeImage } from "../components/imageUtils";
 import { BASE_URL } from "../util/baseUrl";
 import { useAsyncMemo } from "../hooks/useAsyncMemo";
-import { IgnoreTrans } from "../components/IgnoreTrans";
-import { fork } from "child_process";
-import { normalizeLocale } from "../util/locale";
+import { useAbilities, resolveAbilities } from "../hooks/useAbilities";
+import { useMarginalCosts } from "../hooks/useMarginalCosts";
+import { formatCost, maxUnitCost, rankLadder, rankPoints } from "../util/rank";
+import {
+  ArchetypeIcon,
+  BackIcon,
+  CloseIcon,
+  GenerateIcon,
+  MinusIcon,
+  PlusIcon,
+  RankIcon,
+  StatIcon,
+  StatKey,
+  UploadIcon,
+} from "../components/Icons";
 
 interface UnitEditorPageProps {
   units: Unit[];
   onSave: (unit: Unit) => void;
 }
 
-export const UnitEditorPage: React.FC<UnitEditorPageProps> = ({
-  units,
-  onSave,
-}) => {
-  const { t, i18n } = useTranslation();
+const STATS: StatKey[] = ["health", "range", "power", "move"];
+
+const MAX_STAT = 10;
+
+const MAX_ABILITIES = 3;
+
+const RANKS: Rank[] = [Rank.Trooper, Rank.Veteran, Rank.Elite, Rank.Champion, Rank.Paragon];
+
+const ARCHETYPES: Archetype[] = [
+  Archetype.JackOfAllTrades,
+  Archetype.Tank,
+  Archetype.Sniper,
+  Archetype.Skirmisher,
+  Archetype.Bruiser,
+  Archetype.GlassCannon,
+];
+
+const PRESET_IMAGES = [
+  "templar_knight.png",
+  "elven_archer.png",
+  "fire_mage.png",
+  "orc_warrior.png",
+  "orc_javelin.png",
+  "orc_shaman.png",
+];
+
+const imageForArchetype = (archetype: Archetype): string => {
+  switch (archetype) {
+    case Archetype.Tank: return `${BASE_URL}/templar_knight.png`;
+    case Archetype.Bruiser: return `${BASE_URL}/orc_warrior.png`;
+    case Archetype.Sniper: return `${BASE_URL}/elven_archer.png`;
+    case Archetype.Skirmisher: return `${BASE_URL}/orc_javelin.png`;
+    case Archetype.GlassCannon: return `${BASE_URL}/fire_mage.png`;
+    default: return `${BASE_URL}/templar_knight.png`;
+  }
+};
+
+const emptyUnit = (): Unit => ({
+  id: generateId(),
+  name: "",
+  health: 1,
+  move: 1,
+  range: 1,
+  power: 1,
+  imageUrl: `${BASE_URL}/templar_knight.png`,
+  abilities: [],
+});
+
+export const UnitEditorPage: React.FC<UnitEditorPageProps> = ({ units, onSave }) => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
-  const isEditing = id !== "new";
-  const existingUnit = isEditing ? units.find((u) => u.id === id) : null;
-
-  const [formData, setFormData] = useState<Unit>({
-    id: "",
-    name: "",
-    health: 1,
-    move: 1,
-    range: 1,
-    power: 1,
-    imageUrl: `${BASE_URL}/templar_knight.png`,
-    abilities: [],
-  });
-
+  const [searchParams] = useSearchParams();
+  const isEditing = id !== undefined && id !== "new";
+  const existingUnit = isEditing ? units.find((u) => u.id === id) : undefined;
+  const [formData, setFormData] = useState<Unit>(emptyUnit);
   const [selectedRank, setSelectedRank] = useState<Rank>(Rank.Trooper);
-  const [selectedArchetype, setSelectedArchetype] = useState<Archetype>(
-    Archetype.JackOfAllTrades
-  );
+  const [selectedArchetype, setSelectedArchetype] = useState<Archetype>(Archetype.JackOfAllTrades);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [mobileTab, setMobileTab] = useState<"settings" | "card">("settings");
+  const [previousRank, setPreviousRank] = useState<string | undefined>(undefined);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const availableAbilities = useAsyncMemo(() => {
-    return Barracks.getAvailableAbilities(normalizeLocale(i18n.language));
-  }, [i18n.language]);
-
-  const evaluation = useAsyncMemo(
-    () => Barracks.evaluateUnit(formData),
-    [formData]
-  );
-
+  const catalog = useAbilities();
+  const evaluation = useAsyncMemo(() => Barracks.evaluateUnit(formData), [formData]);
+  const marginal = useMarginalCosts(formData, evaluation?.cost);
+  const abilities = resolveAbilities(formData.abilities, catalog);
   useEffect(() => {
-    if (existingUnit) {
-      setFormData({ ...existingUnit });
-    } else {
-      setFormData({
-        id: generateId(),
-        name: "",
-        health: 1,
-        move: 1,
-        range: 1,
-        power: 1,
-        imageUrl: `${BASE_URL}/templar_knight.png`,
-        abilities: [],
-      });
-    }
+    setFormData(existingUnit ? { ...existingUnit } : emptyUnit());
   }, [existingUnit]);
 
-  const handleInputChange = (field: keyof Unit, value: string | number) => {
-    setFormData((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
+  // Le franchissement de rang est le seul geste animé du châssis.
+  const rankChanged = evaluation?.rank !== undefined && previousRank !== undefined && evaluation.rank !== previousRank;
+  useEffect(() => {
+    if (evaluation?.rank) setPreviousRank(evaluation.rank);
+  }, [evaluation?.rank]);
+  const ladder = useMemo(() => rankLadder(evaluation?.rank), [evaluation?.rank]);
+  const costMax = maxUnitCost();
+  const overBudget = (evaluation?.cost ?? 0) > costMax;
+  const setStat = (stat: StatKey, value: number) => {
+    setFormData((prev) => ({ ...prev, [stat]: Math.max(1, Math.min(MAX_STAT, value)) }));
   };
 
-  const handleAbilityChange = (
-    abilityIndex: number,
-    value: string | undefined | null
-  ) => {
-    setFormData((prev) => {
-      const abilities = [...prev.abilities];
-      if (!value || value === "--") {
-        abilities.splice(abilityIndex, 1);
-      } else {
-        const ability: Ability | undefined = availableAbilities?.find(
-          (a) => a.id === value
-        );
-        if (ability) {
-          abilities[abilityIndex] = ability.id;
-        }
-      }
-      return {
-        ...prev,
-        abilities,
-      };
-    });
+  const removeAbility = (abilityId: string) => {
+    setFormData((prev) => ({ ...prev, abilities: prev.abilities.filter((a) => a !== abilityId) }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (formData.name.trim()) {
-      onSave(formData);
-      navigate("/units");
-    }
+  const addAbility = (abilityId: string) => {
+    if (!abilityId || formData.abilities.includes(abilityId)) return;
+    if (formData.abilities.length >= MAX_ABILITIES) return;
+    setFormData((prev) => ({ ...prev, abilities: [...prev.abilities, abilityId] }));
   };
 
-  const handleCancel = () => {
-    navigate("/units");
-  };
-
-  const handleGenerateRandomUnit = async () => {
+  const handleGenerate = async () => {
     setIsGenerating(true);
     try {
-      const generatedUnit: GeneratedUnit = await Barracks.generateUnit(
-        selectedRank,
-        selectedArchetype
-      );
-
-      const newUnit: Unit = {
-        id: formData.id || generateId(),
-        name: `${generatedUnit.rank} ${generatedUnit.archetype}`.replace(
-          /^\w/,
-          (c) => c.toUpperCase()
-        ),
-        health: generatedUnit.health,
-        move: generatedUnit.move,
-        range: generatedUnit.range,
-        power: generatedUnit.power,
-        imageUrl: getImageForArchetype(generatedUnit.archetype),
-        abilities: generatedUnit.abilities,
-      };
-
-      setFormData(newUnit);
+      const generated: GeneratedUnit = await Barracks.generateUnit(selectedRank, selectedArchetype);
+      setFormData((prev) => ({
+        ...prev,
+        id: prev.id || generateId(),
+        name: `${t(`ranks.${generated.rank}` as never)} · ${t(`archetypes.${generated.archetype}` as never)}`,
+        health: generated.health,
+        move: generated.move,
+        range: generated.range,
+        power: generated.power,
+        imageUrl: imageForArchetype(generated.archetype),
+        abilities: generated.abilities,
+      }));
     } catch (error) {
       console.error("Failed to generate unit:", error);
     } finally {
@@ -148,496 +144,377 @@ export const UnitEditorPage: React.FC<UnitEditorPageProps> = ({
     }
   };
 
-  const getImageForArchetype = (archetype: Archetype): string => {
-    switch (archetype) {
-      case Archetype.Tank:
-        return `${BASE_URL}/templar_knight.png`;
-      case Archetype.Bruiser:
-        return `${BASE_URL}/orc_warrior.png`;
-      case Archetype.Sniper:
-        return `${BASE_URL}/elven_archer.png`;
-      case Archetype.Skirmisher:
-        return `${BASE_URL}/orc_javelin.png`;
-      case Archetype.GlassCannon:
-        return `${BASE_URL}/fire_mage.png`;
-      default:
-        return `${BASE_URL}/templar_knight.png`;
-    }
-  };
-
-  const handleImageUpload = async (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  // Arrivée depuis l'état vide avec « générer au hasard ».
+  useEffect(() => {
+    if (searchParams.get("generate") === "1" && !isEditing) void handleGenerate();
+  }, []);
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
-
     setIsUploadingImage(true);
     setUploadError(null);
-
     try {
       const validation = validateImageFile(file);
       if (!validation.isValid) {
-        setUploadError(validation.error || "Fichier invalide");
+        setUploadError(validation.error || t("unitEditor.invalidFile"));
         return;
       }
-
       const base64 = await fileToBase64(file);
-      const resizedBase64 = await resizeImage(base64, 400, 400);
-
-      setFormData((prev) => ({
-        ...prev,
-        imageUrl: resizedBase64,
-      }));
+      const resized = await resizeImage(base64, 400, 400);
+      setFormData((prev) => ({ ...prev, imageUrl: resized }));
     } catch (error) {
       console.error("Error uploading image:", error);
-      setUploadError("Erreur lors du téléchargement de l'image");
+      setUploadError(t("unitEditor.uploadError"));
     } finally {
       setIsUploadingImage(false);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
-      }
+      if (fileInputRef.current) fileInputRef.current.value = "";
     }
   };
 
-  const handleRemoveCustomImage = () => {
-    setFormData((prev) => ({
-      ...prev,
-      imageUrl: `${BASE_URL}/templar_knight.png`,
-    }));
-    setUploadError(null);
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!formData.name.trim()) return;
+    onSave(formData);
+    navigate("/units");
   };
 
-  const handlePresetImageChange = (imageUrl: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      imageUrl,
-    }));
-  };
-
-  const isUnitValid = (evaluation?.cost ?? 0) <= Barracks.MaxUnitCost;
+  const availableToAdd = (catalog ?? []).filter((a) => !formData.abilities.includes(a.id));
 
   return (
-    <div className="container">
-      <div className="section">
-        <div className="level">
-          <div className="level-left">
-            <div className="level-item">
-              <h1 className="title">
-                {isEditing
-                  ? t("unitEditor.editUnit")
-                  : t("unitEditor.createUnit")}
-              </h1>
-            </div>
-          </div>
-          <div className="level-right">
-            <div className="level-item">
-              <button onClick={handleCancel} className="button">
-                <span className="icon">
-                  <i className="fas fa-arrow-left"></i>
-                </span>
-                <span>{t("unitEditor.back")}</span>
-              </button>
-            </div>
-          </div>
-        </div>
+    <form onSubmit={handleSubmit}>
+      <div className="page__head">
+        <button type="button" className="btn btn--sm" onClick={() => navigate("/units")}>
+          <BackIcon />
+          {t("unitEditor.back")}
+        </button>
 
-        <div className="columns">
-          <div className="column is-8">
-            <form onSubmit={handleSubmit}>
-              {/* Random Unit Generation Section */}
-              <div className="box">
-                <h2 className="subtitle">{t("unitEditor.randomGeneration")}</h2>
-                <div className="columns">
-                  <div className="column">
-                    <div className="field">
-                      <label className="label">{t("unitEditor.rank")}</label>
-                      <div className="control">
-                        <div className="select is-fullwidth">
-                          <select
-                            value={selectedRank}
-                            onChange={(e) =>
-                              setSelectedRank(e.target.value as Rank)
-                            }
-                          >
-                            <option value={Rank.Trooper}>
-                              {t("ranks.trooper")}
-                            </option>
-                            <option value={Rank.Veteran}>
-                              {t("ranks.veteran")}
-                            </option>
-                            <option value={Rank.Elite}>
-                              {t("ranks.elite")}
-                            </option>
-                            <option value={Rank.Champion}>
-                              {t("ranks.champion")}
-                            </option>
-                            <option value={Rank.Paragon}>
-                              {t("ranks.paragon")}
-                            </option>
-                          </select>
-                        </div>
-                      </div>
-                    </div>
+        <h1 className="page__title">
+          {isEditing ? t("unitEditor.editUnit") : t("unitEditor.createUnit")}
+        </h1>
+
+        <span className="page__count">#{formData.id.slice(0, 6)}</span>
+      </div>
+      {/* Onglets mobiles : le réglage et la carte ne tiennent pas côte à côte */}
+      <div className="editor__tabs">
+        <button
+          type="button"
+          className={`editor__tab ${mobileTab === "settings" ? "editor__tab--active" : ""}`}
+          onClick={() => setMobileTab("settings")}
+>
+          {t("unitEditor.tabSettings")}
+        </button>
+
+        <button
+          type="button"
+          className={`editor__tab ${mobileTab === "card" ? "editor__tab--active" : ""}`}
+          onClick={() => setMobileTab("card")}
+>
+          {t("unitEditor.tabCard")}
+        </button>
+      </div>
+
+      <div className="editor">
+        <div className={`editor__form ${mobileTab === "card" ? "editor__pane--hidden" : ""}`}>
+          <section className="panel__section">
+            <div className="section-label">{t("unitEditor.unitDetails")}</div>
+            <label className="field">
+              <span className="field__label">{t("unitEditor.name")}</span>
+              <input
+                className="input"
+                type="text"
+                value={formData.name}
+                required
+                placeholder={t("unitEditor.unitNamePlaceholder")}
+                onChange={(event) => setFormData((prev) => ({ ...prev, name: event.target.value }))}
+              />
+            </label>
+          </section>
+
+          <section className="panel__section">
+            <div className="row row--3">
+              <div className="section-label">{t("unitEditor.characteristics")}</div>
+              <div className="spacer" />
+
+              <div className="hint">{t("unitEditor.nextNotchHint")}</div>
+            </div>
+            {STATS.map((stat) => {
+              const value = formData[stat];
+              const delta = marginal[stat];
+
+              return (
+                <div key={stat} className="stat-row">
+                  <div className="stat-row__label">
+                    <StatIcon stat={stat} size={17} strokeWidth={1.7} color="var(--text-dim)" />
+
+                    <span>{t(`stats.${stat}Full` as never)}</span>
                   </div>
-                  <div className="column">
-                    <div className="field">
-                      <label className="label">
-                        {t("unitEditor.archetype")}
-                      </label>
-                      <div className="control">
-                        <div className="select is-fullwidth">
-                          <select
-                            value={selectedArchetype}
-                            onChange={(e) =>
-                              setSelectedArchetype(e.target.value as Archetype)
-                            }
-                          >
-                            <option value={Archetype.JackOfAllTrades}>
-                              {t("archetypes.jackofalltrades")}
-                            </option>
-                            <option value={Archetype.Tank}>
-                              {t("archetypes.tank")}
-                            </option>
-                            <option value={Archetype.Sniper}>
-                              {t("archetypes.sniper")}
-                            </option>
-                            <option value={Archetype.Skirmisher}>
-                              {t("archetypes.skirmisher")}
-                            </option>
-                            <option value={Archetype.Bruiser}>
-                              {t("archetypes.bruiser")}
-                            </option>
-                            <option value={Archetype.GlassCannon}>
-                              {t("archetypes.glasscannon")}
-                            </option>
-                          </select>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className="field">
-                  <div className="control">
+
+                  <div className="stat-stepper" style={{ flex: 1 }}>
                     <button
                       type="button"
-                      className={`button is-info ${
-                        isGenerating ? "is-loading" : ""
-                      }`}
-                      onClick={handleGenerateRandomUnit}
-                      disabled={isGenerating}
-                    >
-                      {isGenerating
-                        ? t("unitEditor.generating")
-                        : t("unitEditor.generateRandomUnit")}
+                      className="stepbtn stepbtn--compact"
+                      aria-label={t("unitEditor.decrease")}
+                      disabled={value <= 1}
+                      onClick={() => setStat(stat, value - 1)}
+>
+                      <MinusIcon />
                     </button>
-                  </div>
-                </div>
-              </div>
 
-              {/* Unit Details */}
-              <div className="box">
-                <h2 className="subtitle">{t("unitEditor.unitDetails")}</h2>
+                    <div className="track" role="group" aria-label={t(`stats.${stat}Full` as never)}>
+                      {Array.from({ length: MAX_STAT }, (_, index) => {
+                        const notch = index + 1;
 
-                <div className="field">
-                  <label className="label">{t("unitEditor.name")}</label>
-                  <div className="control">
-                    <input
-                      className="input"
-                      type="text"
-                      value={formData.name}
-                      onChange={(e) =>
-                        handleInputChange("name", e.target.value)
-                      }
-                      placeholder={t("unitEditor.unitNamePlaceholder")}
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div className="columns">
-                  <div className="column">
-                    <div className="field">
-                      <label className="label">{t("unitEditor.health")}</label>
-                      <div className="control">
-                        <input
-                          className="input"
-                          type="number"
-                          min="1"
-                          max="10"
-                          value={formData.health}
-                          onChange={(e) =>
-                            handleInputChange(
-                              "health",
-                              parseInt(e.target.value) || 1
-                            )
-                          }
-                          required
-                        />
-                      </div>
-                    </div>
-                  </div>
-                  <div className="column">
-                    <div className="field">
-                      <label className="label">{t("unitEditor.move")}</label>
-                      <div className="control">
-                        <input
-                          className="input"
-                          type="number"
-                          min="1"
-                          max="10"
-                          value={formData.move}
-                          onChange={(e) =>
-                            handleInputChange(
-                              "move",
-                              parseInt(e.target.value) || 1
-                            )
-                          }
-                          required
-                        />
-                      </div>
-                    </div>
-                  </div>
-                  <div className="column">
-                    <div className="field">
-                      <label className="label">{t("unitEditor.range")}</label>
-                      <div className="control">
-                        <input
-                          className="input"
-                          type="number"
-                          min="1"
-                          max="10"
-                          value={formData.range}
-                          onChange={(e) =>
-                            handleInputChange(
-                              "range",
-                              parseInt(e.target.value) || 1
-                            )
-                          }
-                          required
-                        />
-                      </div>
-                    </div>
-                  </div>
-                  <div className="column">
-                    <div className="field">
-                      <label className="label">{t("unitEditor.power")}</label>
-                      <div className="control">
-                        <input
-                          className="input"
-                          type="number"
-                          min="1"
-                          max="10"
-                          value={formData.power}
-                          onChange={(e) =>
-                            handleInputChange(
-                              "power",
-                              parseInt(e.target.value) || 1
-                            )
-                          }
-                          required
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Unit abilities */}
-              <div className="box">
-                <h2 className="subtitle">{t("unitEditor.abilities")}</h2>
-                <div className="field">
-                  <label className="label">{t("unitEditor.primary")}</label>
-                  <div className="control">
-                    <div className="select is-fullwidth">
-                      <select
-                        className="select"
-                        onChange={(e) => handleAbilityChange(0, e.target.value)}
-                        value={formData.abilities[0]}
-                      >
-                        <option value={undefined}>
-                          <IgnoreTrans>--</IgnoreTrans>
-                        </option>
-                        {availableAbilities
-                          ?.filter((a) => a.id !== formData.abilities[1])
-                          .map((a) => (
-                            <option key={a.id} value={a.id}>
-                              <IgnoreTrans>
-                                {a.label} ({a.cost})
-                              </IgnoreTrans>
-                            </option>
-                          ))}
-                      </select>
-                    </div>
-                  </div>
-                </div>
-                <div className="field">
-                  <label className="label">{t("unitEditor.secondary")}</label>
-                  <div className="control">
-                    <div className="select is-fullwidth">
-                      <select
-                        className="select"
-                        onChange={(e) => handleAbilityChange(1, e.target.value)}
-                        value={formData.abilities[1]}
-                      >
-                        <option value={undefined}>
-                          <IgnoreTrans>--</IgnoreTrans>
-                        </option>
-                        {availableAbilities
-                          ?.filter((a) => a.id !== formData.abilities[0])
-                          .map((a) => (
-                            <option key={a.id} value={a.id}>
-                              <IgnoreTrans>
-                                {a.label} ({a.cost})
-                              </IgnoreTrans>
-                            </option>
-                          ))}
-                      </select>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Image Section */}
-              <div className="box">
-                <h2 className="subtitle">{t("unitEditor.illustration")}</h2>
-
-                {formData.imageUrl && formData.imageUrl.startsWith("data:") ? (
-                  <div className="notification">
-                    <div className="level">
-                      <div className="level-left">
-                        <div className="level-item">
-                          <span>{t("unitEditor.customImageUploaded")}</span>
-                        </div>
-                      </div>
-                      <div className="level-right">
-                        <div className="level-item">
+                        return (
                           <button
                             type="button"
-                            onClick={handleRemoveCustomImage}
-                            className="button is-small is-danger"
-                          >
-                            {t("unitEditor.delete")}
-                          </button>
-                        </div>
-                      </div>
+                            key={notch}
+                            aria-label={`${t(`stats.${stat}Full` as never)} ${notch}`}
+                            aria-pressed={notch === value}
+                            onClick={() => setStat(stat, notch)}
+                            className={`track__seg ${notch <= value ? "track__seg--filled" : ""} ${
+                              notch === value + 1 ? "track__seg--next" : ""
+                            }`}
+                          />
+                        );
+                      })}
                     </div>
+
+                    <button
+                      type="button"
+                      className="stepbtn stepbtn--compact"
+                      aria-label={t("unitEditor.increase")}
+                      disabled={value >= MAX_STAT}
+                      onClick={() => setStat(stat, value + 1)}
+>
+                      <PlusIcon />
+                    </button>
                   </div>
-                ) : (
-                  <>
-                    <div className="field">
-                      <label className="label">
-                        {t("unitEditor.uploadCustomImage")}
-                      </label>
-                      <div className="control">
-                        <input
-                          ref={fileInputRef}
-                          className="input"
-                          type="file"
-                          accept="image/*"
-                          onChange={handleImageUpload}
-                          disabled={isUploadingImage}
-                        />
-                      </div>
-                      {isUploadingImage && (
-                        <p className="help is-info">
-                          {t("unitEditor.uploading")}
-                        </p>
-                      )}
-                      {uploadError && (
-                        <p className="help is-danger">{uploadError}</p>
-                      )}
-                      <p className="help">{t("unitEditor.supportedFormats")}</p>
-                    </div>
 
-                    <div className="field">
-                      <label className="label">
-                        {t("unitEditor.orChoosePredefined")}
-                      </label>
-                      <div className="control">
-                        <div className="select is-fullwidth">
-                          <select
-                            value={
-                              formData.imageUrl ||
-                              `${BASE_URL}/templar_knight.png`
-                            }
-                            onChange={(e) =>
-                              handlePresetImageChange(e.target.value)
-                            }
-                          >
-                            <option value={`${BASE_URL}/templar_knight.png`}>
-                              {t("predefinedUnits.templarKnight")}
-                            </option>
-                            <option value={`${BASE_URL}/elven_archer.png`}>
-                              {t("predefinedUnits.elvenArcher")}
-                            </option>
-                            <option value={`${BASE_URL}/fire_mage.png`}>
-                              {t("predefinedUnits.fireMage")}
-                            </option>
-                            <option value={`${BASE_URL}/orc_javelin.png`}>
-                              {t("predefinedUnits.orcSkirmisher")}
-                            </option>
-                            <option value={`${BASE_URL}/orc_shaman.png`}>
-                              {t("predefinedUnits.orcShaman")}
-                            </option>
-                            <option value={`${BASE_URL}/orc_warrior.png`}>
-                              {t("predefinedUnits.orcWarrior")}
-                            </option>
-                          </select>
-                        </div>
-                      </div>
-                    </div>
-                  </>
-                )}
-              </div>
-            </form>
-          </div>
+                  <div className="stat-row__value">
+                    <span className="stat-row__num">{value}</span>
+                    <span className={`pill ${delta !== undefined && delta > 0 ? "pill--accent" : ""}`}>
+                      {delta === undefined ? "—" : `+${formatCost(Math.round(delta * 10) / 10)}`}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </section>
 
-          <div className="column is-4">
-            <div className="box">
-              <h2 className="subtitle">{t("unitEditor.preview")}</h2>
-              <div className="is-flex is-justify-content-center pb-5">
-                <Card unit={formData} />
-              </div>
+          <section className="panel__section">
+            <div className="row row--3">
+              <div className="section-label">{t("unitEditor.abilities")}</div>
+              <div className="spacer" />
+
+              <span className="num" className="meta">
+                {formData.abilities.length} / {MAX_ABILITIES}
+              </span>
             </div>
 
-            <div className="box">
-              <h2 className="subtitle">{t("unitEditor.evaluation")}</h2>
+            <div className="stack stack--2">
+              {abilities.map((ability, index) => (
+                <div key={ability.id} className="ability-row">
+                  <span className="ability-row__index">{String(index + 1).padStart(2, "0")}</span>
+                  <div className="grow-min">
+                    <div className="ability-row__name">{ability.label}</div>
+                    <div className="ability-row__desc">{ability.description}</div>
+                  </div>
+
+                  <span className="ability-row__cost num">+{ability.cost}</span>
+                  <button
+                    type="button"
+                    className="iconbtn"
+                    aria-label={`${t("unitEditor.removeAbility")} — ${ability.label}`}
+                    onClick={() => removeAbility(ability.id)}
+>
+                    <CloseIcon />
+                  </button>
+                </div>
+              ))}
+              {formData.abilities.length < MAX_ABILITIES && (
+                <label className="btn btn--dashed" style={{ position: "relative" }}>
+                  <PlusIcon />
+                  {t("unitEditor.addAbility")}
+                  <select
+                    value=""
+                    onChange={(event) => addAbility(event.target.value)}
+                    aria-label={t("unitEditor.addAbility")}
+                    style={{
+                      position: "absolute",
+                      inset: 0,
+                      opacity: 0,
+                      cursor: "pointer",
+                      width: "100%",
+                    }}
+>
+                    <option value="">{t("unitEditor.addAbility")}</option>
+                    {availableToAdd.map((ability) => (
+                      <option key={ability.id} value={ability.id}>
+                        {ability.label} (+{ability.cost})
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              )}
+            </div>
+          </section>
+
+          <div className="editor__split">
+            <section className="panel__section">
+              <div className="section-label">{t("unitEditor.illustration")}</div>
+              <label className="dropzone">
+                <UploadIcon color="var(--text-faint)" />
+
+                <div className="meta-sm">
+                  {isUploadingImage ? t("unitEditor.uploading") : t("unitEditor.dropImage")}
+                </div>
+
+                <div className="section-label">{t("unitEditor.supportedFormats")}</div>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  className="sr-only"
+                />
+              </label>
+              {uploadError && <div className="notice notice--danger">{uploadError}</div>}
+              <div className="row row--2 row--wrap">
+                {PRESET_IMAGES.map((image) => {
+                  const url = `${BASE_URL}/${image}`;
+
+                  return (
+                    <button
+                      type="button"
+                      key={image}
+                      className={`thumb ${formData.imageUrl === url ? "thumb--active" : ""}`}
+                      aria-label={image}
+                      onClick={() => setFormData((prev) => ({ ...prev, imageUrl: url }))}
+>
+                      <img src={url} alt="" />
+                    </button>
+                  );
+                })}
+              </div>
+            </section>
+
+            <section className="panel__section">
+              <div className="section-label">{t("unitEditor.randomGeneration")}</div>
               <div className="field">
-                <label className="label">{t("unitEditor.unitPoints")}</label>
-                <div className="control">
-                  <p className="input is-static">
-                    <span
-                      className={`${
-                        !isUnitValid ? "has-text-danger" : "has-text-success"
+                <span className="field__label">{t("unitEditor.rank")}</span>
+                <div className="segmented">
+                  {RANKS.map((rank, index) => (
+                    <button
+                      type="button"
+                      key={rank}
+                      title={t(`ranks.${rank}` as never)}
+                      className={`segmented__item ${selectedRank === rank ? "segmented__item--active" : ""}`}
+                      onClick={() => setSelectedRank(rank)}
+>
+                      R{index + 1}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="field">
+                <span className="field__label">{t("unitEditor.archetype")}</span>
+                <div className="tilegrid">
+                  {ARCHETYPES.map((archetype) => (
+                    <button
+                      type="button"
+                      key={archetype}
+                      className={`tilegrid__item ${
+                        selectedArchetype === archetype ? "tilegrid__item--active" : ""
                       }`}
-                    >
-                      {evaluation?.cost} / {Barracks.MaxUnitCost}
-                    </span>
-                  </p>
+                      onClick={() => setSelectedArchetype(archetype)}
+>
+                      <ArchetypeIcon archetype={archetype} size={18} />
+
+                      <span>{t(`archetypes.${archetype}` as never)}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <button type="button" className="btn" onClick={handleGenerate} disabled={isGenerating}>
+                <GenerateIcon />
+                {isGenerating ? t("unitEditor.generating") : t("unitEditor.generateRandomUnit")}
+              </button>
+            </section>
+          </div>
+        </div>
+
+        <aside className={`editor__aside ${mobileTab === "settings" ? "editor__pane--hidden-mobile" : ""}`}>
+          <div className="eval">
+            <div className="eval__top">
+              <div className="stack stack--2">
+                <div className="section-label">{t("unitEditor.evaluation")}</div>
+                <div className="row row--2" >
+                  <span
+                    key={evaluation?.cost}
+                    className={`eval__cost ${overBudget ? "eval__cost--over" : ""} eval__cost--tick`}
+>
+                    {formatCost(evaluation?.cost)}
+                  </span>
+
+                  <span className="eval__max">/ {costMax}</span>
+                </div>
+              </div>
+
+              <div className={`eval__rank ${rankChanged ? "eval__rank--pop" : ""}`}>
+                <RankIcon rank={evaluation?.rank} size={52} strokeWidth={1.4} color="var(--accent)" />
+
+                <div className="eval__rank-name">
+                  {evaluation ? t(`ranks.${evaluation.rank}` as never) : "—"}
+                </div>
+
+                <div className="section-label">
+                  {t("card.rankPoints", { points: rankPoints(evaluation?.rank) })}
                 </div>
               </div>
             </div>
 
-            <div className="buttons is-centered are-medium">
-              <button
-                type="button"
-                onClick={handleCancel}
-                className="button is-warning"
-              >
-                {t("unitEditor.cancel")}
-              </button>
-              <button
-                type="submit"
-                className="button is-primary"
-                disabled={!isUnitValid}
-                onClick={handleSubmit}
-              >
-                {isEditing ? t("unitEditor.save") : t("unitEditor.create")}
-              </button>
+            <div className="stack stack--2">
+              <div className="ladder">
+                {ladder.map((step) => (
+                  <div
+                    key={step.rank}
+                    className={`ladder__seg ${step.reached ? "ladder__seg--reached" : ""}`}
+                    style={{ flex: step.points }}
+                  />
+                ))}
+              </div>
+
+              <div className="ladder__labels">
+                {ladder.map((step) => (
+                  <span key={step.rank} className={step.current ? "ladder__label--current" : ""}>
+                    {t(`ranks.${step.rank}` as never)}
+                  </span>
+                ))}
+              </div>
+              {overBudget && <div className="notice notice--danger">{t("unitEditor.overBudget", { max: costMax })}</div>}
             </div>
           </div>
-        </div>
+
+          <div className="panel__section">
+            <div className="section-label">{t("unitEditor.preview")}</div>
+            <div className="row" >
+              <UnitCard unit={formData} variant="preview" />
+            </div>
+          </div>
+
+          <div className="editor__actions">
+            <button type="button" className="btn" onClick={() => navigate("/units")}>
+              {t("unitEditor.cancel")}
+            </button>
+
+            <button type="submit" className="btn btn--primary" style={{ flex: 1 }}>
+              {isEditing ? t("unitEditor.save") : t("unitEditor.create")}
+            </button>
+          </div>
+        </aside>
       </div>
-    </div>
+    </form>
   );
 };

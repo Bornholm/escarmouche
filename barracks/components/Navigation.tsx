@@ -1,140 +1,186 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router";
 import { useTranslation } from "react-i18next";
 import { IgnoreTrans } from "./IgnoreTrans";
 import { normalizeLocale } from "../util/locale";
+import { Mode, Universe, UNIVERSES } from "../util/theme";
+import {
+  BattleIcon,
+  BrandIcon,
+  ExternalIcon,
+  GlobeIcon,
+  MenuIcon,
+  ModeIcon,
+  RulesIcon,
+  SquadsIcon,
+  UnitsIcon,
+  UniverseIcon,
+} from "./Icons";
 
-export const Navigation: React.FC = () => {
+interface NavigationProps {
+  mode: Mode;
+  universe: Universe;
+  onModeChange: (mode: Mode) => void;
+  onUniverseChange: (universe: Universe) => void;
+}
+
+const LANGUAGES: { code: string; label: string }[] = [
+  { code: "fr", label: "🇫🇷 Français" },
+  { code: "en", label: "🇬🇧 English" },
+  { code: "es", label: "🇪🇸 Español" },
+];
+
+/** Ferme un menu quand on clique ailleurs — le survol ne suffit pas au tactile. */
+const useDismiss = (onDismiss: () => void) => {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const handler = (event: MouseEvent) => {
+      if (ref.current && !ref.current.contains(event.target as Node)) onDismiss();
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [onDismiss]);
+  return ref;
+};
+
+export const Navigation: React.FC<NavigationProps> = ({
+  mode,
+  universe,
+  onModeChange,
+  onUniverseChange,
+}) => {
   const { t, i18n } = useTranslation();
-  const [isActive, setIsActive] = useState(false);
   const location = useLocation();
+  const [navOpen, setNavOpen] = useState(false);
+  const [langOpen, setLangOpen] = useState(false);
+  const [universeOpen, setUniverseOpen] = useState(false);
 
-  const toggleBurger = () => {
-    setIsActive(!isActive);
-  };
+  const langRef = useDismiss(() => setLangOpen(false));
+  const universeRef = useDismiss(() => setUniverseOpen(false));
 
-  const closeBurger = () => {
-    setIsActive(false);
-  };
+  const isActive = (path: string) => location.pathname.startsWith(path);
+  const close = () => setNavOpen(false);
 
-  const isActiveRoute = (path: string) => {
-    if (path === "/" && location.pathname === "/") return true;
-    if (path !== "/" && location.pathname.startsWith(path)) return true;
-    return false;
-  };
+  const links = [
+    { to: "/units", label: t("navigation.units"), Icon: UnitsIcon },
+    { to: "/squads", label: t("navigation.squads"), Icon: SquadsIcon },
+    { to: "/battle", label: t("navigation.battle"), Icon: BattleIcon },
+  ];
 
   return (
-    <nav
-      className="navbar is-dark"
-      role="navigation"
-      aria-label="main navigation"
-    >
-      <div className="container">
-        <div className="navbar-brand">
-          <Link to="/" className="navbar-item" onClick={closeBurger}>
-            <span
-              className="title is-4 has-text-light"
-              style={{ whiteSpace: "nowrap" }}
-            >
-              {t("navigation.title")}
-            </span>
-          </Link>
+    <header className="topbar">
+      <Link to="/" className="topbar__brand" onClick={close}>
+        <BrandIcon size={20} color="var(--accent)" />
+        <span>{t("navigation.title")}</span>
+      </Link>
 
-          <button
-            className={`navbar-burger ${isActive ? "is-active" : ""}`}
-            aria-label="menu"
-            aria-expanded={isActive}
-            data-target="navbarMenu"
-            onClick={toggleBurger}
+      <button
+        className="topbar__burger"
+        aria-label={t("navigation.menu")}
+        aria-expanded={navOpen}
+        onClick={() => setNavOpen((open) => !open)}
+      >
+        <MenuIcon />
+      </button>
+
+      <nav className="topbar__nav" hidden={!navOpen} id="main-nav">
+        {links.map(({ to, label, Icon }) => (
+          <Link
+            key={to}
+            to={to}
+            onClick={close}
+            className={`navlink ${isActive(to) ? "navlink--active" : ""}`}
+            aria-current={isActive(to) ? "page" : undefined}
           >
-            <span aria-hidden="true"></span>
-            <span aria-hidden="true"></span>
-            <span aria-hidden="true"></span>
-            <span aria-hidden="true"></span>
+            <Icon />
+            {label}
+          </Link>
+        ))}
+        <a
+          className="navlink"
+          target="_blank"
+          rel="noreferrer"
+          onClick={close}
+          href={`https://bornholm.github.io/escarmouche/${normalizeLocale(i18n.language)}/`}
+        >
+          <RulesIcon />
+          {t("navigation.rules")}
+          <ExternalIcon />
+        </a>
+      </nav>
+
+      <div className="topbar__spacer" />
+
+      <div className="topbar__tools">
+        <div className="menu" ref={langRef}>
+          <button
+            className="toolbtn"
+            aria-haspopup="menu"
+            aria-expanded={langOpen}
+            onClick={() => setLangOpen((open) => !open)}
+          >
+            <GlobeIcon />
+            <IgnoreTrans>{i18n.language.slice(0, 2).toUpperCase()}</IgnoreTrans>
           </button>
+          {langOpen && (
+            <div className="menu__panel" role="menu">
+              {LANGUAGES.map(({ code, label }) => (
+                <button
+                  key={code}
+                  role="menuitem"
+                  className={`menu__item ${i18n.language.startsWith(code) ? "menu__item--active" : ""}`}
+                  onClick={() => {
+                    i18n.changeLanguage(code);
+                    setLangOpen(false);
+                  }}
+                >
+                  <IgnoreTrans>{label}</IgnoreTrans>
+                  {i18n.language.startsWith(code) && <span className="menu__check">✓</span>}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
-        <div
-          id="navbarMenu"
-          className={`navbar-menu ${isActive ? "is-active" : ""}`}
+        <button
+          className="toolbtn"
+          onClick={() => onModeChange(mode === "dark" ? "light" : "dark")}
+          aria-label={t("theme.toggleMode")}
         >
-          <div className="navbar-start">
-            <Link
-              to="/units"
-              className={`navbar-item ${
-                isActiveRoute("/units") ? "is-active" : ""
-              }`}
-              onClick={closeBurger}
-            >
-              <span className="icon">
-                <i className="fas fa-users"></i>
-              </span>
-              <span>{t("navigation.units")}</span>
-            </Link>
+          <ModeIcon />
+          {t(`theme.mode.${mode}` as never)}
+        </button>
 
-            <Link
-              to="/squads"
-              className={`navbar-item ${
-                isActiveRoute("/squads") ? "is-active" : ""
-              }`}
-              onClick={closeBurger}
-            >
-              <span className="icon">
-                <i className="fas fa-shield-alt"></i>
-              </span>
-              <span>{t("navigation.squads")}</span>
-            </Link>
-
-            <Link
-              target="_blank"
-              to={`https://bornholm.github.io/escarmouche/${normalizeLocale(
-                i18n.language
-              )}/`}
-              className={`navbar-item`}
-              onClick={closeBurger}
-            >
-              <span className="icon">
-                <i className="fas fa-external-link-alt"></i>
-              </span>
-              <span>{t("navigation.rules")}</span>
-            </Link>
-          </div>
-
-          <div className="navbar-end">
-            <div className="navbar-item has-dropdown is-hoverable">
-              <a className="navbar-link">
-                <span className="icon">
-                  <i className="fas fa-globe"></i>
-                </span>
-                <span>{t("navigation.language")}</span>
-              </a>
-              <div className="navbar-dropdown is-right">
-                <a
-                  className="navbar-item"
-                  onClick={() => i18n.changeLanguage("fr")}
-                  style={{ cursor: "pointer" }}
+        <div className="menu" ref={universeRef}>
+          <button
+            className="toolbtn"
+            aria-haspopup="menu"
+            aria-expanded={universeOpen}
+            onClick={() => setUniverseOpen((open) => !open)}
+          >
+            <UniverseIcon />
+            {t(`theme.universe.${universe}` as never)}
+          </button>
+          {universeOpen && (
+            <div className="menu__panel" role="menu">
+              {UNIVERSES.map((name) => (
+                <button
+                  key={name}
+                  role="menuitem"
+                  className={`menu__item ${universe === name ? "menu__item--active" : ""}`}
+                  onClick={() => {
+                    onUniverseChange(name);
+                    setUniverseOpen(false);
+                  }}
                 >
-                  <IgnoreTrans>🇫🇷 Français</IgnoreTrans>
-                </a>
-                <a
-                  className="navbar-item"
-                  onClick={() => i18n.changeLanguage("en")}
-                  style={{ cursor: "pointer" }}
-                >
-                  <IgnoreTrans>🇬🇧 English</IgnoreTrans>
-                </a>
-                <a
-                  className="navbar-item"
-                  onClick={() => i18n.changeLanguage("es")}
-                  style={{ cursor: "pointer" }}
-                >
-                  <IgnoreTrans>🇪🇸 Español</IgnoreTrans>
-                </a>
-              </div>
+                  {t(`theme.universe.${name}` as never)}
+                  {universe === name && <span className="menu__check">✓</span>}
+                </button>
+              ))}
             </div>
-          </div>
+          )}
         </div>
       </div>
-    </nav>
+    </header>
   );
 };

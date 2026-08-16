@@ -1,16 +1,25 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { useTranslation } from "react-i18next";
 import { Squad, Unit } from "../types";
-import { Card } from "../components/Card";
 import { generateId } from "../util/storage";
-import { useAsyncMemo } from "../hooks/useAsyncMemo";
+import { useEvaluations } from "../hooks/useEvaluations";
+import { useAbilities, resolveAbilities } from "../hooks/useAbilities";
+import { maxSquadRankPoints, maxSquadSize, rankPoints } from "../util/rank";
+import { LockIcon, MinusIcon, PlusIcon, RankIcon } from "../components/Icons";
 
 interface SquadEditorPageProps {
   squads: Squad[];
   availableUnits: Unit[];
   onSave: (squad: Squad) => void;
 }
+
+/* =============================================================================
+   Éditeur d'escouade.
+   Le budget est le sujet de l'écran : la jauge est en tête et ne bouge jamais.
+   Une unité qu'on ne peut pas s'offrir est barrée d'une trame et porte son
+   dépassement chiffré — elle se lit comme hors de portée avant d'être cliquée.
+   ========================================================================== */
 
 export const SquadEditorPage: React.FC<SquadEditorPageProps> = ({
   squads,
@@ -20,305 +29,231 @@ export const SquadEditorPage: React.FC<SquadEditorPageProps> = ({
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
-  const isEditing = id !== "new";
-  const existingSquad = isEditing ? squads.find((s) => s.id === id) : null;
-
-  const [formData, setFormData] = useState<Squad>({
-    id: "",
-    name: "",
-    units: [],
-  });
-
-  const evaluations = useAsyncMemo(() => {
-    return Promise.all(formData.units.map((u) => Barracks.evaluateUnit(u)));
-  }, [formData.units]);
-
-  const totalRankPoints = useMemo(
-    () =>
-      evaluations?.reduce(
-        (total, evaluation) => total + Barracks.RankPointCosts[evaluation.rank],
-        0
-      ) ?? 0,
-    [evaluations]
-  );
-
-  const composition = useMemo(
-    () =>
-      evaluations?.reduce((composition, evaluation) => {
-        if (!composition[evaluation.rank]) {
-          composition[evaluation.rank] = 0;
-        }
-        composition[evaluation.rank] += 1;
-        return composition;
-      }, {} as { [rank: string]: number }) ?? {},
-    [evaluations]
-  );
-
+  const isEditing = id !== undefined && id !== "new";
+  const existingSquad = isEditing ? squads.find((s) => s.id === id) : undefined;
+  const [squad, setSquad] = useState<Squad>({ id: generateId(), name: "", units: [] });
+  const catalog = useAbilities();
+  const evaluations = useEvaluations(availableUnits);
+  const maxPoints = maxSquadRankPoints();
+  const maxSize = maxSquadSize();
   useEffect(() => {
-    if (existingSquad) {
-      setFormData({ ...existingSquad });
-    } else {
-      setFormData({
-        id: generateId(),
-        name: "",
-        units: [],
-      });
-    }
+    if (existingSquad) setSquad({ ...existingSquad });
   }, [existingSquad]);
-
-  const handleNameChange = (name: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      name,
-    }));
+  const spent = useMemo(
+    () => squad.units.reduce((total, unit) => total + rankPoints(evaluations[unit.id]?.rank), 0),
+    [squad.units, evaluations]
+  );
+  const remaining = maxPoints - spent;
+  const freeSlots = maxSize - squad.units.length;
+  const describe = (unit: Unit): string => {
+    const rank = evaluations[unit.id]?.rank;
+    const names = resolveAbilities(unit.abilities, catalog).map((a) => a.label);
+    const rankLabel = rank ? t(`ranks.${rank}` as never) : "—";
+    return names.length ? `${rankLabel} · ${names.join(", ")}` : rankLabel;
   };
 
-  const handleAddUnit = (unit: Unit) => {
-    if (formData.units.length < Barracks.MaxSquadSize) {
-      setFormData((prev) => ({
-        ...prev,
-        units: [...prev.units, { ...unit, id: generateId() }],
-      }));
-    }
+  const addUnit = (unit: Unit) => {
+    if (freeSlots <= 0) return;
+    if (rankPoints(evaluations[unit.id]?.rank) > remaining) return;
+    setSquad((prev) => ({ ...prev, units: [...prev.units, unit] }));
   };
 
-  const handleRemoveUnit = (unitId: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      units: prev.units.filter((u) => u.id !== unitId),
-    }));
+  const removeUnit = (index: number) => {
+    setSquad((prev) => ({ ...prev, units: prev.units.filter((_, i) => i !== index) }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (formData.name.trim()) {
-      onSave(formData);
-      navigate("/squads");
-    }
-  };
-
-  const handleCancel = () => {
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!squad.name.trim()) return;
+    onSave(squad);
     navigate("/squads");
   };
 
-  const isValid =
-    formData.units.length <= Barracks.MaxSquadSize &&
-    totalRankPoints <= Barracks.MaxSquadRankPoints;
-
   return (
-    <div className="container">
-      <div className="section">
-        <div className="level">
-          <div className="level-left">
-            <div className="level-item">
-              <h1 className="title">
-                {isEditing
-                  ? t("squadEditor.editSquad")
-                  : t("squadEditor.createSquad")}
-              </h1>
-            </div>
+    <form onSubmit={handleSubmit}>
+      <div className="squad-bar">
+        <div className="squad-bar__main">
+          <div className="row row--3 row--wrap">
+            <input
+              className="input squad-bar__name"
+              type="text"
+              required
+              value={squad.name}
+              placeholder={t("squadEditor.squadNamePlaceholder")}
+              onChange={(event) => setSquad((prev) => ({ ...prev, name: event.target.value }))}
+            />
+
+            <span className="section-label">{t("squadEditor.squadName")}</span>
           </div>
-          <div className="level-right">
-            <div className="level-item">
-              <button onClick={handleCancel} className="button">
-                <span className="icon">
-                  <i className="fas fa-arrow-left"></i>
+
+          <div className="row row--4 row--wrap">
+            <div className="stack stack--2" style={{ flex: 1, minWidth: 260 }}>
+              <div className="row">
+                <span className="field__label">{t("squadEditor.pointsSpent")}</span>
+                <div className="spacer" />
+
+                <span className="num" className="meta-sm">
+                  {t("squadEditor.remaining", { points: remaining })}
                 </span>
-                <span>{t("squadEditor.back")}</span>
-              </button>
+              </div>
+              {/* Jauge de budget : un segment par unité, à l'échelle de son coût */}
+              <div className="budget">
+                {squad.units.map((unit, index) => {
+                  const points = rankPoints(evaluations[unit.id]?.rank);
+
+                  return (
+                    <div
+                      key={`${unit.id}-${index}`}
+                      className="budget__seg"
+                      style={{ width: `${(points / maxPoints) * 100}%` }}
+                      title={`${unit.name} — ${points}`}
+>
+                      {points}
+                    </div>
+                  );
+                })}
+                <div className="budget__rest">{maxPoints}</div>
+              </div>
+            </div>
+
+            <div className="squad-bar__totals">
+              <div className="row row--2" >
+                <span className="squad-bar__spent">{spent}</span>
+                <span className="eval__max">/ {maxPoints} {t("card.rankPointsShort")}</span>
+              </div>
+
+              <div className="section-label">
+                {t("squadEditor.unitCount", { n: squad.units.length, max: maxSize })}
+              </div>
             </div>
           </div>
         </div>
 
-        <form onSubmit={handleSubmit}>
-          <div className="columns">
-            <div className="column is-8">
-              {/* Squad Details */}
-              <div className="box">
-                <h2 className="subtitle">{t("squadEditor.squadDetails")}</h2>
-                <div className="field">
-                  <label className="label">{t("squadEditor.squadName")}</label>
-                  <div className="control">
-                    <input
-                      className="input"
-                      type="text"
-                      value={formData.name}
-                      onChange={(e) => handleNameChange(e.target.value)}
-                      placeholder={t("squadEditor.squadNamePlaceholder")}
-                      required
-                    />
-                  </div>
-                </div>
+        <div className="squad-bar__actions">
+          <button type="submit" className="btn btn--primary btn--block" style={{ flex: 1 }}>
+            {isEditing ? t("squadEditor.edit") : t("squadEditor.create")}
+          </button>
+
+          <button type="button" className="btn btn--ghost btn--block" onClick={() => navigate("/squads")}>
+            {t("squadEditor.cancel")}
+          </button>
+        </div>
+      </div>
+
+      <div className="squad-cols">
+        <section>
+          <div className="squad-cols__head">
+            <span className="section-label">{t("squadEditor.currentSquad")}</span>
+          </div>
+          {squad.units.map((unit, index) => (
+            <div key={`${unit.id}-${index}`} className="squad-row">
+              <div className="squad-row__art">
+                {unit.imageUrl && <img src={unit.imageUrl} alt="" />}
               </div>
 
-              {/* Current Squad */}
-              <div className="box">
-                <h2 className="subtitle">{t("squadEditor.currentSquad")}</h2>
-                {formData.units.length === 0 ? (
-                  <div className="notification">
-                    <p>{t("squadEditor.clickToAdd")}</p>
-                  </div>
-                ) : (
-                  <div className="columns is-multiline is-mobile">
-                    {formData.units.map((unit) => (
-                      <div key={unit.id} className="column is-narrow">
-                        <div className="card">
-                          <div className="card-content is-flex is-justify-content-center p-0">
-                            <div
-                              style={{
-                                transform: "scale(0.7)",
-                              }}
-                            >
-                              <Card unit={unit} />
-                            </div>
-                          </div>
-                          <footer className="card-footer">
-                            <button
-                              type="button"
-                              onClick={() => handleRemoveUnit(unit.id)}
-                              className="card-footer-item button is-ghost has-text-danger"
-                            >
-                              <span className="icon">
-                                <i className="fas fa-times"></i>
-                              </span>
-                              <span>{t("squadEditor.remove")}</span>
-                            </button>
-                          </footer>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
+              <RankIcon rank={evaluations[unit.id]?.rank} size={16} strokeWidth={1.6} color="var(--accent)" />
+
+              <div className="grow-min">
+                <div className="squad-row__name">{unit.name}</div>
+                <div className="squad-row__meta">{describe(unit)}</div>
               </div>
 
-              {/* Available Units */}
-              <div className="box">
-                <h2 className="subtitle">{t("squadEditor.availableUnits")}</h2>
-                {availableUnits.length === 0 ? (
-                  <div className="notification is-warning">
-                    <p>{t("squadEditor.noAvailableUnits")}</p>
-                  </div>
-                ) : (
-                  <div className="columns is-multiline is-mobile">
-                    {availableUnits.map((unit) => (
-                      <div key={unit.id} className="column is-narrow">
-                        <div
-                          className={`card ${
-                            formData.units.length >= Barracks.MaxSquadSize
-                              ? "has-background-grey-lighter"
-                              : "is-clickable"
-                          }`}
-                          onClick={() => handleAddUnit(unit)}
-                          style={{
-                            opacity:
-                              formData.units.length >= Barracks.MaxSquadSize
-                                ? 0.5
-                                : 1,
-                            cursor:
-                              formData.units.length >= Barracks.MaxSquadSize
-                                ? "not-allowed"
-                                : "pointer",
-                          }}
-                        >
-                          <div className="card-content is-flex is-justify-content-center p-0">
-                            <div
-                              style={{
-                                transform: "scale(0.7)",
-                              }}
-                            >
-                              <Card unit={unit} />
-                            </div>
-                          </div>
-                          <footer className="card-footer">
-                            <div className="card-footer-item">
-                              {formData.units.length >= Barracks.MaxSquadSize
-                                ? t("squadEditor.squadFull")
-                                : t("squadEditor.clickToAddUnit")}
-                            </div>
-                          </footer>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
+              <div className="squad-row__points num">{rankPoints(evaluations[unit.id]?.rank)}</div>
+              <button
+                type="button"
+                className="iconbtn"
+                aria-label={`${t("squadEditor.remove")} — ${unit.name}`}
+                onClick={() => removeUnit(index)}
+>
+                <MinusIcon size={12} />
+              </button>
             </div>
+          ))}
+          <div className="squad-row squad-row--free">
+            <div className="squad-row__art squad-row__art--empty" />
 
-            <div className="column is-4">
-              {/* Squad Stats */}
-              <div className="box">
-                <h2 className="subtitle">{t("squadEditor.statistics")}</h2>
-                <div className="content">
-                  <p>
-                    <strong
-                      className={
-                        totalRankPoints > Barracks.MaxSquadRankPoints
-                          ? "has-text-danger"
-                          : "has-text-success"
-                      }
-                    >
-                      {t("squadEditor.rankPoints")} {totalRankPoints}/
-                      {Barracks.MaxSquadRankPoints}
-                    </strong>
-                  </p>
-                  <p>
-                    <strong>
-                      {t("squadEditor.size")} {formData.units.length}/
-                      {Barracks.MaxSquadSize}
-                    </strong>
-                  </p>
-                  {Object.keys(composition).length > 0 && (
-                    <>
-                      <p>
-                        <strong>{t("squadEditor.composition")}</strong>
-                      </p>
-                      <ul>
-                        {Object.keys(composition).map((rank) => (
-                          <li key={rank}>
-                            {rank}: {composition[rank]}
-                          </li>
-                        ))}
-                      </ul>
-                    </>
-                  )}
-                </div>
-              </div>
-
-              {/* Action Buttons */}
-              <div>
-                <div className="buttons is-centered are-medium">
-                  <button
-                    type="button"
-                    onClick={handleCancel}
-                    className="button is-warning"
-                  >
-                    {t("squadEditor.cancel")}
-                  </button>
-                  <button
-                    type="submit"
-                    className="button is-primary"
-                    disabled={!isValid}
-                  >
-                    {isEditing
-                      ? t("squadEditor.edit")
-                      : t("squadEditor.create")}
-                  </button>
-                </div>
-                {!isValid && (
-                  <div className="notification is-danger is-light">
-                    <p className="is-size-7">
-                      {totalRankPoints > Barracks.MaxSquadRankPoints &&
-                        t("squadEditor.tooManyRankPoints") + " "}
-                      {formData.units.length > Barracks.MaxSquadSize &&
-                        t("squadEditor.tooManyUnits") + " "}
-                    </p>
-                  </div>
-                )}
-              </div>
+            <div className="hint">
+              {t("squadEditor.freeSlots", { slots: freeSlots, points: remaining })}
             </div>
           </div>
-        </form>
+        </section>
+
+        <section>
+          <div className="squad-cols__head">
+            <span className="section-label">{t("squadEditor.availableUnits")}</span>
+            <span className="hint">{t("squadEditor.clickToAddUnit")}</span>
+          </div>
+          {availableUnits.length === 0 && (
+            <div className="notice" style={{ margin: "var(--space-4) var(--space-6)" }}>
+              {t("squadEditor.noAvailableUnits")}
+            </div>
+          )}
+          {availableUnits.map((unit) => {
+            const points = rankPoints(evaluations[unit.id]?.rank);
+            const overrun = points - remaining;
+            const unaffordable = overrun > 0 || freeSlots <= 0;
+
+            return (
+              <div
+                key={unit.id}
+                className={`squad-row ${unaffordable ? "squad-row--locked" : "squad-row--add"}`}
+                onClick={() => !unaffordable && addUnit(unit)}
+                role={unaffordable ? undefined : "button"}
+                tabIndex={unaffordable ? undefined : 0}
+                onKeyDown={(event) => {
+                  if (!unaffordable && (event.key === "Enter" || event.key === " ")) {
+                    event.preventDefault();
+                    addUnit(unit);
+                  }
+                }}
+>
+                <div className="squad-row__art">
+                  {unit.imageUrl && <img src={unit.imageUrl} alt="" />}
+                </div>
+
+                <RankIcon
+                  rank={evaluations[unit.id]?.rank}
+                  size={16}
+                  strokeWidth={1.6}
+                  color={unaffordable ? "var(--text-faint)" : "var(--accent)"}
+                />
+
+                <div className="grow-min">
+                  <div className="squad-row__name">{unit.name}</div>
+                  <div className={`squad-row__meta ${unaffordable ? "squad-row__meta--over" : ""}`}>
+                    {overrun > 0
+                      ? t("squadEditor.exceedsBudget", { points: overrun })
+                      : freeSlots <= 0
+                      ? t("squadEditor.squadFull")
+                      : describe(unit)}
+                  </div>
+                </div>
+
+                <div className={`squad-row__points num ${overrun > 0 ? "squad-row__points--over" : ""}`}>
+                  {points}
+                </div>
+                {unaffordable ? (
+                  <div className="squad-row__lock" aria-hidden="true">
+                    <LockIcon />
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    className="iconbtn iconbtn--add"
+                    aria-label={`${t("squadEditor.clickToAddUnit")} — ${unit.name}`}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      addUnit(unit);
+                    }}
+>
+                    <PlusIcon size={12} />
+                  </button>
+                )}
+              </div>
+            );
+          })}
+        </section>
       </div>
-    </div>
+    </form>
   );
 };

@@ -1,20 +1,48 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { HashRouter as Router, Routes, Route, Navigate } from "react-router";
-import "bulma/css/bulma.min.css";
+import "@fontsource/public-sans/400.css";
+import "@fontsource/public-sans/600.css";
+import "@fontsource/public-sans/700.css";
+import "@fontsource/public-sans/800.css";
+import "@fontsource/space-mono/400.css";
+import "@fontsource/space-mono/700.css";
+import "../styles/tokens.css";
+import "../styles/app.css";
 import { Navigation } from "./Navigation";
 import { UnitsPage } from "../pages/UnitsPage";
 import { SquadsPage } from "../pages/SquadsPage";
 import { UnitEditorPage } from "../pages/UnitEditorPage";
 import { SquadEditorPage } from "../pages/SquadEditorPage";
+import { BattlePage } from "../pages/BattlePage";
+import { PrintPage } from "../pages/PrintPage";
 import { Unit, Squad } from "../types";
 import { loadUnits, saveUnits, loadSquads, saveSquads } from "../util/storage";
-import { DefaultUnits } from "../util/defaults";
-import { BASE_URL } from "../util/baseUrl";
+import { DefaultSquads, DefaultUnits } from "../util/defaults";
+import {
+  Mode,
+  Universe,
+  applyMode,
+  applyUniverse,
+  loadMode,
+  loadUniverse,
+} from "../util/theme";
 import "../i18n"; // Initialize i18n
 
 export const App: React.FC = () => {
   const [units, setUnits] = useState<Unit[]>([]);
   const [squads, setSquads] = useState<Squad[]>([]);
+  const [mode, setMode] = useState<Mode>(loadMode);
+  const [universe, setUniverse] = useState<Universe>(loadUniverse);
+
+  // Le thème vit sur <html> : il doit être posé avant le premier rendu utile,
+  // et le fichier d'univers n'est chargé que s'il est effectivement choisi.
+  useEffect(() => {
+    applyMode(mode);
+  }, [mode]);
+
+  useEffect(() => {
+    void applyUniverse(universe);
+  }, [universe]);
 
   useEffect(() => {
     const units = loadUnits();
@@ -31,6 +59,11 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     const squads = loadSquads();
+    // Les escouades de démarrage ne sont ajoutées que si elles manquent : une
+    // escouade par défaut modifiée par le joueur garde ses modifications.
+    DefaultSquads.forEach((squad) => {
+      if (!squads.some((s) => s.id === squad.id)) squads.push(squad);
+    });
     setSquads(squads);
   }, []);
 
@@ -82,12 +115,14 @@ export const App: React.FC = () => {
 
   return (
     <Router>
-      <div
-        className="app has-background-dark has-text-light"
-        style={{ minHeight: "100vh" }}
-      >
-        <Navigation />
-        <main>
+      <div className="shell">
+        <Navigation
+          mode={mode}
+          universe={universe}
+          onModeChange={setMode}
+          onUniverseChange={setUniverse}
+        />
+        <main className="page">
           <Routes>
             <Route path="/" element={<Navigate to="/units" replace />} />
             <Route
@@ -96,6 +131,7 @@ export const App: React.FC = () => {
                 <UnitsPage units={units} onDeleteUnit={handleDeleteUnit} />
               }
             />
+            <Route path="/units/print" element={<PrintPage units={units} />} />
             <Route
               path="/units/new"
               element={<UnitEditorPage units={units} onSave={handleSaveUnit} />}
@@ -129,6 +165,10 @@ export const App: React.FC = () => {
                   onSave={handleSaveSquad}
                 />
               }
+            />
+            <Route
+              path="/battle"
+              element={<BattlePage squads={squads} units={units} />}
             />
           </Routes>
         </main>
