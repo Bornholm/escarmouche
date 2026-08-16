@@ -40,11 +40,15 @@ export interface Unit extends UnitStats {
   id: string;
   name: string;
   imageUrl?: string;
+  /** Citation narrative affichée sur la carte — le « flavor text ». */
+  quote?: string;
 }
 
 export interface Squad {
   id: string;
   name: string;
+  /** Description narrative de l'escouade : son histoire, son ton, son monde. */
+  description?: string;
   units: Unit[];
 }
 

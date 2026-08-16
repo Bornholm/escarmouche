@@ -60,9 +60,15 @@ export const App: React.FC = () => {
   useEffect(() => {
     const squads = loadSquads();
     // Les escouades de démarrage ne sont ajoutées que si elles manquent : une
-    // escouade par défaut modifiée par le joueur garde ses modifications.
+    // escouade par défaut modifiée par le joueur garde ses modifications. La
+    // description narrative est héritée si le joueur n'en a pas écrit une.
     DefaultSquads.forEach((squad) => {
-      if (!squads.some((s) => s.id === squad.id)) squads.push(squad);
+      const existing = squads.find((s) => s.id === squad.id);
+      if (!existing) {
+        squads.push(squad);
+      } else if (!existing.description && squad.description) {
+        existing.description = squad.description;
+      }
     });
     setSquads(squads);
   }, []);

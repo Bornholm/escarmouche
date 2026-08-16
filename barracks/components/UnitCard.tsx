@@ -76,7 +76,7 @@ export const UnitCard: React.FC<UnitCardProps> = ({ unit, variant = "full", clas
       </div>
 
       <div className="unit-card__abilities">
-        {abilities.length === 0 ? (
+        {abilities.length === 0 && !unit.quote ? (
           <div className="unit-card__none">{t("card.noAbility")}</div>
         ) : (
           abilities.map((ability, index) => (
@@ -93,6 +93,10 @@ export const UnitCard: React.FC<UnitCardProps> = ({ unit, variant = "full", clas
               <span className="unit-card__ability-cost">+{ability.cost}</span>
             </div>
           ))
+        )}
+
+        {unit.quote && (
+          <div className="unit-card__quote">{unit.quote}</div>
         )}
       </div>
     </article>

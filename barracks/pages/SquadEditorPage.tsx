@@ -86,6 +86,17 @@ export const SquadEditorPage: React.FC<SquadEditorPageProps> = ({
             <span className="section-label">{t("squadEditor.squadName")}</span>
           </div>
 
+          <textarea
+            className="input input--lore"
+            rows={2}
+            maxLength={500}
+            value={squad.description ?? ""}
+            placeholder={t("squadEditor.descriptionPlaceholder")}
+            onChange={(event) =>
+              setSquad((prev) => ({ ...prev, description: event.target.value || undefined }))
+            }
+          />
+
           <div className="row row--4 row--wrap">
             <div className="stack stack--2" style={{ flex: 1, minWidth: 260 }}>
               <div className="row">
@@ -99,16 +110,16 @@ export const SquadEditorPage: React.FC<SquadEditorPageProps> = ({
               {/* Jauge de budget : un segment par unité, à l'échelle de son coût */}
               <div className="budget">
                 {squad.units.map((unit, index) => {
-                  const points = rankPoints(evaluations[unit.id]?.rank);
+                  const points = evaluations[unit.id]?.cost ?? 0;
 
                   return (
                     <div
                       key={`${unit.id}-${index}`}
                       className="budget__seg"
                       style={{ width: `${(points / maxPoints) * 100}%` }}
-                      title={`${unit.name} — ${points}`}
+                      title={`${unit.name} — ${formatCost(points)}`}
 >
-                      {points}
+                      {formatCost(points)}
                     </div>
                   );
                 })}

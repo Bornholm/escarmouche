@@ -41,21 +41,25 @@ export const SquadCard: React.FC<SquadCardProps> = ({ squad, onEdit, onDelete })
       {/* La consommation du budget est le véhicule visuel principal, ici aussi */}
       <div className="budget">
         {squad.units.map((unit, index) => {
-          const points = rankPoints(evaluations[unit.id]?.rank);
+          const points = evaluations[unit.id]?.cost ?? 0;
 
           return (
             <div
               key={`${unit.id}-${index}`}
               className="budget__seg"
               style={{ width: `${(points / maxPoints) * 100}%` }}
-              title={`${unit.name} — ${points}`}
+              title={`${unit.name} — ${formatCost(points)}`}
 >
-              {points}
+              {formatCost(points)}
             </div>
           );
         })}
         <div className="budget__rest">{maxPoints}</div>
       </div>
+
+      {squad.description && (
+        <p className="squad-card__lore">{squad.description}</p>
+      )}
 
       <div className="squad-card__roster">
         {squad.units.length === 0 ? (

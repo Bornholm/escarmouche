@@ -231,6 +231,21 @@ export const UnitEditorPage: React.FC<UnitEditorPageProps> = ({ units, onSave })
                 onChange={(event) => setFormData((prev) => ({ ...prev, name: event.target.value }))}
               />
             </label>
+
+            <label className="field">
+              <span className="field__label">{t("unitEditor.quote")}</span>
+              <input
+                className="input input--quote"
+                type="text"
+                maxLength={140}
+                value={formData.quote ?? ""}
+                placeholder={t("unitEditor.quotePlaceholder")}
+                onChange={(event) =>
+                  setFormData((prev) => ({ ...prev, quote: event.target.value || undefined }))
+                }
+              />
+              <span className="hint">{t("unitEditor.quoteHint")}</span>
+            </label>
           </section>
 
           <section className="panel__section">
