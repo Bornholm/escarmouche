@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io"
 	"maps"
-	"math"
 	"os"
 )
 
@@ -40,21 +39,68 @@ type PlayerUnit struct {
 }
 
 const (
-	CounterRoundAttacks    string = "round-attacks"
-	CounterHealth          string = "health"
-	CounterRoundAbilities  string = "round-abilities"
+	CounterRoundAttacks   string = "round-attacks"
+	CounterHealth         string = "health"
+	CounterRoundAbilities string = "round-abilities"
+	// CounterRoundActions compte les actions effectuées par l'unité pendant
+	// le tour courant — c'est ce qui permet à la Suppression de limiter
+	// l'unité à une seule action, conformément au texte de la carte.
+	CounterRoundActions    string = "round-actions"
 	CounterDefensiveStance string = "defensive-stance"
 	CounterSuppressed      string = "suppressed"
 	CounterUntargetable    string = "untargetable"
-	CounterOvercharged     string = "overcharged"
-	CounterGuardianOf      string = "guardian-of"
+	// La Surcharge se joue en deux temps : « pending » est posé au moment du
+	// cast (aucun effet ce tour-ci), puis converti en « lock » au début du
+	// prochain tour du propriétaire, où il interdit l'attaque normale.
+	// L'ancien compteur unique, décrémenté à chaque tour global, expirait
+	// AVANT le tour du propriétaire : le malus promis par la carte
+	// n'existait tout simplement pas.
+	CounterOverchargePending string = "overcharge-pending"
+	CounterOverchargeLock    string = "overcharge-lock"
+	CounterGuardianOf        string = "guardian-of"
 )
 
+const BoardSize = 8
+
+// ObjectiveZone est la zone de capture centrale 2×2. La contrôler de façon
+// exclusive à la fin de son tour rapporte 1 point ; le premier joueur à
+// ControlPointsToWin l'emporte.
+var ObjectiveZone = []Position{{X: 3, Y: 3}, {X: 4, Y: 3}, {X: 3, Y: 4}, {X: 4, Y: 4}}
+
+const ControlPointsToWin = 3
+
+// InObjectiveZone indique si une position est dans la zone de capture.
+func InObjectiveZone(pos Position) bool {
+	return pos.X >= 3 && pos.X <= 4 && pos.Y >= 3 && pos.Y <= 4
+}
+
+// IsValidObstaclePosition valide l'emplacement d'un obstacle : hors de la
+// zone centrale et hors des zones de déploiement (deux premières rangées de
+// chaque côté).
+func IsValidObstaclePosition(pos Position) bool {
+	if pos.X < 0 || pos.X >= BoardSize || pos.Y < 0 || pos.Y >= BoardSize {
+		return false
+	}
+	if InObjectiveZone(pos) {
+		return false
+	}
+	if pos.Y <= 1 || pos.Y >= BoardSize-2 {
+		return false
+	}
+	return true
+}
+
 type GameState struct {
-	counters        map[UnitID]map[string]int
-	Positions       map[UnitID]Position
-	Board           map[string]UnitID
-	Units           map[UnitID]*PlayerUnit
+	counters  map[UnitID]map[string]int
+	Positions map[UnitID]Position
+	Board     map[string]UnitID
+	Units     map[UnitID]*PlayerUnit
+	// Obstacles : cases infranchissables qui bloquent aussi la ligne de vue.
+	// Un par joueur, posé pendant la mise en place.
+	Obstacles map[string]bool
+	// ControlPoints : tours de contrôle exclusif de la zone centrale
+	// accumulés par joueur.
+	ControlPoints   map[PlayerID]int
 	CurrentPlayerID PlayerID
 	ActionsLeft     int
 }
@@ -124,6 +170,8 @@ func (s GameState) Copy() GameState {
 		Positions:       map[UnitID]Position{},
 		Board:           map[string]UnitID{},
 		Units:           map[UnitID]*PlayerUnit{},
+		Obstacles:       map[string]bool{},
+		ControlPoints:   map[PlayerID]int{},
 		CurrentPlayerID: s.CurrentPlayerID,
 		ActionsLeft:     s.ActionsLeft,
 	}
@@ -131,6 +179,8 @@ func (s GameState) Copy() GameState {
 	maps.Copy(copy.Units, s.Units)
 	maps.Copy(copy.Board, s.Board)
 	maps.Copy(copy.Positions, s.Positions)
+	maps.Copy(copy.Obstacles, s.Obstacles)
+	maps.Copy(copy.ControlPoints, s.ControlPoints)
 
 	// Deep copy the counters map
 	for unitID, unitCounters := range s.counters {
@@ -141,13 +191,15 @@ func (s GameState) Copy() GameState {
 	return copy
 }
 
+// Kill retire une unité du plateau. Mute l'état reçu : la convention du
+// paquet est que les Apply et leurs auxiliaires mutent, et que l'appelant
+// copie s'il veut préserver l'original.
 func (s GameState) Kill(unitID UnitID) GameState {
-	newState := s.Copy()
-	newState.Del(unitID, CounterHealth)
-	delete(newState.Board, newState.Positions[unitID].String())
-	delete(newState.Positions, unitID)
-	delete(newState.Units, unitID)
-	return newState
+	s.Del(unitID, CounterHealth)
+	delete(s.Board, s.Positions[unitID].String())
+	delete(s.Positions, unitID)
+	delete(s.Units, unitID)
+	return s
 }
 
 func (s GameState) PrintConsole() {
@@ -186,6 +238,11 @@ func canMoveTo(state GameState, from Position, to Position) bool {
 
 	// Check if destination is occupied
 	if _, exists := state.Board[to.String()]; exists {
+		return false
+	}
+
+	// Obstacles are impassable
+	if state.Obstacles[to.String()] {
 		return false
 	}
 
@@ -312,6 +369,10 @@ func hasLineOfSight(state GameState, from Position, to Position) bool {
 		if _, exists := state.Board[pos.String()]; exists {
 			return false
 		}
+		// Obstacles grant full cover
+		if state.Obstacles[pos.String()] {
+			return false
+		}
 	}
 
 	return true
@@ -426,7 +487,10 @@ func getOpponentsInRange(state GameState, playerID PlayerID, from Position, reac
 }
 
 func getValidActions(state GameState, unit *PlayerUnit) []Action {
-	if state.Get(unit.ID, CounterSuppressed, 0) > 0 {
+	// Suppression : « ne peut effectuer qu'une seule action à son prochain
+	// tour » (texte de la carte). L'unité garde donc UNE action, pas zéro.
+	if state.Get(unit.ID, CounterSuppressed, 0) > 0 &&
+		state.Get(unit.ID, CounterRoundActions, 0) >= 1 {
 		return nil
 	}
 
@@ -436,7 +500,7 @@ func getValidActions(state GameState, unit *PlayerUnit) []Action {
 	actions = append(actions, moves...)
 
 	roundPowers := state.Get(unit.ID, CounterRoundAttacks, 0)
-	if roundPowers == 0 && state.Get(unit.ID, CounterOvercharged, 0) == 0 {
+	if roundPowers == 0 && state.Get(unit.ID, CounterOverchargeLock, 0) == 0 {
 		attacks := getPossiblePowers(state, unit)
 		actions = append(actions, attacks...)
 	}
@@ -458,44 +522,43 @@ func abs(x int) int {
 	return x
 }
 
-// Helper function to calculate Manhattan distance between two positions
+// distance mesure en distance de Chebyshev : sur un plateau où la diagonale
+// compte pour un pas (mouvement 8 directions, portée en carré), c'est la
+// seule métrique cohérente. L'ancienne distance euclidienne faisait par
+// exemple échouer une Feinte sur un allié en diagonale (2,2).
 func distance(pos1, pos2 Position) float64 {
-	return math.Sqrt(
-		math.Pow(float64(pos1.X-pos2.X), 2) +
-			math.Pow(float64(pos1.Y-pos2.Y), 2),
-	)
+	return float64(max(abs(pos1.X-pos2.X), abs(pos1.Y-pos2.Y)))
 }
 
 // applyDamage applies damage to a unit, respecting defensive stance and guardian redirection.
+// applyDamage inflige des dégâts en respectant Gardien (redirection) et
+// Posture Défensive (« le prochain point de dégât est annulé », consommée).
+// Mute l'état reçu — cf. la convention décrite sur Kill.
 func applyDamage(state GameState, targetID UnitID, damage int) (GameState, int) {
-	newState := state.Copy()
-
-	// Check if any ally is protecting the target via Guardian
-	if targetUnit, exists := newState.Units[targetID]; exists {
-		for uid := range newState.Units {
-			if newState.Units[uid].OwnerID == targetUnit.OwnerID && uid != targetID {
-				if UnitID(newState.Get(uid, CounterGuardianOf, -1)) == targetID {
-					newState.Del(uid, CounterGuardianOf)
-					return applyDamage(newState, uid, damage)
+	// Redirection par un Gardien allié
+	if targetUnit, exists := state.Units[targetID]; exists {
+		for uid := range state.Units {
+			if state.Units[uid].OwnerID == targetUnit.OwnerID && uid != targetID {
+				if UnitID(state.Get(uid, CounterGuardianOf, -1)) == targetID {
+					state.Del(uid, CounterGuardianOf)
+					return applyDamage(state, uid, damage)
 				}
 			}
 		}
 	}
 
-	// Check if target has defensive stance active
-	defensiveStance := newState.Get(targetID, CounterDefensiveStance, 0)
-	if defensiveStance > 0 && damage > 0 {
-		damage = damage - 1
-		newState.Del(targetID, CounterDefensiveStance)
+	if state.Get(targetID, CounterDefensiveStance, 0) > 0 && damage > 0 {
+		damage--
+		state.Del(targetID, CounterDefensiveStance)
 	}
 
-	remainingHealth := newState.Inc(targetID, CounterHealth, -damage)
+	remainingHealth := state.Inc(targetID, CounterHealth, -damage)
 
 	if remainingHealth <= 0 {
-		newState = newState.Kill(targetID)
+		state = state.Kill(targetID)
 	}
 
-	return newState, remainingHealth
+	return state, remainingHealth
 }
 
 // GetHealthWinner determines winner based on total remaining health

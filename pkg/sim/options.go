@@ -3,6 +3,9 @@ package sim
 type Options struct {
 	Strategies map[PlayerID]StrategyFunc
 	MaxTurns   uint
+	// Obstacles : emplacements choisis pendant la mise en place (un par
+	// joueur). Vide = tirage aléatoire parmi les emplacements valides.
+	Obstacles []Position
 }
 
 type OptionFunc func(opts *Options)
@@ -13,12 +16,21 @@ func NewOptions(funcs ...OptionFunc) *Options {
 			PlayerOne: DefaultStrategy,
 			PlayerTwo: DefaultStrategy,
 		},
-		MaxTurns: 100,
+		// L'objectif de capture termine les parties bien avant : 60 tours
+		// est une borne de sécurité, plus un temps de jeu attendu.
+		MaxTurns: 60,
 	}
 	for _, fn := range funcs {
 		fn(opts)
 	}
 	return opts
+}
+
+// WithObstacles fixe les obstacles posés pendant la mise en place.
+func WithObstacles(positions ...Position) OptionFunc {
+	return func(opts *Options) {
+		opts.Obstacles = positions
+	}
 }
 
 func WithPlayerStrategy(playerID PlayerID, strategy StrategyFunc) OptionFunc {

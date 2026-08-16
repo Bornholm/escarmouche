@@ -18,14 +18,14 @@ func TestSimulation(t *testing.T) {
 
 	isVerbose := testing.Verbose()
 
-	playerOne, err := gen.RandomSquad(30, gen.DefaultMaxSquadSize, gen.DefaultRankPointCosts, core.DefaultCosts)
+	playerOne, err := gen.RandomSquad(gen.DefaultSquadBudget, gen.DefaultMaxSquadSize, core.DefaultCosts)
 	if err != nil {
 		t.Logf("%+v", errors.WithStack(err))
 	}
 
 	t.Logf("Player One Squad: %s", spew.Sdump(playerOne))
 
-	playerTwo, err := gen.RandomSquad(30, gen.DefaultMaxSquadSize, gen.DefaultRankPointCosts, core.DefaultCosts)
+	playerTwo, err := gen.RandomSquad(gen.DefaultSquadBudget, gen.DefaultMaxSquadSize, core.DefaultCosts)
 	if err != nil {
 		t.Logf("%+v", errors.WithStack(err))
 	}
