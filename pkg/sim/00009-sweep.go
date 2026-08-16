@@ -33,6 +33,12 @@ func getPossibleSweeps(state GameState, unit *PlayerUnit) []Action {
 		}
 		state.Inc(unit.ID, CounterRoundAbilities, 1)
 		return state
+	}, &AbilityActionDescription{
+		ID:           "00009-sweep",
+		SourceUnitID: unit.ID,
+		TargetUnitID: -1,
+		TargetX:      -1,
+		TargetY:      -1,
 	})
 	return []Action{action}
 }

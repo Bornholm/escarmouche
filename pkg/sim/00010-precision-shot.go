@@ -19,6 +19,12 @@ func getPossiblePrecisionShots(state GameState, unit *PlayerUnit) []Action {
 			state, _ = applyDamage(state, tid, 2)
 			state.Inc(unit.ID, CounterRoundAbilities, 1)
 			return state
+		}, &AbilityActionDescription{
+			ID:           "00010-precision-shot",
+			SourceUnitID: unit.ID,
+			TargetUnitID: targetID,
+			TargetX:      -1,
+			TargetY:      -1,
 		})
 		actions = append(actions, action)
 	}

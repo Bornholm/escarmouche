@@ -26,6 +26,12 @@ func getPossibleGuardians(state GameState, unit *PlayerUnit) []Action {
 			state.Set(unit.ID, CounterGuardianOf, int(aid))
 			state.Inc(unit.ID, CounterRoundAbilities, 1)
 			return state
+		}, &AbilityActionDescription{
+			ID:           "00008-guardian",
+			SourceUnitID: unit.ID,
+			TargetUnitID: allyID,
+			TargetX:      -1,
+			TargetY:      -1,
 		})
 		actions = append(actions, action)
 	}

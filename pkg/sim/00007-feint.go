@@ -40,6 +40,12 @@ func getPossibleFeints(state GameState, unit *PlayerUnit) []Action {
 
 			state.Inc(unit.ID, CounterRoundAbilities, 1)
 			return state
+		}, &AbilityActionDescription{
+			ID:           "00007-feint",
+			SourceUnitID: unit.ID,
+			TargetUnitID: allyID,
+			TargetX:      -1,
+			TargetY:      -1,
 		})
 		actions = append(actions, action)
 	}

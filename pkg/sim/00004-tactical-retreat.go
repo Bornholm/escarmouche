@@ -22,6 +22,12 @@ func getPossibleTacticalRetreats(state GameState, unit *PlayerUnit) []Action {
 			state.Set(unit.ID, CounterUntargetable, 2)
 			state.Inc(unit.ID, CounterRoundAbilities, 1)
 			return state
+		}, &AbilityActionDescription{
+			ID:           "00004-tactical-retreat",
+			SourceUnitID: unit.ID,
+			TargetUnitID: -1,
+			TargetX:      tp.X,
+			TargetY:      tp.Y,
 		})
 		actions = append(actions, action)
 	}

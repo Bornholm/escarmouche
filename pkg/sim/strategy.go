@@ -117,3 +117,12 @@ func getOpponentPlayerID(playerID PlayerID) PlayerID {
 	}
 	return PlayerOne
 }
+
+// GetValidActionsForPlayer returns all valid actions for all controllable units of a player.
+func GetValidActionsForPlayer(state GameState, playerID PlayerID) []Action {
+	var actions []Action
+	for _, unit := range getControllableUnits(state, playerID) {
+		actions = append(actions, getValidActions(state, unit)...)
+	}
+	return actions
+}

@@ -24,19 +24,21 @@ func getPossibleCharges(state GameState, unit *PlayerUnit) []Action {
 
 		for _, targetID := range reachableTargets {
 			// Create a charge action that combines movement + power 1 attack
+			tp := targetPos
+			tid := targetID
 			chargeAction := NewAbilityAction("00000-charge", func(state GameState, action Action) GameState {
-				// First, perform the movement
 				delete(state.Board, state.Positions[unit.ID].String())
-				state.Positions[unit.ID] = targetPos
-				state.Board[targetPos.String()] = unit.ID
-
-				// Then, perform a power 1 attack (1 damage regardless of unit's attack stat)
-				state, _ = applyDamage(state, targetID, 1)
-
-				// Mark that the unit has used an ability this round
+				state.Positions[unit.ID] = tp
+				state.Board[tp.String()] = unit.ID
+				state, _ = applyDamage(state, tid, 1)
 				state.Inc(unit.ID, CounterRoundAbilities, 1)
-
 				return state
+			}, &AbilityActionDescription{
+				ID:           "00000-charge",
+				SourceUnitID: unit.ID,
+				TargetUnitID: targetID,
+				TargetX:      targetPos.X,
+				TargetY:      targetPos.Y,
 			})
 
 			actions = append(actions, chargeAction)

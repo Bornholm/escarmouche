@@ -19,15 +19,16 @@ func getPossibleDefensiveStances(state GameState, unit *PlayerUnit) []Action {
 		return actions
 	}
 
-	// Create a defensive stance action that applies the defensive buff
 	defensiveStanceAction := NewAbilityAction("00002-defensive-stance", func(state GameState, action Action) GameState {
-		// Apply defensive stance effect (next damage point will be canceled)
 		state.Set(unit.ID, CounterDefensiveStance, 1)
-
-		// Mark that the unit has used an ability this round
 		state.Inc(unit.ID, CounterRoundAbilities, 1)
-
 		return state
+	}, &AbilityActionDescription{
+		ID:           "00002-defensive-stance",
+		SourceUnitID: unit.ID,
+		TargetUnitID: -1,
+		TargetX:      -1,
+		TargetY:      -1,
 	})
 
 	actions = append(actions, defensiveStanceAction)

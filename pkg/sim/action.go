@@ -50,6 +50,9 @@ func (a *MoveAction) String() string {
 	return fmt.Sprintf("move %d -> %s", a.unitID, a.targetPos)
 }
 
+func (a *MoveAction) UnitID() UnitID    { return a.unitID }
+func (a *MoveAction) TargetPos() Position { return a.targetPos }
+
 var _ Action = &MoveAction{}
 
 type AttackAction struct {
@@ -85,5 +88,8 @@ func (a *AttackAction) Type() ActionType {
 func (a *AttackAction) String() string {
 	return fmt.Sprintf("attack %d -> %d", a.unitID, a.targetID)
 }
+
+func (a *AttackAction) UnitID() UnitID    { return a.unitID }
+func (a *AttackAction) TargetID() UnitID  { return a.targetID }
 
 var _ Action = &AttackAction{}

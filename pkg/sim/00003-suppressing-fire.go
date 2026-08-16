@@ -23,6 +23,12 @@ func getPossibleSuppressions(state GameState, unit *PlayerUnit) []Action {
 			}
 			state.Inc(unit.ID, CounterRoundAbilities, 1)
 			return state
+		}, &AbilityActionDescription{
+			ID:           "00003-suppressing-fire",
+			SourceUnitID: unit.ID,
+			TargetUnitID: targetID,
+			TargetX:      -1,
+			TargetY:      -1,
 		})
 		actions = append(actions, action)
 	}

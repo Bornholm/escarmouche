@@ -19,17 +19,18 @@ func getPossibleEnergyTraits(state GameState, unit *PlayerUnit) []Action {
 	reachableTargets := getReachableOpponentUnits(state, unit.OwnerID, currentPos, 3)
 
 	for _, targetID := range reachableTargets {
-		// Create an energy trait action that performs a power 2 attack
+		tid := targetID
 		energyTraitAction := NewAbilityAction("00001-energy-trait", func(state GameState, action Action) GameState {
-			// Perform a power 2 attack (2 damage regardless of unit's attack stat)
-			state, _ = applyDamage(state, targetID, 2)
-
-			// Mark that the unit has used an ability this round
+			state, _ = applyDamage(state, tid, 2)
 			state.Inc(unit.ID, CounterRoundAbilities, 1)
-
 			return state
+		}, &AbilityActionDescription{
+			ID:           "00001-energy-trait",
+			SourceUnitID: unit.ID,
+			TargetUnitID: targetID,
+			TargetX:      -1,
+			TargetY:      -1,
 		})
-
 		actions = append(actions, energyTraitAction)
 	}
 

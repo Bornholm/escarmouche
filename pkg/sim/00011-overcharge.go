@@ -20,6 +20,12 @@ func getPossibleOvercharges(state GameState, unit *PlayerUnit) []Action {
 			state.Set(unit.ID, CounterOvercharged, 2)
 			state.Inc(unit.ID, CounterRoundAbilities, 1)
 			return state
+		}, &AbilityActionDescription{
+			ID:           "00011-overcharge",
+			SourceUnitID: unit.ID,
+			TargetUnitID: targetID,
+			TargetX:      -1,
+			TargetY:      -1,
 		})
 		actions = append(actions, action)
 	}

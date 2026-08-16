@@ -12,9 +12,28 @@ const (
 	ActionAbility ActionType = "ability"
 )
 
+// AbilityActionDescription carries metadata about an ability action for UI introspection.
+// Fields are -1 when not applicable.
+type AbilityActionDescription struct {
+	ID           string
+	SourceUnitID UnitID
+	TargetUnitID UnitID
+	TargetX      int
+	TargetY      int
+}
+
 type AbilityAction struct {
-	id    string
-	apply ApplyFunc
+	id          string
+	apply       ApplyFunc
+	description *AbilityActionDescription
+}
+
+func (a *AbilityAction) ID() string {
+	return a.id
+}
+
+func (a *AbilityAction) Description() *AbilityActionDescription {
+	return a.description
 }
 
 // String implements Action.
@@ -32,10 +51,11 @@ func (a *AbilityAction) Type() ActionType {
 	return ActionAbility
 }
 
-func NewAbilityAction(id string, apply ApplyFunc) *AbilityAction {
+func NewAbilityAction(id string, apply ApplyFunc, desc *AbilityActionDescription) *AbilityAction {
 	return &AbilityAction{
-		id:    id,
-		apply: apply,
+		id:          id,
+		apply:       apply,
+		description: desc,
 	}
 }
 

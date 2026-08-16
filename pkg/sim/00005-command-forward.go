@@ -31,6 +31,12 @@ func getPossibleCommandForwards(state GameState, unit *PlayerUnit) []Action {
 				state.Board[tp.String()] = aid
 				state.Inc(unit.ID, CounterRoundAbilities, 1)
 				return state
+			}, &AbilityActionDescription{
+				ID:           "00005-command-forward",
+				SourceUnitID: unit.ID,
+				TargetUnitID: allyID,
+				TargetX:      tp.X,
+				TargetY:      tp.Y,
 			})
 			actions = append(actions, action)
 		}

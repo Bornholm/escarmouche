@@ -20,6 +20,12 @@ func getPossibleDevastatingStrikes(state GameState, unit *PlayerUnit) []Action {
 			state, _ = applyDamage(state, unit.ID, 1)
 			state.Inc(unit.ID, CounterRoundAbilities, 1)
 			return state
+		}, &AbilityActionDescription{
+			ID:           "00006-devastating-strike",
+			SourceUnitID: unit.ID,
+			TargetUnitID: targetID,
+			TargetX:      -1,
+			TargetY:      -1,
 		})
 		actions = append(actions, action)
 	}
