@@ -53,7 +53,7 @@ No JavaScript test suite is configured.
 
 ### Frontend (`barracks/`)
 
-React 19 + React Router 7 (HashRouter for GitHub Pages compatibility) + Bulma CSS, bundled with Parcel.
+React 19 + React Router 7 (HashRouter for GitHub Pages compatibility), custom design-token CSS (no framework), bundled with Parcel.
 
 **Boot sequence**: `index.tsx` fetches and instantiates `barracks.wasm` via `WebAssembly.instantiateStreaming`, then mounts the React app. All calls to Go logic go through the `Barracks.*` global functions defined in `barracks.d.ts`.
 
