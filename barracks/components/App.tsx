@@ -46,12 +46,21 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     const units = loadUnits();
-    DefaultUnits.forEach((u, i) => {
+    DefaultUnits.forEach((u) => {
       const index = units.findIndex((l) => l.id === u.id);
       if (index === -1) {
         units.push(u);
-      } else {
-        units[index] = { ...u, ...units[index] };
+        return;
+      }
+
+      units[index] = { ...u, ...units[index] };
+
+      // L'illustration d'une unité par défaut suit les mises à jour de
+      // l'application : l'URL stockée en localStorage n'est qu'un héritage
+      // d'une version antérieure, pas un choix du joueur. Seule une image
+      // téléversée par le joueur (data-URI) est conservée.
+      if (!units[index].imageUrl?.startsWith("data:")) {
+        units[index].imageUrl = u.imageUrl;
       }
     });
     setUnits(units);
