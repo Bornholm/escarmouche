@@ -288,6 +288,14 @@ func startGame(this js.Value, args []js.Value) any {
 			aiDepth, aiBudget = 6, 30000
 		}
 
+		// Sur un appareil tactile (CPU mobile), le même budget prend plusieurs
+		// secondes par action : on le réduit pour garder le jeu vivant. La
+		// profondeur maximale est conservée — l'approfondissement itératif
+		// rend simplement le meilleur coup de la dernière passe complète.
+		if len(args) > 3 && args[3].Type() == js.TypeBoolean && args[3].Bool() {
+			aiBudget = aiBudget * 2 / 5
+		}
+
 		// Obstacle posé par le joueur pendant la mise en place ; l'IA pose le
 		// sien sur sa moitié de plateau, en biais devant la zone centrale.
 		obstacles := []sim.Position{}

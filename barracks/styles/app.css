@@ -1210,6 +1210,13 @@
   overflow-x: auto;
 }
 
+/* Mobile : le plateau prend la largeur, les marges deviennent minimales */
+@media (max-width: 640px) {
+  .board-wrap { padding: var(--space-2); gap: var(--space-3); }
+  .board-ranks { width: 16px; }
+  .legend__item { min-width: 45%; }
+}
+
 .board-grid { display: flex; }
 
 .board-ranks {
@@ -1241,6 +1248,9 @@
 }
 
 .cell {
+  /* Un tap doit partir immédiatement : pas de délai double-tap, pas de zoom */
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
   position: relative;
   border-right: var(--stroke-hairline) solid var(--canvas);
   border-bottom: var(--stroke-hairline) solid var(--canvas);
@@ -1423,6 +1433,7 @@
 }
 
 .action-btn {
+  touch-action: manipulation;
   display: flex;
   align-items: center;
   gap: var(--space-3);

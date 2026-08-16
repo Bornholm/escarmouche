@@ -27,6 +27,9 @@ export const BattlePage: React.FC<BattlePageProps> = ({ squads, units }) => {
   const [hoveredAction, setHoveredAction] = useState<ActionDescription | null>(null);
   const [difficulty, setDifficulty] = useState<Difficulty>("normal");
   const [selectedSquadID, setSelectedSquadID] = useState<string | null>(null);
+  // La promesse de selectAction ne revient qu'après le tour complet de l'IA :
+  // cet état permet d'afficher immédiatement que la machine réfléchit.
+  const [isResolving, setIsResolving] = useState(false);
 
   // Le plateau affiché n'est pas l'état de jeu : c'est le rejeu des actions
   // qui viennent d'être jouées, déroulé image par image.
@@ -78,9 +81,10 @@ export const BattlePage: React.FC<BattlePageProps> = ({ squads, units }) => {
     return (
       battleState.currentPlayerID === battleState.humanPlayerID &&
       !battleState.isOver &&
-      !isReplaying
+      !isReplaying &&
+      !isResolving
     );
-  }, [battleState, isReplaying]);
+  }, [battleState, isReplaying, isResolving]);
 
   const getSelectedUnits = (): Unit[] => {
     if (selectedSquadID === "__default__") return DefaultUnits.slice(0, 4);
@@ -103,10 +107,16 @@ export const BattlePage: React.FC<BattlePageProps> = ({ squads, units }) => {
     }));
 
     try {
+      // Un pointeur grossier signale un appareil tactile, donc un CPU mobile :
+      // l'IA y reçoit un budget de réflexion réduit pour rester réactive.
+      const lowPower =
+        typeof matchMedia === "function" && matchMedia("(pointer: coarse)").matches;
+
       const state = (await Barracks.startGame(
         unitInputs,
         difficulty,
-        placedObstacle
+        placedObstacle,
+        lowPower
       )) as unknown as BattleState;
       setBattleState(state);
       setStep("battle");
@@ -117,15 +127,18 @@ export const BattlePage: React.FC<BattlePageProps> = ({ squads, units }) => {
   };
 
   const handleActionClick = async (action: ActionDescription) => {
-    if (!battleState || isReplaying) return;
+    if (!battleState || isReplaying || isResolving) return;
     setSelectedUnitID(null);
     setHoveredAction(null);
+    setIsResolving(true);
 
     try {
       const newState = (await Barracks.selectAction(action.index)) as unknown as BattleState;
       setBattleState(newState);
     } catch (error) {
       console.error("selectAction failed", error);
+    } finally {
+      setIsResolving(false);
     }
   };
 
@@ -408,10 +421,12 @@ export const BattlePage: React.FC<BattlePageProps> = ({ squads, units }) => {
                   changement de main ne doit pas passer inaperçu. */}
               <div
                 className="turn__who turn__banner"
-                key={isReplaying ? "replay" : isHumanTurn ? "you" : "ai"}
+                key={isResolving ? "resolve" : isReplaying ? "replay" : isHumanTurn ? "you" : "ai"}
               >
                 <span className={`turn__dot ${isHumanTurn ? "" : "turn__dot--ai"}`} />
-                {isReplaying
+                {isResolving
+                  ? t("battle.aiTurn")
+                  : isReplaying
                   ? t("battle.replaying")
                   : isHumanTurn
                   ? t("battle.yourTurn")

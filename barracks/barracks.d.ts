@@ -15,7 +15,8 @@ declare global {
     function startGame(
       units: UnitStats[],
       difficulty: string,
-      obstacle?: { x: number; y: number }
+      obstacle?: { x: number; y: number },
+      lowPower?: boolean
     ): Promise<BattleState>;
     function getValidActions(): ActionDescription[];
     function selectAction(index: number): Promise<BattleState>;

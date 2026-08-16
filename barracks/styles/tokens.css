@@ -61,7 +61,11 @@
   /* Ergonomie */
   --tap-target: 44px;
   --board-cell-max: 62px;
-  --board-cell: min(8vw, var(--board-cell-max));
+  /* Sur mobile, la case est la cible tactile principale : elle prend toute
+     la largeur disponible (8 cases + colonne de repères), plafonnée sur
+     desktop. L'ancien 8vw donnait ~30 px sur un écran de 375 px — sous le
+     plancher tactile. */
+  --board-cell: min(calc((100vw - 40px) / 8), var(--board-cell-max));
 
   /* Points de rupture (en requêtes média, pour mémoire) */
   --bp-mobile:  480px;

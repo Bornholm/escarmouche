@@ -77,6 +77,7 @@ type searcher struct {
 // moteur. Retourne (meilleure action, score, exploration complète ?).
 func (s *searcher) alphabeta(state GameState, maximizer PlayerID, remaining int, depth int, alpha, beta float64) (Action, float64, bool) {
 	s.nodes++
+	maybeYield(s.nodes)
 	if s.nodes > s.budget {
 		return nil, evaluateState(state, maximizer), false
 	}
