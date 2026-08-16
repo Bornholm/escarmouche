@@ -46,22 +46,25 @@ const ARCHETYPES: Archetype[] = [
 ];
 
 const PRESET_IMAGES = [
-  "templar_knight.png",
-  "elven_archer.png",
-  "fire_mage.png",
-  "orc_warrior.png",
+  "fantasy-templar.webp",
+  "fantasy-archer.webp",
+  "fantasy-mage.webp",
+  "fantasy-warden.webp",
+  "fantasy-squire.webp",
+  "fantasy-huntress.webp",
+  "fantasy-bruiser.webp",
   "orc_javelin.png",
   "orc_shaman.png",
 ];
 
 const imageForArchetype = (archetype: Archetype): string => {
   switch (archetype) {
-    case Archetype.Tank: return `${BASE_URL}/templar_knight.png`;
-    case Archetype.Bruiser: return `${BASE_URL}/orc_warrior.png`;
-    case Archetype.Sniper: return `${BASE_URL}/elven_archer.png`;
+    case Archetype.Tank: return `${BASE_URL}/fantasy-warden.webp`;
+    case Archetype.Bruiser: return `${BASE_URL}/fantasy-bruiser.webp`;
+    case Archetype.Sniper: return `${BASE_URL}/fantasy-archer.webp`;
     case Archetype.Skirmisher: return `${BASE_URL}/orc_javelin.png`;
-    case Archetype.GlassCannon: return `${BASE_URL}/fire_mage.png`;
-    default: return `${BASE_URL}/templar_knight.png`;
+    case Archetype.GlassCannon: return `${BASE_URL}/fantasy-mage.webp`;
+    default: return `${BASE_URL}/fantasy-templar.webp`;
   }
 };
 
@@ -72,7 +75,7 @@ const emptyUnit = (): Unit => ({
   move: 1,
   range: 1,
   power: 1,
-  imageUrl: `${BASE_URL}/templar_knight.png`,
+  imageUrl: `${BASE_URL}/fantasy-templar.webp`,
   abilities: [],
 });
 

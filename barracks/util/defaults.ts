@@ -15,8 +15,9 @@ import { BASE_URL } from "./baseUrl";
    chacune tient sous les 30 PR et les 6 unités, avec un peu de marge pour que
    le joueur puisse encore bricoler la sienne.
 
-   Les illustrations viendront plus tard : sans `imageUrl`, la carte affiche
-   son état de repli, qui est prévu pour ça.
+   Les illustrations de la Compagnie de l'Aube sont en place (style TCG,
+   cf. docs/illustration-prompts/) ; les trois autres escouades affichent
+   l'état de repli de la carte en attendant les leurs.
    ========================================================================== */
 
 export const DefaultUnits: Unit[] = [
@@ -26,7 +27,7 @@ export const DefaultUnits: Unit[] = [
     quote: "« Mon serment est plus vieux que vos murailles. »",
     name: "Templier",
     health: 2, range: 1, move: 1, power: 1,
-    imageUrl: `${BASE_URL}/templar_knight.png`,
+    imageUrl: `${BASE_URL}/fantasy-templar.webp`,
     abilities: [],
   },
   {
@@ -34,7 +35,7 @@ export const DefaultUnits: Unit[] = [
     quote: "« La flèche est partie avant que tu ne poses la question. »",
     name: "Archer elfe",
     health: 1, range: 2, move: 1, power: 2,
-    imageUrl: `${BASE_URL}/elven_archer.png`,
+    imageUrl: `${BASE_URL}/fantasy-archer.webp`,
     abilities: [],
   },
   {
@@ -42,12 +43,13 @@ export const DefaultUnits: Unit[] = [
     quote: "« Le crépuscule n'est pas une heure. C'est un endroit. »",
     name: "Sorcier crépusculaire",
     health: 1, range: 3, move: 2, power: 3,
-    imageUrl: `${BASE_URL}/fire_mage.png`,
+    imageUrl: `${BASE_URL}/fantasy-mage.webp`,
     abilities: [],
   },
   {
     id: "fantasy-warden",
     quote: "« Frappe-le, et c'est moi que tu trouveras. »",
+    imageUrl: `${BASE_URL}/fantasy-warden.webp`,
     name: "Gardien du serment",
     health: 4, range: 1, move: 1, power: 2,
     abilities: ["00008-guardian"],
@@ -55,6 +57,7 @@ export const DefaultUnits: Unit[] = [
   {
     id: "fantasy-squire",
     quote: "« Un jour, on gravera aussi mon nom sur la stèle. »",
+    imageUrl: `${BASE_URL}/fantasy-squire.webp`,
     name: "Écuyer",
     health: 2, range: 1, move: 2, power: 1,
     abilities: [],
@@ -62,6 +65,7 @@ export const DefaultUnits: Unit[] = [
   {
     id: "fantasy-huntress",
     quote: "« La forêt m'a appris à attendre. Vos armées, à viser. »",
+    imageUrl: `${BASE_URL}/fantasy-huntress.webp`,
     name: "Chasseresse sylvestre",
     health: 2, range: 2, move: 1, power: 1,
     abilities: [],
@@ -73,7 +77,7 @@ export const DefaultUnits: Unit[] = [
     quote: "« Cogner d'abord. Les questions, c'est pour les survivants. »",
     name: "Guerrier orc",
     health: 3, range: 1, move: 1, power: 3,
-    imageUrl: `${BASE_URL}/orc_warrior.png`,
+    imageUrl: `${BASE_URL}/fantasy-bruiser.webp`,
     abilities: [],
   },
 
