@@ -15,9 +15,9 @@ import { BASE_URL } from "./baseUrl";
    chacune tient sous les 30 PR et les 6 unités, avec un peu de marge pour que
    le joueur puisse encore bricoler la sienne.
 
-   Les illustrations de la Compagnie de l'Aube et du Détachement Vanguard
-   sont en place (style TCG, cf. docs/illustration-prompts/) ; les deux
-   dernières escouades affichent l'état de repli en attendant les leurs.
+   Les illustrations de l'Aube, du Vanguard et du Convoi des Rouilleux sont
+   en place (style TCG, cf. docs/illustration-prompts/) ; la Ligne de 1812
+   affiche l'état de repli en attendant les siennes.
    ========================================================================== */
 
 export const DefaultUnits: Unit[] = [
@@ -171,6 +171,7 @@ export const DefaultUnits: Unit[] = [
   {
     id: "apoc-colossus",
     quote: "« Ils m'ont soudé pour durer. Pas pour reculer. »",
+    imageUrl: `${BASE_URL}/apoc-colossus.webp`,
     name: "Colosse de fonte",
     health: 5, range: 1, move: 1, power: 2,
     abilities: [],
@@ -178,6 +179,7 @@ export const DefaultUnits: Unit[] = [
   {
     id: "apoc-sharpshooter",
     quote: "« Une balle, une boîte de conserve. Je ne gaspille ni l'une ni l'autre. »",
+    imageUrl: `${BASE_URL}/apoc-sharpshooter.webp`,
     name: "Tireuse de tôle",
     health: 2, range: 3, move: 1, power: 2,
     abilities: [],
@@ -185,6 +187,7 @@ export const DefaultUnits: Unit[] = [
   {
     id: "apoc-scrapper",
     quote: "« Tout se répare. Sauf ce que je viens de faucher. »",
+    imageUrl: `${BASE_URL}/apoc-scrapper.webp`,
     name: "Ferrailleur",
     health: 3, range: 1, move: 2, power: 2,
     abilities: ["00009-sweep"],
@@ -192,6 +195,7 @@ export const DefaultUnits: Unit[] = [
   {
     id: "apoc-hound",
     quote: "« Il ne mord que sur ordre. L'ordre vient vite. »",
+    imageUrl: `${BASE_URL}/apoc-hound.webp`,
     name: "Chien de casse",
     health: 2, range: 1, move: 3, power: 1,
     abilities: [],
@@ -199,6 +203,7 @@ export const DefaultUnits: Unit[] = [
   {
     id: "apoc-mechanic",
     quote: "« Ça tient avec du fil de fer et de la foi. Surtout du fil de fer. »",
+    imageUrl: `${BASE_URL}/apoc-mechanic.webp`,
     name: "Mécano bricoleur",
     health: 2, range: 1, move: 1, power: 1,
     abilities: ["00011-overcharge"],
