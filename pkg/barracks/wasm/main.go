@@ -4,11 +4,14 @@
 package main
 
 import (
+	"fmt"
 	"slices"
+	"sync"
 	"syscall/js"
 
 	"github.com/bornholm/escarmouche/pkg/core"
 	"github.com/bornholm/escarmouche/pkg/gen"
+	"github.com/bornholm/escarmouche/pkg/sim"
 	"github.com/pkg/errors"
 )
 
@@ -23,6 +26,10 @@ func main() {
 		"generateSquad":         js.FuncOf(generateSquad),
 		"generateUnit":          js.FuncOf(generateUnit),
 		"getAvailableAbilities": js.FuncOf(getAvailableAbilities),
+		"startGame":             js.FuncOf(startGame),
+		"getValidActions":       js.FuncOf(getValidActionsJS),
+		"selectAction":          js.FuncOf(selectAction),
+		"endGame":               js.FuncOf(endGame),
 		"RankPointCosts":        js.ValueOf(rankPointCosts),
 		"MaxSquadSize":          js.ValueOf(gen.DefaultMaxSquadSize),
 		"MaxSquadRankPoints":    js.ValueOf(gen.DefaultMaxRankPoints),
@@ -31,6 +38,8 @@ func main() {
 
 	select {}
 }
+
+// ── Existing functions ──────────────────────────────────────────────────────
 
 func evaluateUnit(this js.Value, args []js.Value) any {
 	return withPromise(func() (map[string]any, error) {
@@ -174,5 +183,366 @@ func getAvailableAbilities(this js.Value, args []js.Value) any {
 
 		return jsAbilities, nil
 	})
+}
 
+// ── Battle mode ─────────────────────────────────────────────────────────────
+
+type originalUnitData struct {
+	Name     string
+	ImageURL string
+}
+
+type gameSession struct {
+	humanPlayerID  sim.PlayerID
+	pendingStateCh chan map[string]any
+	actionCh       chan int
+	doneCh         chan struct{}
+	validActions   []sim.Action
+	originalUnits  map[sim.UnitID]originalUnitData
+	currentTurn    uint
+}
+
+var (
+	currentSession *gameSession
+	sessionMu      sync.Mutex
+)
+
+func startGame(this js.Value, args []js.Value) any {
+	return withPromise(func() (map[string]any, error) {
+		sessionMu.Lock()
+		if currentSession != nil {
+			close(currentSession.doneCh)
+		}
+		session := &gameSession{
+			humanPlayerID:  sim.PlayerOne,
+			pendingStateCh: make(chan map[string]any, 1),
+			actionCh:       make(chan int),
+			doneCh:         make(chan struct{}),
+			originalUnits:  map[sim.UnitID]originalUnitData{},
+		}
+		currentSession = session
+		sessionMu.Unlock()
+
+		jsUnits := args[0]
+		n := jsUnits.Length()
+
+		playerUnits := make([]sim.Unit, 0, n)
+		for i := 0; i < n; i++ {
+			u := jsUnits.Index(i)
+			stats := core.Stats{
+				Health: u.Get("health").Int(),
+				Range:  u.Get("range").Int(),
+				Move:   u.Get("move").Int(),
+				Power:  u.Get("power").Int(),
+			}
+			abilityIDs := []string{}
+			if jsAbs := u.Get("abilities"); jsAbs.Truthy() {
+				for j := 0; j < jsAbs.Length(); j++ {
+					abilityIDs = append(abilityIDs, jsAbs.Index(j).String())
+				}
+			}
+			playerUnits = append(playerUnits, sim.Unit{
+				Stats:     stats,
+				Abilities: core.Abilities(abilityIDs...),
+			})
+			session.originalUnits[sim.UnitID(i)] = originalUnitData{
+				Name:     u.Get("name").String(),
+				ImageURL: u.Get("imageUrl").String(),
+			}
+		}
+
+		aiSquad, err := gen.RandomSquad(gen.DefaultMaxRankPoints, gen.DefaultMaxSquadSize, gen.DefaultRankPointCosts, core.DefaultCosts, gen.DefaultArchetypes...)
+		if err != nil {
+			return nil, errors.Wrap(err, "could not generate AI squad")
+		}
+		aiUnits := make([]sim.Unit, 0, len(aiSquad))
+		for _, u := range aiSquad {
+			aiUnits = append(aiUnits, sim.Unit{
+				Stats:     core.Stats{Health: u.Stats.Health, Range: u.Stats.Range, Move: u.Stats.Move, Power: u.Stats.Power},
+				Abilities: u.Abilities,
+			})
+		}
+
+		difficulty := "normal"
+		if len(args) > 1 && args[1].Type() == js.TypeString {
+			difficulty = args[1].String()
+		}
+		aiDepth := 2
+		switch difficulty {
+		case "easy":
+			aiDepth = 1
+		case "hard":
+			aiDepth = 3
+		}
+
+		go func() {
+			// Chaque action jouée depuis la dernière main rendue au joueur, avec
+			// l'instantané du plateau juste après son application. C'est ce qui
+			// permet au front de REJOUER le tour au lieu de téléporter le
+			// plateau à l'état final : sans ces images intermédiaires, le joueur
+			// subit le résultat sans jamais voir la cause.
+			recentSteps := []map[string]any{}
+
+			humanStrategy := sim.StrategyFunc(func(state sim.GameState, playerID sim.PlayerID) sim.Action {
+				validActions := sim.GetValidActionsForPlayer(state, playerID)
+				session.validActions = validActions
+
+				replay := recentSteps
+				recentSteps = nil
+
+				jsState := serializeState(state, validActions, session, false, -1, int(session.currentTurn), replay)
+
+				select {
+				case session.pendingStateCh <- jsState:
+				case <-session.doneCh:
+					return nil
+				}
+
+				select {
+				case idx := <-session.actionCh:
+					if idx >= 0 && idx < len(validActions) {
+						return validActions[idx]
+					}
+					return nil
+				case <-session.doneCh:
+					return nil
+				}
+			})
+
+			game := sim.NewGame(playerUnits, aiUnits,
+				sim.WithPlayerStrategy(sim.PlayerOne, humanStrategy),
+				sim.WithPlayerStrategy(sim.PlayerTwo, sim.LookaheadStrategy(aiDepth)),
+			)
+
+			for step := range game.Run() {
+				session.currentTurn = step.Turn
+
+				select {
+				case <-session.doneCh:
+					return
+				default:
+				}
+
+				// On capture l'action AVANT le test de fin de partie : le coup
+				// fatal doit être rejouable, sinon la partie se termine sur un
+				// plateau qui a sauté.
+				if step.Action != nil {
+					desc := describeAction(-1, step.Action, session)
+					desc["playerID"] = int(step.Player)
+					desc["frame"] = serializeFrame(game.State())
+					recentSteps = append(recentSteps, desc)
+				}
+
+				if step.IsOver {
+					jsState := serializeState(game.State(), nil, session, true, int(step.Winner), int(step.Turn), recentSteps)
+					select {
+					case session.pendingStateCh <- jsState:
+					case <-session.doneCh:
+					}
+					return
+				}
+			}
+		}()
+
+		select {
+		case initialState := <-session.pendingStateCh:
+			return initialState, nil
+		case <-session.doneCh:
+			return nil, errors.New("game cancelled before start")
+		}
+	})
+}
+
+func getValidActionsJS(this js.Value, args []js.Value) any {
+	sessionMu.Lock()
+	session := currentSession
+	sessionMu.Unlock()
+
+	if session == nil {
+		return js.ValueOf([]any{})
+	}
+
+	result := make([]any, 0, len(session.validActions))
+	for i, action := range session.validActions {
+		result = append(result, describeAction(i, action, session))
+	}
+	return js.ValueOf(result)
+}
+
+func selectAction(this js.Value, args []js.Value) any {
+	return withPromise(func() (map[string]any, error) {
+		sessionMu.Lock()
+		session := currentSession
+		sessionMu.Unlock()
+
+		if session == nil {
+			return nil, errors.New("no active game session")
+		}
+
+		idx := args[0].Int()
+
+		select {
+		case session.actionCh <- idx:
+		case <-session.doneCh:
+			return nil, errors.New("game ended")
+		}
+
+		select {
+		case nextState := <-session.pendingStateCh:
+			return nextState, nil
+		case <-session.doneCh:
+			return nil, errors.New("game ended")
+		}
+	})
+}
+
+func endGame(this js.Value, args []js.Value) any {
+	sessionMu.Lock()
+	defer sessionMu.Unlock()
+
+	if currentSession != nil {
+		close(currentSession.doneCh)
+		currentSession = nil
+	}
+	return nil
+}
+
+// ── Serialization ────────────────────────────────────────────────────────────
+
+func serializeState(state sim.GameState, validActions []sim.Action, session *gameSession, isOver bool, winner int, turn int, recentSteps []map[string]any) map[string]any {
+	units := make([]any, 0, len(state.Units))
+	for _, unit := range state.Units {
+		pos := state.Positions[unit.ID]
+		health := state.Get(unit.ID, sim.CounterHealth, 0)
+
+		orig := session.originalUnits[unit.ID]
+
+		abilities := make([]any, 0, len(unit.Abilities))
+		for _, a := range unit.Abilities {
+			abilities = append(abilities, a.ID)
+		}
+
+		units = append(units, map[string]any{
+			"id":              int(unit.ID),
+			"ownerID":         int(unit.OwnerID),
+			"name":            orig.Name,
+			"imageURL":        orig.ImageURL,
+			"health":          health,
+			"maxHealth":       unit.Stats.Health,
+			"range":           unit.Stats.Range,
+			"power":           unit.Stats.Power,
+			"move":            unit.Stats.Move,
+			"abilities":       abilities,
+			"x":               pos.X,
+			"y":               pos.Y,
+			"suppressed":      state.Get(unit.ID, sim.CounterSuppressed, 0) > 0,
+			"untargetable":    state.Get(unit.ID, sim.CounterUntargetable, 0) > 0,
+			"overcharged":     state.Get(unit.ID, sim.CounterOvercharged, 0) > 0,
+			"defensiveStance": state.Get(unit.ID, sim.CounterDefensiveStance, 0) > 0,
+			"guardianOf":      state.Get(unit.ID, sim.CounterGuardianOf, -1),
+		})
+	}
+
+	validActionsJS := make([]any, 0)
+	for i, action := range validActions {
+		validActionsJS = append(validActionsJS, describeAction(i, action, session))
+	}
+
+	recentActionsAny := make([]any, 0, len(recentSteps))
+	for _, a := range recentSteps {
+		recentActionsAny = append(recentActionsAny, a)
+	}
+
+	return map[string]any{
+		"units":           units,
+		"currentPlayerID": int(state.CurrentPlayerID),
+		"humanPlayerID":   int(session.humanPlayerID),
+		"actionsLeft":     state.ActionsLeft,
+		"isOver":          isOver,
+		"winner":          winner,
+		"turn":            turn,
+		"validActions":    validActionsJS,
+		"recentActions":   recentActionsAny,
+	}
+}
+
+// serializeFrame produit un instantané léger du plateau : juste ce qu'il faut
+// pour rejouer une action à l'écran (positions, santé, statuts). Les actions
+// valides et les métadonnées de partie en sont volontairement absentes — une
+// image de rejeu n'est pas un état jouable.
+func serializeFrame(state sim.GameState) map[string]any {
+	units := make([]any, 0, len(state.Units))
+
+	for _, unit := range state.Units {
+		pos := state.Positions[unit.ID]
+		units = append(units, map[string]any{
+			"id":              int(unit.ID),
+			"x":               pos.X,
+			"y":               pos.Y,
+			"health":          state.Get(unit.ID, sim.CounterHealth, 0),
+			"suppressed":      state.Get(unit.ID, sim.CounterSuppressed, 0) > 0,
+			"untargetable":    state.Get(unit.ID, sim.CounterUntargetable, 0) > 0,
+			"overcharged":     state.Get(unit.ID, sim.CounterOvercharged, 0) > 0,
+			"defensiveStance": state.Get(unit.ID, sim.CounterDefensiveStance, 0) > 0,
+			"guardianOf":      state.Get(unit.ID, sim.CounterGuardianOf, -1),
+		})
+	}
+
+	return map[string]any{
+		"units":           units,
+		"actionsLeft":     state.ActionsLeft,
+		"currentPlayerID": int(state.CurrentPlayerID),
+	}
+}
+
+func describeAction(index int, action sim.Action, session *gameSession) map[string]any {
+	desc := map[string]any{
+		"index":        index,
+		"type":         "",
+		"abilityID":    "",
+		"sourceUnitID": -1,
+		"targetUnitID": -1,
+		"targetX":      -1,
+		"targetY":      -1,
+		"label":        action.String(),
+	}
+
+	switch a := action.(type) {
+	case *sim.MoveAction:
+		desc["type"] = "move"
+		desc["sourceUnitID"] = int(a.UnitID())
+		desc["targetX"] = a.TargetPos().X
+		desc["targetY"] = a.TargetPos().Y
+		name := unitName(a.UnitID(), session)
+		desc["label"] = fmt.Sprintf("%s → (%d,%d)", name, a.TargetPos().X, a.TargetPos().Y)
+
+	case *sim.AttackAction:
+		desc["type"] = "attack"
+		desc["sourceUnitID"] = int(a.UnitID())
+		desc["targetUnitID"] = int(a.TargetID())
+		srcName := unitName(a.UnitID(), session)
+		tgtName := unitName(a.TargetID(), session)
+		desc["label"] = fmt.Sprintf("%s ⚔ %s", srcName, tgtName)
+
+	case *sim.AbilityAction:
+		desc["type"] = "ability"
+		desc["abilityID"] = a.ID()
+		if d := a.Description(); d != nil {
+			desc["sourceUnitID"] = int(d.SourceUnitID)
+			desc["targetUnitID"] = int(d.TargetUnitID)
+			desc["targetX"] = d.TargetX
+			desc["targetY"] = d.TargetY
+			srcName := unitName(d.SourceUnitID, session)
+			desc["label"] = fmt.Sprintf("%s : %s", srcName, a.ID())
+		}
+	}
+
+	return desc
+}
+
+func unitName(id sim.UnitID, session *gameSession) string {
+	if orig, ok := session.originalUnits[id]; ok && orig.Name != "" {
+		return orig.Name
+	}
+	return fmt.Sprintf("Unit%d", id)
 }
