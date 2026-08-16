@@ -17,7 +17,7 @@ func getPossibleOvercharges(state GameState, unit *PlayerUnit) []Action {
 		tid := targetID
 		action := NewAbilityAction("00011-overcharge", func(state GameState, _ Action) GameState {
 			state, _ = applyDamage(state, tid, unit.Stats.Power)
-			state.Set(unit.ID, CounterOvercharged, 2)
+			state.Set(unit.ID, CounterOverchargePending, 1)
 			state.Inc(unit.ID, CounterRoundAbilities, 1)
 			return state
 		}, &AbilityActionDescription{

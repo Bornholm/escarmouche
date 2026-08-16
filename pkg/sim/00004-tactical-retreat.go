@@ -19,7 +19,7 @@ func getPossibleTacticalRetreats(state GameState, unit *PlayerUnit) []Action {
 			delete(state.Board, state.Positions[unit.ID].String())
 			state.Positions[unit.ID] = tp
 			state.Board[tp.String()] = unit.ID
-			state.Set(unit.ID, CounterUntargetable, 2)
+			state.Set(unit.ID, CounterUntargetable, 1)
 			state.Inc(unit.ID, CounterRoundAbilities, 1)
 			return state
 		}, &AbilityActionDescription{

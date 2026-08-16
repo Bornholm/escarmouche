@@ -43,7 +43,13 @@ func (a *AbilityAction) String() string {
 
 // Apply implements Action.
 func (a *AbilityAction) Apply(state GameState) GameState {
-	return a.apply(state, a)
+	state = a.apply(state, a)
+	// L'action est comptée ici pour toutes les capacités : c'est ce compteur
+	// qui permet à la Suppression de limiter l'unité à une action par tour.
+	if a.description != nil && a.description.SourceUnitID >= 0 {
+		state.Inc(a.description.SourceUnitID, CounterRoundActions, 1)
+	}
+	return state
 }
 
 // Type implements Action.

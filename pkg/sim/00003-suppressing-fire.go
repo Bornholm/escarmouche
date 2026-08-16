@@ -19,7 +19,7 @@ func getPossibleSuppressions(state GameState, unit *PlayerUnit) []Action {
 			var remainingHealth int
 			state, remainingHealth = applyDamage(state, tid, 1)
 			if remainingHealth > 0 {
-				state.Set(tid, CounterSuppressed, 2)
+				state.Set(tid, CounterSuppressed, 1)
 			}
 			state.Inc(unit.ID, CounterRoundAbilities, 1)
 			return state
