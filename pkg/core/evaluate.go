@@ -1,73 +1,48 @@
 package core
 
-import (
-	"github.com/bornholm/go-fuzzy"
-	"github.com/bornholm/go-fuzzy/dsl"
-	"github.com/pkg/errors"
-
-	_ "embed"
-)
-
-//go:embed rules.fuzzy
-var rules string
-
-var engine *fuzzy.Engine
-
-func init() {
-	result, err := dsl.ParseRulesAndVariables(rules)
-	if err != nil {
-		panic(errors.Wrap(err, "could not parse evaluation rules"))
-	}
-
-	engine = fuzzy.NewEngine(fuzzy.Centroid(100))
-	engine.Rules(result.Rules...)
-	engine.Variables(result.Variables...)
-}
-
 type Evaluation struct {
 	Cost float64
 	Rank Rank
 }
 
+// Evaluate calcule le coût total d'une unité et en déduit son rang.
+//
+// Le rang est purement narratif : c'est un titre affiché sur la carte, dérivé
+// de bandes de coût fixes. Il n'entre plus dans aucune comptabilité — les
+// escouades se composent directement en points de coût (cf. gen.RandomSquad).
+//
+// L'ancien système passait par un moteur flou avec une variable « expertise »
+// (nombre de capacités) qui faisait sauter un rang entier dès la première
+// capacité, alors que le coût des capacités était déjà compté : une double
+// taxation qui rendait toute capacité irrationnelle à l'achat.
 func Evaluate(stats Stats, abilities []Ability, costs Costs) (*Evaluation, error) {
 	cost := CalculateTotalCost(stats, abilities, costs)
 
-	values := fuzzy.Values{
-		"cost":      cost,
-		"expertise": float64(len(abilities)),
-	}
-
-	results, err := engine.Infer(values)
-	if err != nil {
-		return nil, errors.Wrap(err, "could not evaluate unit")
-	}
-
-	rankResults := results["rank"]
-
-	var bestRank Rank = -1
-	var bestResult float64
-
-	for _, r := range Ranks {
-		res, exists := rankResults[r.String()]
-		if !exists {
-			continue
-		}
-
-		truthDegree := res.TruthDegree()
-
-		if truthDegree > 0 && truthDegree >= bestResult {
-			bestRank = r
-			bestResult = truthDegree
-		}
-	}
-
-	if bestRank == -1 {
-		return nil, errors.New("could not find rank for unit")
-	}
-
 	return &Evaluation{
 		Cost: cost,
-		Rank: bestRank,
+		Rank: RankFromCost(cost, costs.MaxTotal),
 	}, nil
+}
 
+// RankFromCost découpe l'échelle de coût [0, maxCost] en cinq bandes égales
+// en s'appuyant sur les proportions de l'ancienne échelle (maxCost = 30 :
+// ≤10 Soldat, ≤16 Vétéran, ≤22 Élite, ≤27 Champion, au-delà Parangon).
+func RankFromCost(cost float64, maxCost float64) Rank {
+	if maxCost <= 0 {
+		maxCost = 30
+	}
+	ratio := cost / maxCost
+
+	switch {
+	case ratio <= 1.0/3.0:
+		return RankTrooper
+	case ratio <= 16.0/30.0:
+		return RankVeteran
+	case ratio <= 22.0/30.0:
+		return RankElite
+	case ratio <= 27.0/30.0:
+		return RankChampion
+	default:
+		return RankParagon
+	}
 }
