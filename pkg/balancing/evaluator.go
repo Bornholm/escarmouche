@@ -189,6 +189,14 @@ func DefaultFitnessConfig() FitnessConfig {
 	}
 }
 
+// EvaluateCosts expose l'évaluation de fitness pour un jeu de coûts donné —
+// utile pour mesurer les coûts par défaut ou un candidat hors de la boucle
+// évolutionnaire.
+func EvaluateCosts(ctx context.Context, costs core.Costs) (float64, error) {
+	e := NewEvaluator()
+	return e.evaluateFitness(ctx, costs)
+}
+
 // evaluateFitness mesure la qualité d'équilibrage d'un jeu de coûts.
 //
 // Trois composantes :
