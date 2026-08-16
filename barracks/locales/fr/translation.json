@@ -17,9 +17,12 @@
     "controlScore": "Contrôle de la zone",
     "defeat": "Défaite",
     "defeatMessage": "Toutes vos unités ont été éliminées.",
-    "deployHint": "Placez « {{unit}} » sur vos deux premières rangées. L'adversaire répondra en plaçant une unité à son tour.",
+    "deployCard": "Fiche",
+    "deployCardEmpty": "Survolez une unité pour lire sa carte.",
+    "deployHintFree": "Choisissez une unité, puis une case de vos deux premières rangées. L'adversaire répond après chaque placement.",
     "deployProgress": "{{n}} / {{max}} placées",
     "deployReady": "Toutes vos unités sont en place. L'adversaire a terminé son déploiement.",
+    "deployRoster": "Vos unités",
     "deployTitle": "Déploiement",
     "difficulties": {
       "easy": "FACILE",

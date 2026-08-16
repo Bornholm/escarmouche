@@ -17,9 +17,12 @@
     "controlScore": "Zone control",
     "defeat": "Defeat",
     "defeatMessage": "All your units have been eliminated.",
-    "deployHint": "Place “{{unit}}” on your first two rows. Your opponent will answer by placing one unit in turn.",
+    "deployCard": "Card",
+    "deployCardEmpty": "Hover a unit to read its card.",
+    "deployHintFree": "Pick a unit, then a square on your first two rows. Your opponent answers after each placement.",
     "deployProgress": "{{n}} / {{max}} placed",
     "deployReady": "All your units are in place. Your opponent has finished deploying.",
+    "deployRoster": "Your units",
     "deployTitle": "Deployment",
     "difficulties": {
       "easy": "EASY",
