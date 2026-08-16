@@ -165,6 +165,32 @@
       "neutral": "Neutre"
     }
   },
+  "tour": {
+    "finish": "C'est parti",
+    "next": "Suivant",
+    "previous": "Précédent",
+    "replay": "Revoir la visite",
+    "skip": "Passer",
+    "steps": {
+      "battle": {
+        "text": "Testez votre escouade contre l'IA : placez votre obstacle, prenez la zone centrale et tenez-la trois tours.",
+        "title": "Partez en bataille"
+      },
+      "budget": {
+        "text": "Une escouade aligne jusqu'à six unités dans un budget de 100 points. La jauge montre en permanence ce qu'il vous reste.",
+        "title": "La contrainte : 100 points"
+      },
+      "cost": {
+        "text": "Dans l'éditeur, le moteur évalue le coût en direct à chaque cran. Le titre — Soldat, Vétéran… — n'est qu'un habillage narratif.",
+        "title": "Chaque réglage a un prix"
+      },
+      "units": {
+        "text": "Chaque combattant est une carte : quatre caractéristiques, jusqu'à trois capacités, une citation. L'onglet Unités est votre atelier.",
+        "title": "Vos unités vivent ici"
+      }
+    },
+    "title": "Prise en main"
+  },
   "unitEditor": {
     "abilities": "Capacités",
     "addAbility": "Ajouter une capacité",

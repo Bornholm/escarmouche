@@ -165,6 +165,32 @@
       "neutral": "Neutral"
     }
   },
+  "tour": {
+    "finish": "Let's go",
+    "next": "Next",
+    "previous": "Back",
+    "replay": "Replay the tour",
+    "skip": "Skip",
+    "steps": {
+      "battle": {
+        "text": "Test your squad against the AI: place your obstacle, take the central zone and hold it for three turns.",
+        "title": "March into battle"
+      },
+      "budget": {
+        "text": "A squad fields up to six units within a 100-point budget. The gauge always shows what you have left.",
+        "title": "The constraint: 100 points"
+      },
+      "cost": {
+        "text": "In the editor, the engine evaluates the cost live at every notch. The title — Trooper, Veteran… — is narrative dressing only.",
+        "title": "Every notch has a price"
+      },
+      "units": {
+        "text": "Every fighter is a card: four characteristics, up to three abilities, a quote. The Units tab is your workshop.",
+        "title": "Your units live here"
+      }
+    },
+    "title": "Getting started"
+  },
   "unitEditor": {
     "abilities": "Abilities",
     "addAbility": "Add an ability",
