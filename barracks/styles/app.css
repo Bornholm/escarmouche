@@ -1942,3 +1942,78 @@
 @media print {
   .unit-card__quote { color: #3a3e44; }
 }
+
+/* -----------------------------------------------------------------------------
+   Prise en main — la visite de première ouverture
+   Quatre arrêts, un visuel schématique par étape, sortie possible partout.
+   -------------------------------------------------------------------------- */
+.tour {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+  background: color-mix(in oklab, var(--canvas) 72%, transparent);
+  backdrop-filter: blur(2px);
+}
+
+.tour__panel {
+  width: 100%;
+  max-width: 440px;
+  background: var(--surface-raised);
+  border: var(--stroke-hairline) solid var(--border-strong);
+  display: flex;
+  flex-direction: column;
+  animation: tourIn 260ms var(--ease-out);
+}
+@keyframes tourIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.tour__header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: var(--space-4) var(--space-5);
+  border-bottom: var(--stroke-hairline) solid var(--border);
+}
+.tour__counter { font-size: var(--type-xs); color: var(--text-faint); }
+
+.tour__art {
+  width: 100%;
+  height: 140px;
+  padding: var(--space-4) 0 0;
+  display: block;
+}
+
+.tour__body {
+  padding: var(--space-2) var(--space-5) var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-height: 108px;   /* les quatre étapes gardent la même hauteur */
+}
+.tour__step-title { margin: 0; font-size: var(--type-lg); font-weight: 700; }
+.tour__step-text { margin: 0; font-size: var(--type-md); line-height: 1.55; color: var(--text-dim); text-wrap: pretty; }
+
+.tour__dots { display: flex; gap: var(--space-2); justify-content: center; padding-bottom: var(--space-3); }
+.tour__dot {
+  width: 8px;
+  height: 8px;
+  border: var(--stroke-hairline) solid var(--border-strong);
+}
+.tour__dot--active { background: var(--accent); border-color: var(--accent); }
+
+.tour__actions {
+  display: flex;
+  gap: var(--space-2);
+  padding: var(--space-4) var(--space-5);
+  border-top: var(--stroke-hairline) solid var(--border);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tour__panel { animation: none; }
+}

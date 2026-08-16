@@ -15,6 +15,7 @@ import {
   SquadsIcon,
   UnitsIcon,
   UniverseIcon,
+  HelpIcon,
 } from "./Icons";
 
 interface NavigationProps {
@@ -22,6 +23,7 @@ interface NavigationProps {
   universe: Universe;
   onModeChange: (mode: Mode) => void;
   onUniverseChange: (universe: Universe) => void;
+  onReplayTour: () => void;
 }
 
 const LANGUAGES: { code: string; label: string }[] = [
@@ -48,6 +50,7 @@ export const Navigation: React.FC<NavigationProps> = ({
   universe,
   onModeChange,
   onUniverseChange,
+  onReplayTour,
 }) => {
   const { t, i18n } = useTranslation();
   const location = useLocation();
@@ -180,6 +183,10 @@ export const Navigation: React.FC<NavigationProps> = ({
             </div>
           )}
         </div>
+
+        <button className="toolbtn" onClick={onReplayTour} aria-label={t("tour.replay")}>
+          <HelpIcon />
+        </button>
       </div>
     </header>
   );

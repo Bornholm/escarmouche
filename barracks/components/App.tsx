@@ -9,6 +9,7 @@ import "@fontsource/space-mono/700.css";
 import "../styles/tokens.css";
 import "../styles/app.css";
 import { Navigation } from "./Navigation";
+import { Onboarding, isTourDone } from "./Onboarding";
 import { UnitsPage } from "../pages/UnitsPage";
 import { SquadsPage } from "../pages/SquadsPage";
 import { UnitEditorPage } from "../pages/UnitEditorPage";
@@ -33,6 +34,9 @@ export const App: React.FC = () => {
   const [squads, setSquads] = useState<Squad[]>([]);
   const [mode, setMode] = useState<Mode>(loadMode);
   const [universe, setUniverse] = useState<Universe>(loadUniverse);
+  // La visite de prise en main s'ouvre à la première visite ; son état
+  // « vue » est persisté par le composant lui-même (fin ou premier Passer).
+  const [tourOpen, setTourOpen] = useState(() => !isTourDone());
 
   // Le thème vit sur <html> : il doit être posé avant le premier rendu utile,
   // et le fichier d'univers n'est chargé que s'il est effectivement choisi.
@@ -136,7 +140,9 @@ export const App: React.FC = () => {
           universe={universe}
           onModeChange={setMode}
           onUniverseChange={setUniverse}
+          onReplayTour={() => setTourOpen(true)}
         />
+        <Onboarding open={tourOpen} onClose={() => setTourOpen(false)} />
         <main className="page">
           <Routes>
             <Route path="/" element={<Navigate to="/units" replace />} />

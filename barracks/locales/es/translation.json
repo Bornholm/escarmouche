@@ -165,6 +165,32 @@
       "neutral": "Neutro"
     }
   },
+  "tour": {
+    "finish": "Vamos",
+    "next": "Siguiente",
+    "previous": "Atrás",
+    "replay": "Repetir la visita",
+    "skip": "Omitir",
+    "steps": {
+      "battle": {
+        "text": "Prueba tu escuadra contra la IA: coloca tu obstáculo, toma la zona central y mantenla tres turnos.",
+        "title": "Marcha a la batalla"
+      },
+      "budget": {
+        "text": "Una escuadra alinea hasta seis unidades en un presupuesto de 100 puntos. El indicador muestra siempre lo que te queda.",
+        "title": "La restricción: 100 puntos"
+      },
+      "cost": {
+        "text": "En el editor, el motor evalúa el coste en directo con cada escalón. El título — Soldado, Veterano… — es solo un adorno narrativo.",
+        "title": "Cada ajuste tiene un precio"
+      },
+      "units": {
+        "text": "Cada combatiente es una carta: cuatro características, hasta tres habilidades, una cita. La pestaña Unidades es tu taller.",
+        "title": "Tus unidades viven aquí"
+      }
+    },
+    "title": "Primeros pasos"
+  },
   "unitEditor": {
     "abilities": "Habilidades",
     "addAbility": "Añadir una habilidad",

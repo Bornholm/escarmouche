@@ -321,6 +321,14 @@ export const LockIcon: React.FC<IconProps> = ({ size = 13, strokeWidth = 1.8, co
   </svg>
 );
 
+export const HelpIcon: React.FC<IconProps> = ({ size = 14, strokeWidth = 1.7, color }) => (
+  <svg {...base(size, strokeWidth, color)}>
+    <circle cx="12" cy="12" r="9" />
+    <path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.8.4-1 .9-1 1.7" />
+    <circle cx="12" cy="16.8" r="0.4" fill="currentColor" />
+  </svg>
+);
+
 export const PrintIcon: React.FC<IconProps> = ({ size = 14, strokeWidth = 1.7, color }) => (
   <svg {...base(size, strokeWidth, color)}>
     <path d="M7 9V3h10v6" />
