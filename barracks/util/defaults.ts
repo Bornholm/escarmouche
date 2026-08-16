@@ -15,9 +15,9 @@ import { BASE_URL } from "./baseUrl";
    chacune tient sous les 30 PR et les 6 unités, avec un peu de marge pour que
    le joueur puisse encore bricoler la sienne.
 
-   Les illustrations de la Compagnie de l'Aube sont en place (style TCG,
-   cf. docs/illustration-prompts/) ; les trois autres escouades affichent
-   l'état de repli de la carte en attendant les leurs.
+   Les illustrations de la Compagnie de l'Aube et du Détachement Vanguard
+   sont en place (style TCG, cf. docs/illustration-prompts/) ; les deux
+   dernières escouades affichent l'état de repli en attendant les leurs.
    ========================================================================== */
 
 export const DefaultUnits: Unit[] = [
@@ -85,6 +85,7 @@ export const DefaultUnits: Unit[] = [
   {
     id: "scifi-heavy",
     quote: "« Zone verrouillée. Personne ne traverse mon couloir de tir. »",
+    imageUrl: `${BASE_URL}/scifi-heavy.webp`,
     name: "Fusilier lourd",
     health: 3, range: 2, move: 1, power: 2,
     abilities: ["00003-suppressing-fire"],
@@ -92,6 +93,7 @@ export const DefaultUnits: Unit[] = [
   {
     id: "scifi-scout",
     quote: "« J'ai vu votre plan d'en haut. Il est déjà obsolète. »",
+    imageUrl: `${BASE_URL}/scifi-scout.webp`,
     name: "Éclaireur orbital",
     health: 2, range: 2, move: 3, power: 2,
     abilities: [],
@@ -99,6 +101,7 @@ export const DefaultUnits: Unit[] = [
   {
     id: "scifi-tech",
     quote: "« Les limites constructeur ? Je les ai désactivées. »",
+    imageUrl: `${BASE_URL}/scifi-tech.webp`,
     name: "Technicien de combat",
     health: 2, range: 1, move: 2, power: 1,
     abilities: ["00011-overcharge"],
@@ -106,6 +109,7 @@ export const DefaultUnits: Unit[] = [
   {
     id: "scifi-sergeant",
     quote: "« On avance ensemble, ou on ne rentre pas du tout. »",
+    imageUrl: `${BASE_URL}/scifi-sergeant.webp`,
     name: "Sergent d'abordage",
     health: 3, range: 1, move: 1, power: 2,
     abilities: [],
@@ -113,6 +117,7 @@ export const DefaultUnits: Unit[] = [
   {
     id: "scifi-drone",
     quote: "« UNITÉ 7-K : AUCUNE PEUR DÉTECTÉE. AUCUNE, JAMAIS. »",
+    imageUrl: `${BASE_URL}/scifi-drone.webp`,
     name: "Drone sentinelle",
     health: 1, range: 2, move: 2, power: 1,
     abilities: [],
