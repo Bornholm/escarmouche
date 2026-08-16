@@ -8,14 +8,6 @@ import (
 	"github.com/pkg/errors"
 )
 
-var DefaultRankPointCosts = map[core.Rank]int{
-	core.RankTrooper:  1,
-	core.RankVeteran:  3,
-	core.RankElite:    6,
-	core.RankChampion: 10,
-	core.RankParagon:  15,
-}
-
 type GeneratedUnit struct {
 	Stats     core.Stats
 	Abilities []core.Ability
@@ -24,104 +16,84 @@ type GeneratedUnit struct {
 	Archetype Archetype
 }
 
-func RandomUnit(targetRank core.Rank, archetype Archetype, costs core.Costs) (*GeneratedUnit, error) {
-	availableAbilities := append([]core.Ability{}, archetype.Abilities...)
+// RandomUnit génère une unité de l'archétype demandé dont le coût total
+// approche targetCost sans jamais le dépasser. Le rang qui en résulte est
+// purement narratif (cf. core.RankFromCost).
+//
+// La construction est incrémentale : on garantit d'abord 1 point dans chaque
+// caractéristique, puis on ajoute des crans (pondérés par l'archétype) et
+// éventuellement des capacités tant que le budget le permet.
+func RandomUnit(targetCost float64, archetype Archetype, costs core.Costs) (*GeneratedUnit, error) {
+	if targetCost > costs.MaxTotal {
+		targetCost = costs.MaxTotal
+	}
 
+	availableAbilities := append([]core.Ability{}, archetype.Abilities...)
 	abilities := []core.Ability{}
 
-	var stats core.Stats
+	// Socle minimal : une unité a toujours au moins 1 partout.
+	stats := core.Stats{Health: 1, Range: 1, Move: 1, Power: 1}
 
-	hasMinimalHealth := false
-	hasMinimalMove := false
-	hasMinimalPower := false
-	hasMinimalRange := false
+	evaluation, err := core.Evaluate(stats, abilities, costs)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+	if evaluation.Cost > targetCost {
+		// Le budget ne couvre même pas le socle : on rend l'unité minimale.
+		return &GeneratedUnit{
+			Stats:     stats,
+			Abilities: abilities,
+			TotalCost: evaluation.Cost,
+			Rank:      evaluation.Rank,
+			Archetype: archetype,
+		}, nil
+	}
 
-	var (
-		evaluation *core.Evaluation
-		err        error
-	)
+	maxRounds := int(costs.MaxTotal) * 4
+	stuck := 0
 
-	maxRounds := int(costs.MaxTotal)
-	round := 0
-	for {
-
-		var statToUpgrade int
-
-		switch {
-		case !hasMinimalHealth:
-			statToUpgrade = 0
-			hasMinimalHealth = true
-		case !hasMinimalRange:
-			statToUpgrade = 1
-			hasMinimalRange = true
-		case !hasMinimalMove:
-			statToUpgrade = 2
-			hasMinimalMove = true
-		case !hasMinimalPower:
-			statToUpgrade = 3
-			hasMinimalPower = true
-		default:
-			statToUpgrade = chooseWeightedStat(archetype)
-		}
-
-		switch statToUpgrade {
-		case 0:
-			stats.Health++
-		case 1:
-			stats.Range++
-		case 2:
-			stats.Move++
-		case 3:
-			stats.Power++
-		}
-
-		hasMinimal := hasMinimalHealth && hasMinimalRange && hasMinimalMove && hasMinimalPower
-
+	for round := 0; round < maxRounds && stuck < 6; round++ {
+		prevStats := stats
+		prevAbilities := abilities
 		abilityAdded := false
 
-		if hasMinimal && len(availableAbilities) > 0 && len(abilities) < 2 {
-			newAbility := rand.Intn(100) < archetype.WeightAbility
-			if newAbility {
-				index := rand.Intn(len(availableAbilities))
-				abilities = append(abilities, availableAbilities[index])
-				availableAbilities = slices.Delete(availableAbilities, index, index+1)
-				abilityAdded = true
+		// Tenter une capacité de l'archétype de temps en temps
+		if len(availableAbilities) > 0 && len(abilities) < 2 && rand.Intn(100) < archetype.WeightAbility {
+			index := rand.Intn(len(availableAbilities))
+			abilities = append(abilities, availableAbilities[index])
+			availableAbilities = slices.Delete(availableAbilities, index, index+1)
+			abilityAdded = true
+		} else {
+			switch chooseWeightedStat(archetype) {
+			case 0:
+				stats.Health++
+			case 1:
+				stats.Range++
+			case 2:
+				stats.Move++
+			case 3:
+				stats.Power++
 			}
 		}
 
-		if hasMinimal {
-			evaluation, err = core.Evaluate(stats, abilities, costs)
-			if err != nil {
-				return nil, errors.WithStack(err)
-			}
-
-			if evaluation.Cost > costs.MaxTotal || evaluation.Rank > targetRank {
-				switch statToUpgrade {
-				case 0:
-					stats.Health--
-				case 1:
-					stats.Range--
-				case 2:
-					stats.Move--
-				case 3:
-					stats.Power--
-				}
-
-				if abilityAdded {
-					availableAbilities = append(availableAbilities, abilities[len(abilities)-1])
-					abilities = abilities[:len(abilities)-1]
-				}
-			}
-
-			if evaluation.Rank == targetRank {
-				break
-			}
+		candidate, err := core.Evaluate(stats, abilities, costs)
+		if err != nil {
+			return nil, errors.WithStack(err)
 		}
 
-		round++
-		if round > maxRounds {
-			break
+		if candidate.Cost > targetCost {
+			// Trop cher : on annule ce cran et on réessaie autre chose.
+			stats = prevStats
+			if abilityAdded {
+				availableAbilities = append(availableAbilities, abilities[len(abilities)-1])
+				abilities = prevAbilities
+			}
+			stuck++
+			continue
 		}
+
+		evaluation = candidate
+		stuck = 0
 	}
 
 	return &GeneratedUnit{
