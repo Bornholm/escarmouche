@@ -5,11 +5,11 @@ label:
 description:
   fr-FR: |-
     Effectuez une action de mouvement. Cette unité ne peut pas être 
-    la cible d'attaques jusqu'à la fin du tour adverse.
+    la cible d'attaques jusqu'au début de son prochain tour.
   en-EN: |-
     Perform a movement action. This unit cannot be targeted by attacks 
-    until the end of the opponent's turn.
+    until the start of its next turn.
   es-ES: |-
-    Realiza una acción de movimiento. Esta unidad no puede ser objetivo 
-    de ataques hasta el final del turno del oponente.
+    Realiza una acción de movimiento. Esta unidad no puede ser
+    objetivo de ataques hasta el inicio de su próximo turno.
 cost: 2

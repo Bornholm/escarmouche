@@ -45,9 +45,9 @@ No JavaScript test suite is configured.
 
 | Package | Role |
 |---|---|
-| `core` | Fundamental types: `Stats`, `Ability`, `Costs`, `Rank`. Cost calculation, rank evaluation, fuzzy rules. Abilities are loaded from embedded YAML files in `pkg/core/abilities/`. |
+| `core` | Fundamental types: `Stats`, `Ability`, `Costs`, `Rank`. Cost calculation is the game's only currency; ranks are narrative cost bands. Abilities are loaded from embedded YAML files in `pkg/core/abilities/`. |
 | `gen` | Random unit/squad generation by `Rank` and `Archetype`. Entry points: `gen.RandomUnit`, `gen.RandomSquad`. |
-| `sim` | Turn-based game simulation on an 8×8 grid. `Game.Run()` returns an iterator of `GameStep`. AI strategy uses fuzzy logic (`strategy_rules.fuzzy`). Abilities are implemented as numbered files (`00000-charge.go`, etc.). |
+| `sim` | Turn-based game simulation on an 8×8 grid with a central 2×2 capture zone and player-placed obstacles. `Game.Run()` returns an iterator of `GameStep`. AI is an alpha-beta search over the real turn structure (`SearchStrategy`). Abilities are implemented as numbered files (`00000-charge.go`, etc.). |
 | `balancing` | Evolutionary/genetic algorithm that optimises `core.Costs` by running simulations in tournaments. |
 | `barracks/wasm` | WebAssembly entry point. Registers a global `Barracks` JS object exposing: `evaluateUnit`, `generateUnit`, `generateSquad`, `getAvailableAbilities`. |
 
