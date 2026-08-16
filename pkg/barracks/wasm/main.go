@@ -4,6 +4,7 @@
 package main
 
 import (
+	"math/rand"
 	"fmt"
 	"slices"
 	"sync"
@@ -16,24 +17,37 @@ import (
 )
 
 func main() {
-	rankPointCosts := map[string]any{}
-	for r, c := range gen.DefaultRankPointCosts {
-		rankPointCosts[r.String()] = c
+	// Zone de capture et emplacements d'obstacle valides, pour que le front
+	// n'ait pas à dupliquer la géométrie du plateau.
+	objectiveZone := make([]any, 0, len(sim.ObjectiveZone))
+	for _, pos := range sim.ObjectiveZone {
+		objectiveZone = append(objectiveZone, map[string]any{"x": pos.X, "y": pos.Y})
+	}
+
+	obstaclePositions := make([]any, 0)
+	for x := 0; x < sim.BoardSize; x++ {
+		for y := 0; y < sim.BoardSize; y++ {
+			if sim.IsValidObstaclePosition(sim.Position{X: x, Y: y}) {
+				obstaclePositions = append(obstaclePositions, map[string]any{"x": x, "y": y})
+			}
+		}
 	}
 
 	js.Global().Set("Barracks", map[string]any{
-		"evaluateUnit":          js.FuncOf(evaluateUnit),
-		"generateSquad":         js.FuncOf(generateSquad),
-		"generateUnit":          js.FuncOf(generateUnit),
-		"getAvailableAbilities": js.FuncOf(getAvailableAbilities),
-		"startGame":             js.FuncOf(startGame),
-		"getValidActions":       js.FuncOf(getValidActionsJS),
-		"selectAction":          js.FuncOf(selectAction),
-		"endGame":               js.FuncOf(endGame),
-		"RankPointCosts":        js.ValueOf(rankPointCosts),
-		"MaxSquadSize":          js.ValueOf(gen.DefaultMaxSquadSize),
-		"MaxSquadRankPoints":    js.ValueOf(gen.DefaultMaxRankPoints),
-		"MaxUnitCost":           js.ValueOf(core.DefaultCosts.MaxTotal),
+		"evaluateUnit":            js.FuncOf(evaluateUnit),
+		"generateSquad":           js.FuncOf(generateSquad),
+		"generateUnit":            js.FuncOf(generateUnit),
+		"getAvailableAbilities":   js.FuncOf(getAvailableAbilities),
+		"startGame":               js.FuncOf(startGame),
+		"getValidActions":         js.FuncOf(getValidActionsJS),
+		"selectAction":            js.FuncOf(selectAction),
+		"endGame":                 js.FuncOf(endGame),
+		"MaxSquadSize":            js.ValueOf(gen.DefaultMaxSquadSize),
+		"SquadBudget":             js.ValueOf(gen.DefaultSquadBudget),
+		"MaxUnitCost":             js.ValueOf(core.DefaultCosts.MaxTotal),
+		"ControlPointsToWin":      js.ValueOf(sim.ControlPointsToWin),
+		"ObjectiveZone":           js.ValueOf(objectiveZone),
+		"ValidObstaclePositions":  js.ValueOf(obstaclePositions),
 	})
 
 	select {}
@@ -77,7 +91,7 @@ func evaluateUnit(this js.Value, args []js.Value) any {
 
 func generateSquad(this js.Value, args []js.Value) any {
 	return withPromise(func() ([]map[string]any, error) {
-		squad, err := gen.RandomSquad(gen.DefaultMaxRankPoints, gen.DefaultMaxSquadSize, gen.DefaultRankPointCosts, core.DefaultCosts, gen.DefaultArchetypes...)
+		squad, err := gen.RandomSquad(gen.DefaultSquadBudget, gen.DefaultMaxSquadSize, core.DefaultCosts, gen.DefaultArchetypes...)
 		if err != nil {
 			return nil, errors.WithStack(err)
 		}
@@ -105,17 +119,14 @@ func generateSquad(this js.Value, args []js.Value) any {
 
 func generateUnit(this js.Value, args []js.Value) any {
 	return withPromise(func() (map[string]any, error) {
-		rank, err := core.ParseRank(args[0].String())
-		if err != nil {
-			return nil, errors.WithStack(err)
-		}
+		targetCost := args[0].Float()
 
 		archetype, err := gen.ParseArchetype(args[1].String())
 		if err != nil {
 			return nil, errors.WithStack(err)
 		}
 
-		unit, err := gen.RandomUnit(rank, archetype, core.DefaultCosts)
+		unit, err := gen.RandomUnit(targetCost, archetype, core.DefaultCosts)
 		if err != nil {
 			return nil, errors.WithStack(err)
 		}
@@ -251,7 +262,7 @@ func startGame(this js.Value, args []js.Value) any {
 			}
 		}
 
-		aiSquad, err := gen.RandomSquad(gen.DefaultMaxRankPoints, gen.DefaultMaxSquadSize, gen.DefaultRankPointCosts, core.DefaultCosts, gen.DefaultArchetypes...)
+		aiSquad, err := gen.RandomSquad(gen.DefaultSquadBudget, gen.DefaultMaxSquadSize, core.DefaultCosts, gen.DefaultArchetypes...)
 		if err != nil {
 			return nil, errors.Wrap(err, "could not generate AI squad")
 		}
@@ -267,12 +278,31 @@ func startGame(this js.Value, args []js.Value) any {
 		if len(args) > 1 && args[1].Type() == js.TypeString {
 			difficulty = args[1].String()
 		}
-		aiDepth := 2
+		// Profondeur en actions (depth 4 = un tour complet + la réponse) et
+		// budget de nœuds calé pour rester réactif en WASM.
+		aiDepth, aiBudget := 4, 8000
 		switch difficulty {
 		case "easy":
-			aiDepth = 1
+			aiDepth, aiBudget = 2, 1500
 		case "hard":
-			aiDepth = 3
+			aiDepth, aiBudget = 6, 30000
+		}
+
+		// Obstacle posé par le joueur pendant la mise en place ; l'IA pose le
+		// sien sur sa moitié de plateau, en biais devant la zone centrale.
+		obstacles := []sim.Position{}
+		if len(args) > 2 && args[2].Type() == js.TypeObject {
+			pos := sim.Position{X: args[2].Get("x").Int(), Y: args[2].Get("y").Int()}
+			if sim.IsValidObstaclePosition(pos) {
+				obstacles = append(obstacles, pos)
+			}
+		}
+		if len(obstacles) > 0 {
+			aiObstacle := sim.Position{X: 2 + rand.Intn(4), Y: 5}
+			if aiObstacle == obstacles[0] {
+				aiObstacle.X = (aiObstacle.X+1)%4 + 2
+			}
+			obstacles = append(obstacles, aiObstacle)
 		}
 
 		go func() {
@@ -311,7 +341,8 @@ func startGame(this js.Value, args []js.Value) any {
 
 			game := sim.NewGame(playerUnits, aiUnits,
 				sim.WithPlayerStrategy(sim.PlayerOne, humanStrategy),
-				sim.WithPlayerStrategy(sim.PlayerTwo, sim.LookaheadStrategy(aiDepth)),
+				sim.WithPlayerStrategy(sim.PlayerTwo, sim.SearchStrategy(aiDepth, aiBudget)),
+				sim.WithObstacles(obstacles...),
 			)
 
 			for step := range game.Run() {
@@ -437,7 +468,8 @@ func serializeState(state sim.GameState, validActions []sim.Action, session *gam
 			"y":               pos.Y,
 			"suppressed":      state.Get(unit.ID, sim.CounterSuppressed, 0) > 0,
 			"untargetable":    state.Get(unit.ID, sim.CounterUntargetable, 0) > 0,
-			"overcharged":     state.Get(unit.ID, sim.CounterOvercharged, 0) > 0,
+			"overcharged": state.Get(unit.ID, sim.CounterOverchargePending, 0) > 0 ||
+				state.Get(unit.ID, sim.CounterOverchargeLock, 0) > 0,
 			"defensiveStance": state.Get(unit.ID, sim.CounterDefensiveStance, 0) > 0,
 			"guardianOf":      state.Get(unit.ID, sim.CounterGuardianOf, -1),
 		})
@@ -453,6 +485,16 @@ func serializeState(state sim.GameState, validActions []sim.Action, session *gam
 		recentActionsAny = append(recentActionsAny, a)
 	}
 
+	obstacles := make([]any, 0, len(state.Obstacles))
+	for x := 0; x < sim.BoardSize; x++ {
+		for y := 0; y < sim.BoardSize; y++ {
+			pos := sim.Position{X: x, Y: y}
+			if state.Obstacles[pos.String()] {
+				obstacles = append(obstacles, map[string]any{"x": x, "y": y})
+			}
+		}
+	}
+
 	return map[string]any{
 		"units":           units,
 		"currentPlayerID": int(state.CurrentPlayerID),
@@ -463,6 +505,11 @@ func serializeState(state sim.GameState, validActions []sim.Action, session *gam
 		"turn":            turn,
 		"validActions":    validActionsJS,
 		"recentActions":   recentActionsAny,
+		"obstacles":       obstacles,
+		"controlPoints": map[string]any{
+			"player": state.ControlPoints[session.humanPlayerID],
+			"ai":     state.ControlPoints[getOpponent(session.humanPlayerID)],
+		},
 	}
 }
 
@@ -482,7 +529,8 @@ func serializeFrame(state sim.GameState) map[string]any {
 			"health":          state.Get(unit.ID, sim.CounterHealth, 0),
 			"suppressed":      state.Get(unit.ID, sim.CounterSuppressed, 0) > 0,
 			"untargetable":    state.Get(unit.ID, sim.CounterUntargetable, 0) > 0,
-			"overcharged":     state.Get(unit.ID, sim.CounterOvercharged, 0) > 0,
+			"overcharged": state.Get(unit.ID, sim.CounterOverchargePending, 0) > 0 ||
+				state.Get(unit.ID, sim.CounterOverchargeLock, 0) > 0,
 			"defensiveStance": state.Get(unit.ID, sim.CounterDefensiveStance, 0) > 0,
 			"guardianOf":      state.Get(unit.ID, sim.CounterGuardianOf, -1),
 		})
@@ -492,6 +540,8 @@ func serializeFrame(state sim.GameState) map[string]any {
 		"units":           units,
 		"actionsLeft":     state.ActionsLeft,
 		"currentPlayerID": int(state.CurrentPlayerID),
+		"controlPointsP1": state.ControlPoints[sim.PlayerOne],
+		"controlPointsP2": state.ControlPoints[sim.PlayerTwo],
 	}
 }
 
@@ -538,6 +588,13 @@ func describeAction(index int, action sim.Action, session *gameSession) map[stri
 	}
 
 	return desc
+}
+
+func getOpponent(playerID sim.PlayerID) sim.PlayerID {
+	if playerID == sim.PlayerOne {
+		return sim.PlayerTwo
+	}
+	return sim.PlayerOne
 }
 
 func unitName(id sim.UnitID, session *gameSession) string {
