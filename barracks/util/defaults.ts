@@ -15,9 +15,9 @@ import { BASE_URL } from "./baseUrl";
    chacune tient sous les 30 PR et les 6 unités, avec un peu de marge pour que
    le joueur puisse encore bricoler la sienne.
 
-   Les illustrations de l'Aube, du Vanguard et du Convoi des Rouilleux sont
-   en place (style TCG, cf. docs/illustration-prompts/) ; la Ligne de 1812
-   affiche l'état de repli en attendant les siennes.
+   Les quatre escouades sont intégralement illustrées (style TCG,
+   cf. docs/illustration-prompts/) — chacune avec sa palette d'univers :
+   or pâle, cyan acier, bleu impérial, orange rouille.
    ========================================================================== */
 
 export const DefaultUnits: Unit[] = [
@@ -127,6 +127,7 @@ export const DefaultUnits: Unit[] = [
   {
     id: "hist-grenadier",
     quote: "« La Garde meurt, monsieur. Elle ne recule pas. »",
+    imageUrl: `${BASE_URL}/hist-grenadier.webp`,
     name: "Grenadier de la Garde",
     health: 4, range: 1, move: 1, power: 2,
     abilities: [],
@@ -134,6 +135,7 @@ export const DefaultUnits: Unit[] = [
   {
     id: "hist-voltigeur",
     quote: "« Je tire, je disparais. La fumée fait le reste. »",
+    imageUrl: `${BASE_URL}/hist-voltigeur.webp`,
     name: "Voltigeur",
     health: 2, range: 2, move: 1, power: 2,
     abilities: [],
@@ -141,6 +143,7 @@ export const DefaultUnits: Unit[] = [
   {
     id: "hist-cuirassier",
     quote: "« Quand le sol tremble, c'est que nous arrivons. »",
+    imageUrl: `${BASE_URL}/hist-cuirassier.webp`,
     name: "Cuirassier",
     health: 3, range: 1, move: 3, power: 2,
     abilities: ["00000-charge"],
@@ -148,6 +151,7 @@ export const DefaultUnits: Unit[] = [
   {
     id: "hist-sergeant",
     quote: "« Tenez la ligne ! La ligne, c'est tout ce qu'on a. »",
+    imageUrl: `${BASE_URL}/hist-sergeant.webp`,
     name: "Sergent de compagnie",
     health: 3, range: 1, move: 1, power: 2,
     abilities: ["00002-defensive-stance"],
@@ -155,6 +159,7 @@ export const DefaultUnits: Unit[] = [
   {
     id: "hist-drummer",
     quote: "« Tant que le tambour bat, la compagnie existe. »",
+    imageUrl: `${BASE_URL}/hist-drummer.webp`,
     name: "Tambour",
     health: 2, range: 1, move: 2, power: 1,
     abilities: [],
@@ -162,6 +167,7 @@ export const DefaultUnits: Unit[] = [
   {
     id: "hist-fusilier",
     quote: "« Trois rangs, une salve, et le monde change de camp. »",
+    imageUrl: `${BASE_URL}/hist-fusilier.webp`,
     name: "Fusilier de ligne",
     health: 2, range: 2, move: 1, power: 1,
     abilities: [],
