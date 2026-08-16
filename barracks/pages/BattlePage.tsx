@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import { useTranslation } from "react-i18next";
 import { Squad, Unit } from "../types";
@@ -42,10 +42,18 @@ export const BattlePage: React.FC<BattlePageProps> = ({ squads, units }) => {
   // La promesse de selectAction ne revient qu'après le tour complet de l'IA :
   // cet état permet d'afficher immédiatement que la machine réfléchit.
   const [isResolving, setIsResolving] = useState(false);
+  // Deux attentes distinctes : envoyer SON action (bref) et attendre la
+  // réflexion de l'IA (long). Les confondre faisait annoncer « Tour de l'IA »
+  // dès le clic du joueur, alors que c'était encore son action qui partait.
+  const [isThinking, setIsThinking] = useState(false);
 
   // Le plateau affiché n'est pas l'état de jeu : c'est le rejeu des actions
   // qui viennent d'être jouées, déroulé image par image.
-  const { display, actionsLeft, effects, isReplaying, log } = useBattleReplay(battleState);
+  const { display, actionsLeft, effects, isReplaying, log, settled } = useBattleReplay(battleState);
+  // Garde-fou : un même état ne doit déclencher qu'une seule reprise, sinon
+  // un second appel resterait bloqué sur le canal du moteur et désynchro-
+  // niserait la partie.
+  const resumedFor = useRef<BattleState | null>(null);
   const abilityCatalog = useAbilities();
 
   // L'historique est composé ici plutôt que dans le moteur : il doit être
@@ -86,6 +94,34 @@ export const BattlePage: React.FC<BattlePageProps> = ({ squads, units }) => {
     };
   }, []);
 
+  // Une fois l'action du joueur animée, on relance le moteur : c'est
+  // seulement là que l'IA se met à réfléchir. L'action du joueur a donc été
+  // vue AVANT, au lieu d'être rendue en même temps que celles de l'IA.
+  useEffect(() => {
+    if (!battleState?.awaitingResume) return;
+    // On n'enchaîne qu'une fois l'animation de l'action réellement terminée.
+    if (settled !== battleState) return;
+    if (resumedFor.current === battleState) return;
+    resumedFor.current = battleState;
+
+    let cancelled = false;
+    (async () => {
+      setIsThinking(true);
+      try {
+        const next = (await Barracks.resumeGame()) as unknown as BattleState;
+        if (!cancelled) setBattleState(next);
+      } catch (error) {
+        console.error("resumeGame failed", error);
+      } finally {
+        if (!cancelled) setIsThinking(false);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [battleState, settled]);
+
   // La partie n'est lancée qu'une fois le plateau de départ peint : le joueur
   // voit son déploiement et sait qui ouvre avant que le premier coup ne parte.
   // `requestAnimationFrame` garantit qu'au moins une image a été rendue.
@@ -120,12 +156,14 @@ export const BattlePage: React.FC<BattlePageProps> = ({ squads, units }) => {
     if (!battleState) return false;
     return (
       battleState.started !== false &&
+      !battleState.awaitingResume &&
       battleState.currentPlayerID === battleState.humanPlayerID &&
       !battleState.isOver &&
       !isReplaying &&
-      !isResolving
+      !isResolving &&
+      !isThinking
     );
-  }, [battleState, isReplaying, isResolving]);
+  }, [battleState, isReplaying, isResolving, isThinking]);
 
   const getSelectedUnits = (): Unit[] => {
     if (selectedSquadID === "__default__") return DefaultUnits.slice(0, 4);
@@ -226,7 +264,7 @@ export const BattlePage: React.FC<BattlePageProps> = ({ squads, units }) => {
   };
 
   const handleActionClick = async (action: ActionDescription) => {
-    if (!battleState || isReplaying || isResolving) return;
+    if (!battleState || isReplaying || isResolving || isThinking) return;
     setSelectedUnitID(null);
     setHoveredAction(null);
     setIsResolving(true);
@@ -714,6 +752,8 @@ export const BattlePage: React.FC<BattlePageProps> = ({ squads, units }) => {
                 key={
                   battleState.started === false
                     ? "start"
+                    : isThinking
+                    ? "think"
                     : isResolving
                     ? "resolve"
                     : isReplaying
@@ -726,8 +766,10 @@ export const BattlePage: React.FC<BattlePageProps> = ({ squads, units }) => {
                 <span className={`turn__dot ${isHumanTurn ? "" : "turn__dot--ai"}`} />
                 {battleState.started === false
                   ? t("battle.starting")
-                  : isResolving
+                  : isThinking
                   ? t("battle.aiTurn")
+                  : isResolving
+                  ? t("battle.replaying")
                   : isReplaying
                   ? t("battle.replaying")
                   : isHumanTurn
@@ -823,8 +865,10 @@ export const BattlePage: React.FC<BattlePageProps> = ({ squads, units }) => {
           <div className="panel__section">
             <div className="section-label">{t("battle.validActions", { n: unitActions.length })}</div>
 
-            {isReplaying ? (
-              <div className="hint">{t("battle.replayingHint")}</div>
+            {isReplaying || isResolving || isThinking ? (
+              <div className="hint">
+                {isThinking ? t("battle.aiThinkingHint") : t("battle.replayingHint")}
+              </div>
             ) : selectedUnitID === null ? (
               <div className="hint">{t("battle.selectUnitHint")}</div>
             ) : unitActions.length === 0 ? (

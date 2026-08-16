@@ -61,6 +61,11 @@ export interface BattleUnit {
 export interface BattleState {
   /** false tant que la partie n'a pas été démarrée par `beginBattle`. */
   started: boolean;
+  /**
+   * true quand le moteur attend que le front ait fini d'animer l'action du
+   * joueur avant de poursuivre (fin de tour puis réflexion de l'IA).
+   */
+  awaitingResume?: boolean;
   units: BattleUnit[];
   obstacles: { x: number; y: number }[];
   controlPoints: { player: number; ai: number };

@@ -28,6 +28,12 @@ declare global {
      */
     function beginBattle(): Promise<BattleState>;
 
+    /**
+     * Relance la partie après l'animation de l'action du joueur : la fin de
+     * son tour puis le tour de l'IA sont calculés et rendus ensuite.
+     */
+    function resumeGame(): Promise<BattleState>;
+
     /** Ouvre la phase de déploiement alterné (règles : placement tour à tour). */
     function startDeployment(
       playerUnits: UnitStats[],

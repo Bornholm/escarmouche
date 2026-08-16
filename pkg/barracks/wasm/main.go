@@ -42,6 +42,7 @@ func main() {
 		"deployUnit":             js.FuncOf(deployUnit),
 		"startGame":              js.FuncOf(startGame),
 		"beginBattle":            js.FuncOf(beginBattle),
+		"resumeGame":             js.FuncOf(resumeGame),
 		"getValidActions":        js.FuncOf(getValidActionsJS),
 		"selectAction":           js.FuncOf(selectAction),
 		"endGame":                js.FuncOf(endGame),
@@ -211,9 +212,14 @@ type gameSession struct {
 	pendingStateCh chan map[string]any
 	actionCh       chan int
 	doneCh         chan struct{}
-	validActions   []sim.Action
-	originalUnits  map[sim.UnitID]originalUnitData
-	currentTurn    uint
+	// resumeCh débloque la partie après que le front a joué l'animation de
+	// l'action du joueur. Sans ce point d'arrêt, la boucle enchaînait
+	// directement sur la réflexion de l'IA : l'action du joueur n'était rendue
+	// qu'à la fin du calcul adverse, et les deux s'animaient ensemble.
+	resumeCh      chan struct{}
+	validActions  []sim.Action
+	originalUnits map[sim.UnitID]originalUnitData
+	currentTurn   uint
 	// La partie est construite par startGame mais N'EST PAS lancée : le front
 	// doit d'abord afficher le plateau de départ. C'est beginBattle qui
 	// démarre la boucle. Sans cette séparation, une IA tirée en premier jouait
@@ -475,6 +481,7 @@ func startGame(this js.Value, args []js.Value) any {
 			pendingStateCh: make(chan map[string]any, 1),
 			actionCh:       make(chan int),
 			doneCh:         make(chan struct{}),
+			resumeCh:       make(chan struct{}),
 			originalUnits:  map[sim.UnitID]originalUnitData{},
 		}
 		currentSession = session
@@ -647,6 +654,28 @@ func startGame(this js.Value, args []js.Value) any {
 					recentSteps = append(recentSteps, desc)
 				}
 
+				// Action du joueur : on rend la main IMMÉDIATEMENT pour qu'elle
+				// s'anime, avant d'engager la réflexion de l'IA. La partie
+				// reprend quand le front signale la fin de l'animation.
+				if step.Action != nil && step.Player == session.humanPlayerID && !step.IsOver {
+					jsState := serializeState(game.State(), nil, session, false, -1, int(step.Turn), recentSteps)
+					jsState["awaitingResume"] = true
+					jsState["started"] = true
+					recentSteps = nil
+
+					select {
+					case session.pendingStateCh <- jsState:
+					case <-session.doneCh:
+						return
+					}
+
+					select {
+					case <-session.resumeCh:
+					case <-session.doneCh:
+						return
+					}
+				}
+
 				if step.IsOver {
 					jsState := serializeState(game.State(), nil, session, true, int(step.Winner), int(step.Turn), recentSteps)
 					select {
@@ -726,6 +755,34 @@ func selectAction(this js.Value, args []js.Value) any {
 
 		select {
 		case session.actionCh <- idx:
+		case <-session.doneCh:
+			return nil, errors.New("game ended")
+		}
+
+		select {
+		case nextState := <-session.pendingStateCh:
+			nextState["started"] = true
+			return nextState, nil
+		case <-session.doneCh:
+			return nil, errors.New("game ended")
+		}
+	})
+}
+
+// resumeGame relance la partie après l'animation de l'action du joueur : la
+// suite (fin de son tour, puis tour de l'IA) est calculée et rendue ensuite.
+func resumeGame(this js.Value, args []js.Value) any {
+	return withPromise(func() (map[string]any, error) {
+		sessionMu.Lock()
+		session := currentSession
+		sessionMu.Unlock()
+
+		if session == nil {
+			return nil, errors.New("no active game session")
+		}
+
+		select {
+		case session.resumeCh <- struct{}{}:
 		case <-session.doneCh:
 			return nil, errors.New("game ended")
 		}

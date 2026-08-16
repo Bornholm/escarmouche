@@ -88,6 +88,10 @@ export const useBattleReplay = (state: BattleState | null) => {
   const [isReplaying, setIsReplaying] = useState(false);
   const [currentAction, setCurrentAction] = useState<ActionDescription | null>(null);
   const [log, setLog] = useState<ReplayLogEntry[]>([]);
+  // Dernier état dont la mise en scène est terminée : c'est le signal qui
+  // autorise la page à enchaîner (reprise du moteur), sans courir le risque
+  // de relancer avant que l'animation n'ait démarré.
+  const [settled, setSettled] = useState<BattleState | null>(null);
 
   // Incrémenté à chaque nouvel état : toute séquence en cours devient caduque.
   const runId = useRef(0);
@@ -178,6 +182,7 @@ export const useBattleReplay = (state: BattleState | null) => {
       setActionsLeft(state.actionsLeft);
       setIsReplaying(false);
       setCurrentAction(null);
+      setSettled(state);
       if (steps.length > 0) {
         setLog((prev) => [
           ...steps.map((s) => toLogEntry(state.units, s, state.turn)).reverse(),
@@ -227,6 +232,7 @@ export const useBattleReplay = (state: BattleState | null) => {
       setActionsLeft(state.actionsLeft);
       setCurrentAction(null);
       setIsReplaying(false);
+      setSettled(state);
     })();
 
     return () => {
@@ -236,5 +242,5 @@ export const useBattleReplay = (state: BattleState | null) => {
     // de départ, et l'inclure relancerait la séquence à chaque image.
   }, [state]);
 
-  return { display, actionsLeft, effects, isReplaying, currentAction, log, setLog };
+  return { display, actionsLeft, effects, isReplaying, currentAction, log, setLog, settled };
 };

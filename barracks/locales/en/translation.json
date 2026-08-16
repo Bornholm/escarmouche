@@ -12,6 +12,7 @@
     "actionUsed": "USED",
     "aiLog": "History",
     "aiObstacle": "Opponent's obstacle",
+    "aiThinkingHint": "Your opponent is planning their turn…",
     "aiTurn": "AI turn",
     "aiUnits": "Enemy",
     "back": "Back",
