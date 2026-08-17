@@ -187,6 +187,61 @@ significatifs ; la répartition des types de fin et les durées, elles, le sont.
 marquer en retire un à l'adversaire. Moteur, règles (fr/en/es) et onboarding
 mis à jour en conséquence.
 
+## Suite — l'économie d'actions par effectif, mesurée
+
+Question posée après l'adoption de la règle E : faire croître le budget
+d'actions avec l'effectif survivant sauve-t-il les escouades nombreuses ?
+Le moteur a reçu `sim.ActionRules` (même mécanique que `CaptureRules` : la
+règle vit dans le `GameState`, la recherche la joue). Trois économies
+d'actions, sous la règle de capture désormais par défaut, 42 parties chacune :
+
+| Effectif | 2 | 3 | 4 | 5 | 6 |
+|---|---|---|---|---|---|
+| A. 2 actions fixes (actuelle) | 2 | 2 | 2 | 2 | 2 |
+| B. 1 + effectif/2 | 2 | 2 | 3 | 3 | 4 |
+| C. 2 + effectif/3 | 2 | 3 | 3 | 3 | 4 |
+
+| Variante | Nuée (6 unités) | Écart 1ᵉʳ-dernier | Fins par élim. | Dominant |
+|---|---|---|---|---|
+| A. fixe | 16,7 % | **58 pts** | 55 % | concentrée 75 % |
+| B. 1 + n/2 | **50,0 %** | 75 | 57 % | artillerie 83,3 % |
+| C. 2 + n/3 | 41,7 % | 92 | **81 %** | artillerie 91,7 % |
+
+Verdict en deux temps :
+
+- **Oui, ça sauve la nuée** : de 16,7 % à 50 % sous B — l'hypothèse est
+  confirmée, le handicap des escouades nombreuses est bien l'économie
+  d'actions.
+- **Mais le remède déséquilibre plus qu'il ne répare.** Plus d'actions par
+  tour, c'est plus d'attaques par tour pour tout le monde : l'artillerie
+  s'envole (66,7 → 83,3 → 91,7 %), les unités fragiles et rapides
+  s'effondrent (kite 16,7 → 8,3 → 0 %), et l'écart global se dégrade
+  (58 → 75 → 92 points). Sous C, 81 % des parties finissent en élimination :
+  on a re-déséquilibré dans l'autre sens.
+
+**Décision : l'économie d'actions reste à 2 actions fixes.** Le support
+`ActionRules` demeure dans le moteur pour de futures expériences — une piste
+plus chirurgicale serait un modèle d'activation (chaque action doit activer
+une unité différente de la précédente, ou k unités distinctes par tour), qui
+avantagerait le nombre sans augmenter le volume de feu global.
+
+## Les escouades par défaut sous la nouvelle règle
+
+Re-mesure des 4 escouades livrées après adoption de la règle E (72 parties) :
+
+| Escouade | Effectif | Ancienne règle | Règle E |
+|---|---|---|---|
+| Détachement Vanguard | 5 | 86,1 % | 77,8 % |
+| Convoi des Rouilleux | 5 | 58,3 % | 77,8 % |
+| Compagnie de l'Aube | 6 | 8,3 % | 33,3 % |
+| Ligne de 1812 | 6 | 47,2 % | 11,1 % |
+
+Le classement suit désormais **l'effectif** : les deux escouades de 5 unités
+devant, les deux de 6 derrière — cohérent avec le diagnostic d'économie
+d'actions, que des parties plus longues aggravent. Un retour d'équilibrage des
+escouades (et de l'algorithme de coûts, qui a été calibré sous l'ancienne
+règle) sous la règle E reste à faire.
+
 ## Note de méthode
 
 Deux erreurs ont été commises et corrigées en cours de route ; elles disent
