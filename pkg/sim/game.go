@@ -30,6 +30,8 @@ func NewGame(player1 []Unit, player2 []Unit, funcs ...OptionFunc) *Game {
 		Units:         map[UnitID]*PlayerUnit{},
 		Obstacles:     map[string]bool{},
 		ControlPoints: map[PlayerID]int{},
+		TurnsPlayed:   map[PlayerID]int{},
+		Rules:         opts.CaptureRules,
 	}
 
 	var unitID UnitID = 0
@@ -181,7 +183,8 @@ func beginTurn(state GameState, playerID PlayerID) GameState {
 }
 
 // endTurn applique les transitions de fin de tour pour le joueur donné et
-// marque un point de contrôle s'il tient la zone centrale de façon exclusive.
+// marque un point de contrôle s'il tient la zone centrale de façon exclusive,
+// selon les CaptureRules en vigueur.
 //   - la Suppression (« une seule action à son prochain tour ») expire à la
 //     fin du tour du joueur affecté ;
 //   - le verrou de Surcharge (« ne pourra pas attaquer lors de son prochain
@@ -195,8 +198,18 @@ func endTurn(state GameState, playerID PlayerID) GameState {
 		state.Del(unit.ID, CounterOverchargeLock)
 	}
 
-	if controlsObjective(state, playerID) {
+	state.TurnsPlayed[playerID] = state.TurnsPlayed[playerID] + 1
+
+	if controlsObjective(state, playerID) &&
+		state.TurnsPlayed[playerID] > state.Rules.HoldOffRounds {
 		state.ControlPoints[playerID] = state.ControlPoints[playerID] + 1
+
+		if state.Rules.ContestSteals {
+			opponent := getOpponentPlayerID(playerID)
+			if state.ControlPoints[opponent] > 0 {
+				state.ControlPoints[opponent] = state.ControlPoints[opponent] - 1
+			}
+		}
 	}
 
 	return state
@@ -266,7 +279,7 @@ func (g *Game) Run() iter.Seq[GameStep] {
 			g.state = endTurn(g.state, playerID)
 
 			// Victoire par capture d'objectif
-			if g.state.ControlPoints[playerID] >= ControlPointsToWin {
+			if g.state.ControlPoints[playerID] >= g.state.pointsToWin() {
 				yield(GameStep{
 					Action: nil,
 					Player: playerID,

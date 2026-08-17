@@ -69,6 +69,33 @@ var ObjectiveZone = []Position{{X: 3, Y: 3}, {X: 4, Y: 3}, {X: 3, Y: 4}, {X: 4, 
 
 const ControlPointsToWin = 3
 
+// CaptureRules paramètre la condition de victoire par capture. Les variantes
+// vivent dans le GameState : endTurn et terminalState étant partagés entre la
+// boucle de jeu et la recherche alpha-beta, l'IA joue automatiquement la
+// règle en vigueur — indispensable pour comparer des variantes sans biais.
+type CaptureRules struct {
+	// PointsToWin : marqueurs de contrôle nécessaires pour l'emporter.
+	// 0 vaut ControlPointsToWin (protège les états construits à la main).
+	PointsToWin int
+	// HoldOffRounds : nombre de tours qu'un joueur doit avoir joués avant que
+	// son contrôle de la zone ne commence à marquer. 0 = dès le premier tour.
+	HoldOffRounds int
+	// ContestSteals : marquer un point en fait aussi perdre un à l'adversaire
+	// (plancher à zéro) — la capture devient disputable au lieu de cumulative.
+	ContestSteals bool
+}
+
+var DefaultCaptureRules = CaptureRules{PointsToWin: ControlPointsToWin}
+
+// pointsToWin renvoie le seuil de victoire effectif, en traitant la valeur
+// zéro comme « règle par défaut » plutôt que « victoire immédiate ».
+func (s GameState) pointsToWin() int {
+	if s.Rules.PointsToWin <= 0 {
+		return ControlPointsToWin
+	}
+	return s.Rules.PointsToWin
+}
+
 // InObjectiveZone indique si une position est dans la zone de capture.
 func InObjectiveZone(pos Position) bool {
 	return pos.X >= 3 && pos.X <= 4 && pos.Y >= 3 && pos.Y <= 4
@@ -100,7 +127,10 @@ type GameState struct {
 	Obstacles map[string]bool
 	// ControlPoints : tours de contrôle exclusif de la zone centrale
 	// accumulés par joueur.
-	ControlPoints   map[PlayerID]int
+	ControlPoints map[PlayerID]int
+	// TurnsPlayed : tours achevés par joueur — support de HoldOffRounds.
+	TurnsPlayed     map[PlayerID]int
+	Rules           CaptureRules
 	CurrentPlayerID PlayerID
 	ActionsLeft     int
 }
@@ -172,6 +202,8 @@ func (s GameState) Copy() GameState {
 		Units:           map[UnitID]*PlayerUnit{},
 		Obstacles:       map[string]bool{},
 		ControlPoints:   map[PlayerID]int{},
+		TurnsPlayed:     map[PlayerID]int{},
+		Rules:           s.Rules,
 		CurrentPlayerID: s.CurrentPlayerID,
 		ActionsLeft:     s.ActionsLeft,
 	}
@@ -181,6 +213,7 @@ func (s GameState) Copy() GameState {
 	maps.Copy(copy.Positions, s.Positions)
 	maps.Copy(copy.Obstacles, s.Obstacles)
 	maps.Copy(copy.ControlPoints, s.ControlPoints)
+	maps.Copy(copy.TurnsPlayed, s.TurnsPlayed)
 
 	// Deep copy the counters map
 	for unitID, unitCounters := range s.counters {

@@ -11,6 +11,9 @@ type Options struct {
 	// la première rangée (comportement historique, utile aux tests et au
 	// balancer qui n'ont pas de phase de mise en place).
 	Deployment map[PlayerID][]Position
+	// CaptureRules : condition de victoire par capture. La valeur par défaut
+	// reproduit la règle publiée (3 marqueurs, décompte immédiat, cumulatif).
+	CaptureRules CaptureRules
 }
 
 type OptionFunc func(opts *Options)
@@ -23,7 +26,8 @@ func NewOptions(funcs ...OptionFunc) *Options {
 		},
 		// L'objectif de capture termine les parties bien avant : 60 tours
 		// est une borne de sécurité, plus un temps de jeu attendu.
-		MaxTurns: 60,
+		MaxTurns:     60,
+		CaptureRules: DefaultCaptureRules,
 	}
 	for _, fn := range funcs {
 		fn(opts)
@@ -44,6 +48,14 @@ func WithMaxTurns(maxTurns uint) OptionFunc {
 func WithDeployment(deployment map[PlayerID][]Position) OptionFunc {
 	return func(opts *Options) {
 		opts.Deployment = deployment
+	}
+}
+
+// WithCaptureRules remplace la condition de victoire par capture — utilisé
+// pour expérimenter des variantes de règle avec une IA qui les joue vraiment.
+func WithCaptureRules(rules CaptureRules) OptionFunc {
+	return func(opts *Options) {
+		opts.CaptureRules = rules
 	}
 }
 

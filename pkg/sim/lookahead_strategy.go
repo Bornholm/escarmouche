@@ -178,7 +178,7 @@ func terminalState(state GameState) (bool, PlayerID) {
 		return true, winner
 	}
 	for _, playerID := range []PlayerID{PlayerOne, PlayerTwo} {
-		if state.ControlPoints[playerID] >= ControlPointsToWin {
+		if state.ControlPoints[playerID] >= state.pointsToWin() {
 			return true, playerID
 		}
 	}
