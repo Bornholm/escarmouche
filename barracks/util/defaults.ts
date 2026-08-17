@@ -26,12 +26,12 @@ import { BASE_URL } from "./baseUrl";
    ========================================================================== */
 
 export const DefaultUnits: Unit[] = [
-  // --- Fantasy · Compagnie de l'Aube ----------------------------- 100 pts --
+  // --- Fantasy · Compagnie de l'Aube ------------------------------ 96 pts --
   {
     id: "knight",
     quote: "« Mon serment est plus vieux que vos murailles. »",
     name: "Templier",
-    health: 2, range: 1, move: 2, power: 1,
+    health: 3, range: 1, move: 2, power: 1,
     imageUrl: `${BASE_URL}/fantasy-templar.webp`,
     abilities: [],
   },
@@ -67,6 +67,11 @@ export const DefaultUnits: Unit[] = [
     health: 2, range: 1, move: 2, power: 1,
     abilities: ["00007-feint"],
   },
+  // --- Unités héritées, hors escouade --------------------------------------
+  // La mesure d'équilibrage (docs/20260817_dominant-strategy.md) a montré que
+  // les escouades de 6 unités sont structurellement pénalisées par l'économie
+  // d'actions : toutes les escouades livrées jouent à 5. Ces unités restent
+  // disponibles pour les compositions personnalisées.
   {
     id: "fantasy-huntress",
     quote: "« La forêt m'a appris à attendre. Vos armées, à viser. »",
@@ -75,8 +80,6 @@ export const DefaultUnits: Unit[] = [
     health: 2, range: 2, move: 2, power: 1,
     abilities: [],
   },
-
-  // --- Unité héritée, hors escouade ----------------------------------------
   {
     id: "bruiser",
     quote: "« Cogner d'abord. Les questions, c'est pour les survivants. »",
@@ -86,7 +89,7 @@ export const DefaultUnits: Unit[] = [
     abilities: [],
   },
 
-  // --- Science-fiction · Détachement Vanguard --------------------- 95 pts --
+  // --- Science-fiction · Détachement Vanguard -------------------- 100 pts --
   {
     id: "scifi-heavy",
     quote: "« Zone verrouillée. Personne ne traverse mon couloir de tir. »",
@@ -101,14 +104,14 @@ export const DefaultUnits: Unit[] = [
     imageUrl: `${BASE_URL}/scifi-scout.webp`,
     name: "Éclaireur orbital",
     health: 3, range: 2, move: 3, power: 2,
-    abilities: ["00004-tactical-retreat"],
+    abilities: ["00010-precision-shot"],
   },
   {
     id: "scifi-tech",
     quote: "« Les limites constructeur ? Je les ai désactivées. »",
     imageUrl: `${BASE_URL}/scifi-tech.webp`,
     name: "Technicien de combat",
-    health: 3, range: 1, move: 2, power: 2,
+    health: 2, range: 1, move: 2, power: 2,
     abilities: ["00011-overcharge"],
   },
   {
@@ -116,7 +119,7 @@ export const DefaultUnits: Unit[] = [
     quote: "« On avance ensemble, ou on ne rentre pas du tout. »",
     imageUrl: `${BASE_URL}/scifi-sergeant.webp`,
     name: "Sergent d'abordage",
-    health: 4, range: 1, move: 2, power: 2,
+    health: 3, range: 1, move: 2, power: 2,
     abilities: [],
   },
   {
@@ -124,17 +127,17 @@ export const DefaultUnits: Unit[] = [
     quote: "« UNITÉ 7-K : AUCUNE PEUR DÉTECTÉE. AUCUNE, JAMAIS. »",
     imageUrl: `${BASE_URL}/scifi-drone.webp`,
     name: "Drone sentinelle",
-    health: 2, range: 2, move: 3, power: 1,
+    health: 2, range: 2, move: 2, power: 1,
     abilities: [],
   },
 
-  // --- Historique · Ligne de 1812 --------------------------------- 98 pts --
+  // --- Historique · Ligne de 1812 --------------------------------- 93 pts --
   {
     id: "hist-grenadier",
     quote: "« La Garde meurt, monsieur. Elle ne recule pas. »",
     imageUrl: `${BASE_URL}/hist-grenadier.webp`,
     name: "Grenadier de la Garde",
-    health: 4, range: 1, move: 2, power: 2,
+    health: 5, range: 1, move: 2, power: 2,
     abilities: [],
   },
   {
@@ -143,7 +146,7 @@ export const DefaultUnits: Unit[] = [
     imageUrl: `${BASE_URL}/hist-voltigeur.webp`,
     name: "Voltigeur",
     health: 2, range: 2, move: 1, power: 2,
-    abilities: ["00010-precision-shot"],
+    abilities: ["00004-tactical-retreat"],
   },
   {
     id: "hist-cuirassier",
@@ -178,7 +181,7 @@ export const DefaultUnits: Unit[] = [
     abilities: [],
   },
 
-  // --- Post-apocalyptique · Convoi des Rouilleux ------------------ 91 pts --
+  // --- Post-apocalyptique · Convoi des Rouilleux ----------------- 100 pts --
   {
     id: "apoc-colossus",
     quote: "« Ils m'ont soudé pour durer. Pas pour reculer. »",
@@ -239,7 +242,6 @@ export const DefaultSquads: Squad[] = [
       unit("mage"),
       unit("fantasy-warden"),
       unit("fantasy-squire"),
-      unit("fantasy-huntress"),
     ],
   },
   {
@@ -266,7 +268,6 @@ export const DefaultSquads: Squad[] = [
       unit("hist-cuirassier"),
       unit("hist-sergeant"),
       unit("hist-drummer"),
-      unit("hist-fusilier"),
     ],
   },
   {
