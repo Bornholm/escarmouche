@@ -242,6 +242,79 @@ d'actions, que des parties plus longues aggravent. Un retour d'équilibrage des
 escouades (et de l'algorithme de coûts, qui a été calibré sous l'ancienne
 règle) sous la règle E reste à faire.
 
+## Suite — les stratégies extrêmes ne cassent pas le jeu
+
+Sonde dédiée : sept escouades « min-maxées », chacune poussant **un** levier à
+sa limite légale (statistique ≤ 10, unité ≤ 30 pts, escouade ≤ 100 pts),
+confrontées à deux compositions saines de référence. 144 parties.
+
+| Escouade | Taux | c/e/l |
+|---|---|---|
+| réf. équilibrée | **81,2 %** | 13/13/0 |
+| réf. mêlée lourde | **81,2 %** | 12/13/1 |
+| MUR (5 unités à 9 PV) | 68,8 % | 11/6/**5** |
+| BLITZ (mouvement 4 + charge) | 50,0 % | 9/7/0 |
+| TORTUE (gardien + posture) | 43,8 % | 7/3/4 |
+| ALPHA (puissance 4 + surcharge) | 43,8 % | 11/3/0 |
+| FANTÔME (repli tactique ×5) | 40,6 % | 4/9/0 |
+| NID (portée 4 + tir de précision) | 28,1 % | 1/8/0 |
+| VERROU (suppression ×4) | 12,5 % | 4/0/0 |
+
+*(c/e/l = victoires par capture / élimination / limite de tours)*
+
+**Les deux compositions saines dominent le tableau.** Aucun extrême ne casse le
+jeu : le VERROU s'effondre à 12,5 % (saturer de suppression, c'est renoncer à
+tuer), le NID à 28,1 % (la portée maximale ne tient pas un objectif).
+
+Un seul point d'attention, le **MUR** (cinq unités à 9 PV, 1 de puissance) :
+68,8 %, et surtout **5 victoires arrivées à la limite de tours** contre 0 ou 1
+pour toutes les autres — il gagne par attrition, pas par jeu. Il perd toutefois
+0-100 % contre les deux références : il est répondu, pas dominant. Le tir à la
+corde adopté ci-dessus est précisément ce qui l'empêche de bétonner
+tranquillement ; à surveiller si la règle évolue encore.
+
+## Suite — re-calibration des coûts sous la nouvelle règle
+
+Le barème de coûts avait été optimisé sous l'ancienne condition de victoire :
+il devait être re-mesuré. Run évolutionnaire (population 16, 10 générations,
+~1 600 parties) sous la règle E. Meilleure fitness **0,690** (génération 7),
+contre 0,541 mesurée pour le barème actuel.
+
+Le candidat brut est cependant **inutilisable**, et pour la même raison qu'en
+août : il pousse `MoveExponent` à 2,99 et `RangeExponent` à 2,00 (bornes
+hautes) tout en effondrant `PowerFactor` de 78 %. Traduit en profils jouables :
+
+| Barème | blitz 3/1/4/2 | nid 2/4/1/2 | polyvalent 3/3/2/2 | mur 9/1/2/1 |
+|---|---|---|---|---|
+| actuel | 24 | 26 | 22 | 20 |
+| **GA brut** | **101 ✗** | **81 ✗** | **42 ✗** | **31 ✗** |
+| tempéré A | 30 | 29 | 24 | 25 |
+
+Le candidat brut rend inachetable jusqu'à une unité aussi banale que
+3/3/2/2 — il « équilibre » en supprimant les trois quarts de l'espace de
+conception. Il fait même boucler le générateur d'escouades, incapable de
+composer 100 points sous ces coûts.
+
+La direction trouvée reste valable (santé, portée et mobilité sous-cotées,
+puissance surcotée) ; c'est l'amplitude qui est aberrante. D'où un barème
+**tempéré**, qui garde les directions en laissant portée 4 et mouvement 4
+accessibles.
+
+Validation par le tournoi des 7 doctrines (calibrées à ~100 pts sous chaque
+barème, avec réduction automatique quand le barème renchérit) :
+
+| Barème | Écart 1ᵉʳ-dernier | Dernières doctrines |
+|---|---|---|
+| actuel | 75 pts | kite 16,7 %, nuée 0 % |
+| **tempéré (adopté)** | **58 pts** | kite 25 %, nuée 16,7 % |
+
+**Adopté dans `core.DefaultCosts`** : Santé 2,0 · Portée 1,6 × 1,40^(r−1) ·
+Mouvement 0,8 × 1,75^(m−1) · Puissance 1,6 × 1,30^(p−1), plafond 30 inchangé.
+Le barème resserre l'écart entre doctrines et relève les deux plus faibles
+sans rien rendre inachetable. À noter : sous ce barème, la doctrine
+mobilité+portée ne tient plus qu'à 3 unités dans 100 points — le kite est
+enfin tarifé à son vrai prix.
+
 ## Note de méthode
 
 Deux erreurs ont été commises et corrigées en cours de route ; elles disent

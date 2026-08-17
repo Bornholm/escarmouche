@@ -13,25 +13,30 @@ type Costs struct {
 	MaxTotal      float64
 }
 
-// DefaultCosts : facteurs issus de l'évaluation d'équilibrage du 2026-08-16
-// (cf. docs/20260816_balancing.md). L'algorithme évolutionnaire, mesuré sur
-// des tournois stratifiés par archétype avec l'IA de recherche, indiquait :
-// santé sous-cotée, puissance sous-cotée, mobilité dominante dans un jeu à
-// objectif central. Les amplitudes ci-dessous sont la version « tempérée »
-// des directions trouvées : le candidat brut rendait Move ≥ 4 inachetable
-// (exposant 2,95), amputant l'espace de conception pour un gain de fitness
-// dans la marge de bruit (0,543 contre 0,531 mesurés).
+// DefaultCosts : facteurs re-mesurés le 2026-08-17 sous la condition de
+// victoire actuelle — 5 marqueurs et tir à la corde — qui a rallongé les
+// parties et changé ce qui a de la valeur (cf. 20260817_dominant-strategy.md).
+//
+// L'algorithme évolutionnaire indiquait santé, portée et mobilité sous-cotées,
+// puissance surcotée. Les amplitudes ci-dessous sont la version tempérée de
+// ces directions, pour la même raison qu'en août : le candidat brut poussait
+// les exposants à leurs bornes (Move 2,99 / Range 2,00) et rendait
+// inachetable jusqu'à une unité aussi banale que 3/3/2/2 — 42 points sur un
+// plafond de 30. Il « équilibrait » en supprimant l'espace de conception.
+//
+// Le barème retenu garde portée 4 et mouvement 4 accessibles, et resserre
+// l'écart entre doctrines extrêmes de 75 à 58 points de taux de victoire.
 var DefaultCosts = Costs{
-	HealthFactor: 1.5,
+	HealthFactor: 2.0,
 
-	RangeFactor:   1.4,
-	RangeExponent: 1.35,
+	RangeFactor:   1.6,
+	RangeExponent: 1.40,
 
-	MoveFactor:   0.7,
-	MoveExponent: 1.6,
+	MoveFactor:   0.8,
+	MoveExponent: 1.75,
 
-	PowerFactor:   2.2,
-	PowerExponent: 1.2,
+	PowerFactor:   1.6,
+	PowerExponent: 1.30,
 
 	MaxTotal: 30,
 }
