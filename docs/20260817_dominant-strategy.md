@@ -353,6 +353,68 @@ qui fait l'équilibre, et c'est là que doit porter l'attention de conception
 — une piste future serait de conditionner certaines capacités à des seuils de
 caractéristiques.
 
+## Annexe — évaluer les contraintes d'accès aux capacités
+
+La conclusion « une capacité a un prix × un porteur » appelle une méthode
+d'évaluation reproductible, en trois étages :
+
+**1. Mesurer la rente d'appariement.** Pour une capacité donnée, jouer la
+même escouade (châssis fixe, budget égalisé à 100 pts) avec et sans la
+capacité, en faisant varier uniquement le profil du porteur, contre un jury
+fixe d'escouades de référence. Le delta de taux de victoire par porteur est
+la **valeur effective** de la capacité sur ce porteur ; son prix étant fixe,
+tout delta qui croît avec une caractéristique du porteur signale une rente —
+et l'endroit où la courbe décroche donne directement le seuil de contrainte.
+
+**2. Choisir l'instrument.** Trois options par capacité à rente, du plus
+souple au plus dur :
+   - *tarification dynamique* : le coût de la capacité dépend du porteur
+     (ex. Repli Tactique à 2 + 3×max(0, Mouvement−2)) — préserve tout
+     l'espace de conception, mais complexifie la lecture des cartes ;
+   - *seuil d'accès* : la capacité exige ou interdit une valeur de
+     caractéristique (ex. « Mouvement 2 ou moins ») — lisible sur la carte,
+     ferme des combinaisons ;
+   - *ne rien faire* : si le barème général rend déjà l'appariement abusif
+     inachetable sous le plafond de 30 pts, la contrainte est implicite.
+
+**3. Valider l'instrument comme une règle.** Ré-exécuter la sonde min-max
+avec la contrainte en vigueur : l'abus doit disparaître, ET la capacité doit
+rester jouée sur ses porteurs légaux (une contrainte qui tue la capacité a
+juste déplacé le problème).
+
+### Pilote : le Repli Tactique (96 parties)
+
+Châssis fixe, budget égalisé à 100 pts, jury de deux escouades de référence,
+12 parties par configuration (±25 pts de bruit — seuls les grands deltas
+sont significatifs) :
+
+| Porteur | Sans | Avec | Rente |
+|---|---|---|---|
+| mouvement 4 (2/1/4/2, 30 pts) | 16,7 % | 33,3 % | +16,7 |
+| mouvement 3 (3/1/3/2) | 50,0 % | 58,3 % | +8,3 |
+| mouvement 2 (3/2/2/2) | 33,3 % | 83,3 % | **+50,0** |
+| mouvement 1 (3/3/1/2, tireur) | 8,3 % | 58,3 % | **+50,0** |
+
+Deux conclusions, dont une inattendue :
+
+- **La contrainte pressentie (« interdire au-delà de Mouvement 2 ») est
+  réfutée.** La rente de mobilité qui avait déséquilibré les escouades par
+  défaut a disparu — le nouveau barème l'a tarifée d'office : le porteur
+  rapide coûte désormais 30 pts pour 2 PV, et la capacité ne le sauve pas.
+  C'est le cas « ne rien faire » de l'étage 2 : la contrainte est devenue
+  implicite dans le prix des statistiques.
+- **La rente s'est déplacée, pas éteinte.** +50 points de taux de victoire
+  sur les porteurs qui ont une action offensive à protéger (tirer, puis
+  devenir inciblable), pour un prix de 2 points : la capacité est
+  sous-tarifée dans l'absolu. L'instrument approprié n'est pas un seuil
+  d'accès mais un **re-prix** (2 → 4 ou 5 pts), à valider par une nouvelle
+  passe — en notant qu'un re-prix invaliderait la calibration des escouades
+  par défaut (le Voltigeur porte cette capacité) et demanderait une retouche.
+
+La méthode a fait exactement ce qu'on lui demandait : dire OÙ porte la rente
+avant de choisir l'instrument. Les onze autres capacités peuvent passer au
+même banc (`scratchpad/pairing`), un porteur-axe à la fois.
+
 ## Note de méthode
 
 Deux erreurs ont été commises et corrigées en cours de route ; elles disent
