@@ -26,12 +26,12 @@ import { BASE_URL } from "./baseUrl";
    ========================================================================== */
 
 export const DefaultUnits: Unit[] = [
-  // --- Fantasy · Compagnie de l'Aube ------------------------------ 90 pts --
+  // --- Fantasy · Compagnie de l'Aube ----------------------------- 100 pts --
   {
     id: "knight",
     quote: "« Mon serment est plus vieux que vos murailles. »",
     name: "Templier",
-    health: 2, range: 1, move: 1, power: 1,
+    health: 2, range: 1, move: 2, power: 1,
     imageUrl: `${BASE_URL}/fantasy-templar.webp`,
     abilities: [],
   },
@@ -39,7 +39,7 @@ export const DefaultUnits: Unit[] = [
     id: "archer",
     quote: "« La flèche est partie avant que tu ne poses la question. »",
     name: "Archer elfe",
-    health: 1, range: 2, move: 1, power: 2,
+    health: 2, range: 2, move: 2, power: 2,
     imageUrl: `${BASE_URL}/fantasy-archer.webp`,
     abilities: [],
   },
@@ -47,7 +47,7 @@ export const DefaultUnits: Unit[] = [
     id: "mage",
     quote: "« Le crépuscule n'est pas une heure. C'est un endroit. »",
     name: "Sorcier crépusculaire",
-    health: 1, range: 3, move: 2, power: 3,
+    health: 2, range: 3, move: 2, power: 3,
     imageUrl: `${BASE_URL}/fantasy-mage.webp`,
     abilities: ["00001-energy-trait"],
   },
@@ -56,7 +56,7 @@ export const DefaultUnits: Unit[] = [
     quote: "« Frappe-le, et c'est moi que tu trouveras. »",
     imageUrl: `${BASE_URL}/fantasy-warden.webp`,
     name: "Gardien du serment",
-    health: 4, range: 1, move: 1, power: 2,
+    health: 4, range: 1, move: 2, power: 2,
     abilities: ["00008-guardian"],
   },
   {
@@ -72,7 +72,7 @@ export const DefaultUnits: Unit[] = [
     quote: "« La forêt m'a appris à attendre. Vos armées, à viser. »",
     imageUrl: `${BASE_URL}/fantasy-huntress.webp`,
     name: "Chasseresse sylvestre",
-    health: 2, range: 2, move: 1, power: 1,
+    health: 2, range: 2, move: 2, power: 1,
     abilities: [],
   },
 
@@ -86,13 +86,13 @@ export const DefaultUnits: Unit[] = [
     abilities: [],
   },
 
-  // --- Science-fiction · Détachement Vanguard --------------------- 78 pts --
+  // --- Science-fiction · Détachement Vanguard --------------------- 95 pts --
   {
     id: "scifi-heavy",
     quote: "« Zone verrouillée. Personne ne traverse mon couloir de tir. »",
     imageUrl: `${BASE_URL}/scifi-heavy.webp`,
     name: "Fusilier lourd",
-    health: 3, range: 2, move: 1, power: 2,
+    health: 4, range: 2, move: 2, power: 2,
     abilities: ["00003-suppressing-fire"],
   },
   {
@@ -100,7 +100,7 @@ export const DefaultUnits: Unit[] = [
     quote: "« J'ai vu votre plan d'en haut. Il est déjà obsolète. »",
     imageUrl: `${BASE_URL}/scifi-scout.webp`,
     name: "Éclaireur orbital",
-    health: 2, range: 2, move: 3, power: 2,
+    health: 3, range: 2, move: 3, power: 2,
     abilities: ["00004-tactical-retreat"],
   },
   {
@@ -108,7 +108,7 @@ export const DefaultUnits: Unit[] = [
     quote: "« Les limites constructeur ? Je les ai désactivées. »",
     imageUrl: `${BASE_URL}/scifi-tech.webp`,
     name: "Technicien de combat",
-    health: 2, range: 1, move: 2, power: 1,
+    health: 3, range: 1, move: 2, power: 2,
     abilities: ["00011-overcharge"],
   },
   {
@@ -116,7 +116,7 @@ export const DefaultUnits: Unit[] = [
     quote: "« On avance ensemble, ou on ne rentre pas du tout. »",
     imageUrl: `${BASE_URL}/scifi-sergeant.webp`,
     name: "Sergent d'abordage",
-    health: 3, range: 1, move: 1, power: 2,
+    health: 4, range: 1, move: 2, power: 2,
     abilities: [],
   },
   {
@@ -124,17 +124,17 @@ export const DefaultUnits: Unit[] = [
     quote: "« UNITÉ 7-K : AUCUNE PEUR DÉTECTÉE. AUCUNE, JAMAIS. »",
     imageUrl: `${BASE_URL}/scifi-drone.webp`,
     name: "Drone sentinelle",
-    health: 1, range: 2, move: 2, power: 1,
+    health: 2, range: 2, move: 3, power: 1,
     abilities: [],
   },
 
-  // --- Historique · Ligne de 1812 --------------------------------- 95 pts --
+  // --- Historique · Ligne de 1812 --------------------------------- 98 pts --
   {
     id: "hist-grenadier",
     quote: "« La Garde meurt, monsieur. Elle ne recule pas. »",
     imageUrl: `${BASE_URL}/hist-grenadier.webp`,
     name: "Grenadier de la Garde",
-    health: 4, range: 1, move: 1, power: 2,
+    health: 4, range: 1, move: 2, power: 2,
     abilities: [],
   },
   {
@@ -174,17 +174,17 @@ export const DefaultUnits: Unit[] = [
     quote: "« Trois rangs, une salve, et le monde change de camp. »",
     imageUrl: `${BASE_URL}/hist-fusilier.webp`,
     name: "Fusilier de ligne",
-    health: 2, range: 2, move: 1, power: 1,
+    health: 2, range: 2, move: 2, power: 1,
     abilities: [],
   },
 
-  // --- Post-apocalyptique · Convoi des Rouilleux ------------------ 85 pts --
+  // --- Post-apocalyptique · Convoi des Rouilleux ------------------ 91 pts --
   {
     id: "apoc-colossus",
     quote: "« Ils m'ont soudé pour durer. Pas pour reculer. »",
     imageUrl: `${BASE_URL}/apoc-colossus.webp`,
     name: "Colosse de fonte",
-    health: 5, range: 1, move: 1, power: 2,
+    health: 5, range: 1, move: 2, power: 2,
     abilities: ["00006-devastating-strike"],
   },
   {
@@ -192,7 +192,7 @@ export const DefaultUnits: Unit[] = [
     quote: "« Une balle, une boîte de conserve. Je ne gaspille ni l'une ni l'autre. »",
     imageUrl: `${BASE_URL}/apoc-sharpshooter.webp`,
     name: "Tireuse de tôle",
-    health: 2, range: 3, move: 1, power: 2,
+    health: 3, range: 3, move: 1, power: 2,
     abilities: [],
   },
   {
@@ -200,7 +200,7 @@ export const DefaultUnits: Unit[] = [
     quote: "« Tout se répare. Sauf ce que je viens de faucher. »",
     imageUrl: `${BASE_URL}/apoc-scrapper.webp`,
     name: "Ferrailleur",
-    health: 3, range: 1, move: 2, power: 2,
+    health: 4, range: 1, move: 2, power: 2,
     abilities: ["00009-sweep"],
   },
   {
@@ -216,7 +216,7 @@ export const DefaultUnits: Unit[] = [
     quote: "« Ça tient avec du fil de fer et de la foi. Surtout du fil de fer. »",
     imageUrl: `${BASE_URL}/apoc-mechanic.webp`,
     name: "Mécano bricoleur",
-    health: 2, range: 1, move: 1, power: 1,
+    health: 2, range: 1, move: 2, power: 1,
     abilities: ["00011-overcharge"],
   },
 ];
