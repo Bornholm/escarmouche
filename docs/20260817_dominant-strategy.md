@@ -412,8 +412,46 @@ Deux conclusions, dont une inattendue :
   par défaut (le Voltigeur porte cette capacité) et demanderait une retouche.
 
 La méthode a fait exactement ce qu'on lui demandait : dire OÙ porte la rente
-avant de choisir l'instrument. Les onze autres capacités peuvent passer au
-même banc (`scratchpad/pairing`), un porteur-axe à la fois.
+avant de choisir l'instrument.
+
+### Banc complet : les 12 capacités (576 parties)
+
+Chaque capacité mesurée sur trois porteurs le long de son axe de rente
+plausible, témoins partagés par axe, 12 parties par configuration (±25 pts de
+bruit par point de mesure ; c'est la **cohérence du signe sur les trois
+porteurs** qui fait la significativité, pas un point isolé).
+
+| Capacité (prix) | Axe | Rentes (bas / moyen / haut) | Verdict |
+|---|---|---|---|
+| Repli Tactique (2) | mouvement | **+41,7 / +41,7 / +41,7** | **sous-tarifée** — uniforme, pas un appariement |
+| Posture Défensive (3) | santé | −33,3 / −16,7 / −25,0 | sur-tarifée (négative partout) |
+| Gardien (4) | santé | −8,3 / −16,7 / −33,3 | sur-tarifée (négative partout) |
+| En Avant ! (5) | mouvement | −16,7 / −33,3 / +16,7 | sur-tarifée probable |
+| Balayage (5) | santé | −16,7 / +8,3 / −41,7 | sur-tarifée probable |
+| Trait d'Énergie (3) | portée | −16,7 / −16,7 / **+33,3** | rente d'appariement sur portée 3 |
+| Tir de Précision (4) | portée | −33,3 / 0,0 / **+25,0** | gradient croissant avec la portée |
+| Feinte (3) | mouvement | +25,0 / +16,7 / +8,3 | correcte (légèrement favorable aux lents) |
+| Charge (3) | mouvement | 0,0 / +16,7 / +8,3 | correcte |
+| Tir de Suppression (4) | mouvement | +8,3 / −16,7 / 0,0 | correcte |
+| Surcharge (3) | puissance | −8,3 / 0,0 / 0,0 | correcte |
+| Frappe Dévastatrice (6) | puissance | +16,7 / +25,0 / −33,3 | correcte (rachète les faibles puissances, logique) |
+
+**La conclusion d'ensemble renverse la question initiale.** On cherchait des
+contraintes d'accès ; le banc montre qu'il n'en faut (presque) pas :
+
+- **Aucune rente d'appariement forte ne subsiste** — le plafond de 30 pts et
+  le nouveau barème ont neutralisé les combinaisons abusives. Le Repli
+  Tactique lui-même est fort *uniformément* (+41,7 sur les trois porteurs) :
+  c'est un problème de **prix**, pas de porteur.
+- Les seuls gradients d'appariement restants sont **Trait d'Énergie et Tir de
+  Précision sur porteurs à longue portée** — des points isolés dans le bruit,
+  mais un gradient cohérent (−17→−17→+33 et −33→0→+25) : à surveiller, pas à
+  légiférer.
+- Le vrai chantier révélé est le **tarif des capacités** : Repli Tactique
+  sous-tarifé (2 → 4 proposé) ; Posture Défensive, Gardien, En Avant ! et
+  Balayage sur-tarifés d'un à deux points chacun. Tout re-prix devra être
+  suivi d'une re-validation des escouades par défaut, qui portent quatre de
+  ces cinq capacités.
 
 ## Note de méthode
 
