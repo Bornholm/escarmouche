@@ -145,6 +145,47 @@ Vanguard 95, Ligne 1812 98, Convoi 91 — contre 90 / 78 / 95 / 85 au départ.
 L'équilibre entre elles reste imparfait, et le restera jusqu'à l'arbitrage sur
 la condition de victoire.
 
+## Suite — les variantes de condition de victoire, mesurées
+
+Les trois leviers proposés plus haut (plus deux combinaisons) ont été mis à
+l'épreuve : la condition de capture est devenue paramétrable dans le moteur
+(`sim.CaptureRules`, portée par le `GameState` pour que la recherche alpha-beta
+joue la variante et non la règle de base), et les 7 doctrines ont rejoué leur
+round-robin sous chaque variante — 42 parties par condition, 210 au total.
+
+| Variante | Fins par élim. | Durée moy. | Écart 1ᵉʳ-dernier | Dominant |
+|---|---|---|---|---|
+| A. actuelle (3 marqueurs) | 17 % | 7,2 tours | 83 pts | mêlée **100 %** |
+| B. 5 marqueurs | 40 % | 11,4 | 75 | concentrée 91,7 % |
+| C. décompte au 3ᵉ tour | 26 % | 11,0 | 75 | concentrée 83,3 % |
+| D. tir à la corde seul | 12 % | 6,6 | 83 | mêlée 91,7 % |
+| E. 5 marqueurs + corde | **48 %** | 12,3 | **67** | concentrée 75 % |
+
+Lecture :
+
+- **D seul ne change rien** : voler un marqueur à l'adversaire ne sert que si
+  l'adversaire en a — or dans une course, le perdant n'en gagne jamais. La
+  partie reste une course, encore plus courte qu'avant.
+- **B et C fonctionnent par le même mécanisme** : allonger la partie (7 → 11
+  tours) laisse le combat exister. La part d'éliminations monte, l'artillerie
+  redevient jouable.
+- **E est la meilleure des cinq** : moitié captures, moitié éliminations —
+  aucun style de victoire ne domine ; aucune doctrine au-dessus de 75 % ;
+  cinq des sept doctrines entre 25 et 75 % de victoires ; et l'artillerie
+  passe de 25 % (règle actuelle) à 66,7 %. Tenir la zone y exige d'avoir
+  d'abord gagné le rapport de force — la capture couronne le combat au lieu
+  de le remplacer.
+- **La nuée reste morte partout** (8-17 %). Son problème n'est pas la
+  condition de victoire mais l'économie d'actions : 2 actions par tour quel
+  que soit l'effectif. C'est un levier distinct, à traiter séparément.
+
+Réserve : 42 parties par variante, soit ±15 points de bruit sur les taux
+individuels. Les classements fins entre doctrines voisines ne sont pas
+significatifs ; la répartition des types de fin et les durées, elles, le sont.
+
+Aucune variante n'est appliquée : la règle publiée reste A tant que
+l'arbitrage de design n'est pas rendu.
+
 ## Note de méthode
 
 Deux erreurs ont été commises et corrigées en cours de route ; elles disent
