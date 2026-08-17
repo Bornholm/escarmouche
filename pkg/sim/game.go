@@ -32,6 +32,7 @@ func NewGame(player1 []Unit, player2 []Unit, funcs ...OptionFunc) *Game {
 		ControlPoints: map[PlayerID]int{},
 		TurnsPlayed:   map[PlayerID]int{},
 		Rules:         opts.CaptureRules,
+		ActionRules:   opts.ActionRules,
 	}
 
 	var unitID UnitID = 0
@@ -160,7 +161,7 @@ type GameStep struct {
 //     par le prochain point de dégât (cf. applyDamage).
 func beginTurn(state GameState, playerID PlayerID) GameState {
 	state.CurrentPlayerID = playerID
-	state.ActionsLeft = 2
+	state.ActionsLeft = state.actionsFor(playerID)
 
 	state.DelAll(CounterRoundAttacks)
 	state.DelAll(CounterRoundAbilities)

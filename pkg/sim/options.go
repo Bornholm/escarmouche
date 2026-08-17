@@ -12,8 +12,11 @@ type Options struct {
 	// balancer qui n'ont pas de phase de mise en place).
 	Deployment map[PlayerID][]Position
 	// CaptureRules : condition de victoire par capture. La valeur par défaut
-	// reproduit la règle publiée (3 marqueurs, décompte immédiat, cumulatif).
+	// reproduit la règle publiée.
 	CaptureRules CaptureRules
+	// ActionRules : économie d'actions. La valeur zéro reproduit la règle
+	// publiée (2 actions par tour, quel que soit l'effectif).
+	ActionRules ActionRules
 }
 
 type OptionFunc func(opts *Options)
@@ -56,6 +59,13 @@ func WithDeployment(deployment map[PlayerID][]Position) OptionFunc {
 func WithCaptureRules(rules CaptureRules) OptionFunc {
 	return func(opts *Options) {
 		opts.CaptureRules = rules
+	}
+}
+
+// WithActionRules remplace l'économie d'actions — même usage expérimental.
+func WithActionRules(rules ActionRules) OptionFunc {
+	return func(opts *Options) {
+		opts.ActionRules = rules
 	}
 }
 

@@ -187,7 +187,7 @@
     "skip": "Skip",
     "steps": {
       "battle": {
-        "text": "Test your squad against the AI: place your obstacle, take the central zone and hold it for three turns.",
+        "text": "Test your squad against the AI: place your obstacle and fight over the central zone — every marker you score strips one from your opponent, first to five wins.",
         "title": "March into battle"
       },
       "budget": {

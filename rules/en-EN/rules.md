@@ -98,7 +98,11 @@ On their turn, the active player performs **exactly 2 actions** among:
 
 At the **end of their turn**, the active player checks whether they **control
 the central zone**: at least one of their units is inside it and **no** enemy
-unit is. If so, they gain **1 control marker**.
+unit is. If so, they gain **1 control marker** — and **their opponent loses
+1** if they have any.
+
+The zone is thus fought over like a tug-of-war: holding the center advances
+your score *and* pushes back your opponent's. Lost control can be won back.
 
 ## Combat
 
@@ -122,7 +126,7 @@ The game is won in either of the following ways:
 
 ### Victory by capture
 
-The first player to accumulate **3 control markers** of the central zone
+The first player to accumulate **5 control markers** of the central zone
 immediately wins the game.
 
 ### Victory by elimination

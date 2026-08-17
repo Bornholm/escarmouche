@@ -63,11 +63,17 @@ const (
 const BoardSize = 8
 
 // ObjectiveZone est la zone de capture centrale 2×2. La contrôler de façon
-// exclusive à la fin de son tour rapporte 1 point ; le premier joueur à
-// ControlPointsToWin l'emporte.
+// exclusive à la fin de son tour rapporte 1 marqueur — et en retire 1 à
+// l'adversaire ; le premier joueur à ControlPointsToWin l'emporte.
+//
+// Réglage issu du banc d'essai des conditions de victoire
+// (docs/20260817_dominant-strategy.md) : à 3 marqueurs cumulatifs, 83 % des
+// parties se gagnaient à la course en ~7 tours et une doctrine dominait à
+// 100 %. À 5 marqueurs volables, les fins se partagent moitié capture,
+// moitié élimination et aucune doctrine ne dépasse 75 %.
 var ObjectiveZone = []Position{{X: 3, Y: 3}, {X: 4, Y: 3}, {X: 3, Y: 4}, {X: 4, Y: 4}}
 
-const ControlPointsToWin = 3
+const ControlPointsToWin = 5
 
 // CaptureRules paramètre la condition de victoire par capture. Les variantes
 // vivent dans le GameState : endTurn et terminalState étant partagés entre la
@@ -85,7 +91,38 @@ type CaptureRules struct {
 	ContestSteals bool
 }
 
-var DefaultCaptureRules = CaptureRules{PointsToWin: ControlPointsToWin}
+var DefaultCaptureRules = CaptureRules{PointsToWin: ControlPointsToWin, ContestSteals: true}
+
+// ActionRules paramètre l'économie d'actions. La règle publiée donne 2
+// actions par tour quel que soit l'effectif — ce qui pénalise structurellement
+// les escouades nombreuses (6 unités n'en activent qu'un tiers par tour).
+// PerUnits > 0 fait croître le budget d'actions avec l'effectif survivant.
+type ActionRules struct {
+	// Base : actions accordées chaque tour. 0 vaut 2 (règle publiée).
+	Base int
+	// PerUnits : +1 action par tranche complète de PerUnits unités encore en
+	// vie au début du tour. 0 = désactivé.
+	PerUnits int
+}
+
+// actionsFor calcule le budget d'actions du joueur pour un tour, selon les
+// ActionRules en vigueur et son effectif survivant.
+func (s GameState) actionsFor(playerID PlayerID) int {
+	base := s.ActionRules.Base
+	if base <= 0 {
+		base = 2
+	}
+	if s.ActionRules.PerUnits <= 0 {
+		return base
+	}
+	alive := 0
+	for _, unit := range s.Units {
+		if unit.OwnerID == playerID {
+			alive++
+		}
+	}
+	return base + alive/s.ActionRules.PerUnits
+}
 
 // pointsToWin renvoie le seuil de victoire effectif, en traitant la valeur
 // zéro comme « règle par défaut » plutôt que « victoire immédiate ».
@@ -131,6 +168,7 @@ type GameState struct {
 	// TurnsPlayed : tours achevés par joueur — support de HoldOffRounds.
 	TurnsPlayed     map[PlayerID]int
 	Rules           CaptureRules
+	ActionRules     ActionRules
 	CurrentPlayerID PlayerID
 	ActionsLeft     int
 }
@@ -204,6 +242,7 @@ func (s GameState) Copy() GameState {
 		ControlPoints:   map[PlayerID]int{},
 		TurnsPlayed:     map[PlayerID]int{},
 		Rules:           s.Rules,
+		ActionRules:     s.ActionRules,
 		CurrentPlayerID: s.CurrentPlayerID,
 		ActionsLeft:     s.ActionsLeft,
 	}

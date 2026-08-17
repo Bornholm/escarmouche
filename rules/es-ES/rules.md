@@ -99,7 +99,12 @@ En su turno, el jugador activo efectúa **exactamente 2 acciones** entre:
 
 Al **final de su turno**, el jugador activo comprueba si **controla la zona
 central**: al menos una de sus unidades está dentro y **ninguna** unidad
-enemiga lo está. Si es así, gana **1 marcador de control**.
+enemiga lo está. Si es así, gana **1 marcador de control** — y **su adversario
+pierde 1** si tiene alguno.
+
+La zona se disputa por tanto como un pulso: mantener el centro hace avanzar tu
+marcador *y* retroceder el del adversario. Un control perdido puede
+reconquistarse.
 
 ## Combate
 
@@ -123,7 +128,7 @@ La partida se gana de una de las dos formas siguientes:
 
 ### Victoria por captura
 
-El primer jugador en acumular **3 marcadores de control** de la zona central
+El primer jugador en acumular **5 marcadores de control** de la zona central
 gana inmediatamente la partida.
 
 ### Victoria por eliminación

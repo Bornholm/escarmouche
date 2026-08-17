@@ -183,8 +183,9 @@ Réserve : 42 parties par variante, soit ±15 points de bruit sur les taux
 individuels. Les classements fins entre doctrines voisines ne sont pas
 significatifs ; la répartition des types de fin et les durées, elles, le sont.
 
-Aucune variante n'est appliquée : la règle publiée reste A tant que
-l'arbitrage de design n'est pas rendu.
+**Arbitrage rendu : la variante E est la règle publiée** — 5 marqueurs, et
+marquer en retire un à l'adversaire. Moteur, règles (fr/en/es) et onboarding
+mis à jour en conséquence.
 
 ## Note de méthode
 

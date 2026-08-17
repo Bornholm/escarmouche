@@ -187,7 +187,7 @@
     "skip": "Omitir",
     "steps": {
       "battle": {
-        "text": "Prueba tu escuadra contra la IA: coloca tu obstáculo, toma la zona central y mantenla tres turnos.",
+        "text": "Prueba tu escuadra contra la IA: coloca tu obstáculo y disputa la zona central — cada marcador ganado le quita uno al adversario, el primero en llegar a cinco gana.",
         "title": "Marcha a la batalla"
       },
       "budget": {

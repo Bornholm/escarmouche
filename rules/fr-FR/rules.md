@@ -100,7 +100,11 @@ principale voie vers la victoire (voir Conditions de victoire).
 
 À la **fin de son tour**, le joueur actif vérifie s'il **contrôle la zone
 centrale** : au moins une de ses unités s'y trouve et **aucune** unité adverse
-ne s'y trouve. Si c'est le cas, il gagne **1 marqueur de contrôle**.
+ne s'y trouve. Si c'est le cas, il gagne **1 marqueur de contrôle** — et
+**l'adversaire en perd 1** s'il en possède.
+
+La zone se dispute donc comme un bras de fer : tenir le centre fait progresser
+son score *et* reculer celui de l'adversaire. Un contrôle perdu se reconquiert.
 
 ## Combat
 
@@ -124,7 +128,7 @@ La partie se gagne de l'une des deux façons suivantes :
 
 ### Victoire par capture
 
-Le premier joueur à accumuler **3 marqueurs de contrôle** de la zone centrale
+Le premier joueur à accumuler **5 marqueurs de contrôle** de la zone centrale
 remporte immédiatement la partie.
 
 ### Victoire par élimination

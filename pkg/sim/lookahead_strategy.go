@@ -102,7 +102,7 @@ func (s *searcher) alphabeta(state GameState, maximizer PlayerID, remaining int,
 	if len(actions) == 0 {
 		// Aucune action possible : le tour se termine de fait.
 		next := advanceTurn(state.Copy(), currentPlayer)
-		_, score, complete := s.alphabeta(next, maximizer, 2, depth-1, alpha, beta)
+		_, score, complete := s.alphabeta(next, maximizer, next.ActionsLeft, depth-1, alpha, beta)
 		return nil, score, complete
 	}
 
@@ -114,9 +114,10 @@ func (s *searcher) alphabeta(state GameState, maximizer PlayerID, remaining int,
 		nextRemaining := remaining - 1
 		if nextRemaining <= 0 {
 			// Fin du tour du joueur courant : scoring de la zone puis main à
-			// l'adversaire — exactement ce que fait la boucle de jeu.
+			// l'adversaire — exactement ce que fait la boucle de jeu, budget
+			// d'actions du tour suivant compris (il dépend de l'effectif).
 			next = advanceTurn(next, currentPlayer)
-			nextRemaining = 2
+			nextRemaining = next.ActionsLeft
 		} else {
 			next.ActionsLeft = nextRemaining - 1
 		}
