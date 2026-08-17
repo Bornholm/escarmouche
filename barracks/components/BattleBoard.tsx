@@ -28,6 +28,29 @@ export const cellName = (x: number, y: number): string => `${COLUMNS[x] ?? "?"}$
 const placement = (x: number, y: number) =>
   ({ "--tx": x, "--ty": BOARD_SIZE - 1 - y }) as React.CSSProperties;
 
+/**
+ * Vecteur source → cible exprimé dans le repère de l'ÉCRAN : x vers la droite,
+ * y vers le BAS. La conversion est indispensable — le plateau numérote ses
+ * rangées de bas en haut (la rangée 1 est en bas), alors que la grille les
+ * dessine de haut en bas. Sans elle, tout trait de tir pointe à la verticale
+ * du côté opposé à sa cible.
+ *
+ * L'angle qui en découle s'utilise tel quel dans un `rotate()` CSS, dont le
+ * sens positif est déjà celui des aiguilles d'une montre.
+ */
+const screenVector = (effect: BattleEffect) => {
+  const fromX = effect.fromX ?? effect.x;
+  const fromY = effect.fromY ?? effect.y;
+  const dx = effect.x - fromX;
+  const dy = fromY - effect.y;
+  return {
+    dx,
+    dy,
+    length: Math.hypot(dx, dy),
+    angle: (Math.atan2(dy, dx) * 180) / Math.PI,
+  };
+};
+
 /** Familles de signature visuelle des capacités (cf. app.css). */
 const ABILITY_FAMILY: Record<string, string> = {
   "00000-charge": "rush",
@@ -316,19 +339,16 @@ const Effect: React.FC<{ effect: BattleEffect }> = ({ effect }) => {
       );
 
     case "tracer": {
-      // Le trait relie deux cases : on le dessine depuis la case source, sa
-      // longueur et son angle se déduisent du vecteur.
-      const dx = effect.x - (effect.fromX ?? effect.x);
-      const dy = (effect.fromY ?? effect.y) - effect.y;
-      const length = Math.hypot(dx, dy);
-      const angle = (Math.atan2(dy, dx) * 180) / Math.PI;
+      // Le trait relie les CENTRES des deux cases : il est donc ancré sur la
+      // case source, et sa longueur comme son angle se déduisent du vecteur.
+      const { length, angle } = screenVector(effect);
       return (
         <div
           className="fx fx--tracer"
           style={{
             ...placement(effect.fromX ?? effect.x, effect.fromY ?? effect.y),
             ["--len" as string]: length,
-            ["--angle" as string]: `${-angle}deg`,
+            ["--angle" as string]: `${angle}deg`,
           } as React.CSSProperties}
         />
       );
@@ -336,15 +356,22 @@ const Effect: React.FC<{ effect: BattleEffect }> = ({ effect }) => {
 
     case "ability": {
       const family = ABILITY_FAMILY[effect.abilityID ?? ""] ?? "halo";
-      const dx = effect.x - (effect.fromX ?? effect.x);
-      const dy = (effect.fromY ?? effect.y) - effect.y;
+      const { length, angle } = screenVector(effect);
+
+      // Un rayon part du tireur ; les autres signatures (halo, onde, impact)
+      // se posent au contraire sur la case visée.
+      const anchored =
+        family === "beam"
+          ? placement(effect.fromX ?? effect.x, effect.fromY ?? effect.y)
+          : style;
+
       return (
         <div
           className={`fx fx--ability fx--ability-${family}`}
           style={{
-            ...style,
-            ["--len" as string]: Math.hypot(dx, dy),
-            ["--angle" as string]: `${-(Math.atan2(dy, dx) * 180) / Math.PI}deg`,
+            ...anchored,
+            ["--len" as string]: length,
+            ["--angle" as string]: `${angle}deg`,
           } as React.CSSProperties}
         />
       );
@@ -399,8 +426,8 @@ const UnitToken: React.FC<UnitTokenProps> = ({
   // La ruée : un décalage vers la cible, absorbé par la transition du jeton.
   const lungeStyle: React.CSSProperties | undefined = lunge
     ? ({
-        ["--lx" as string]: Math.sign(lunge.x - (lunge.fromX ?? lunge.x)),
-        ["--ly" as string]: Math.sign((lunge.fromY ?? lunge.y) - lunge.y),
+        ["--lx" as string]: Math.sign(screenVector(lunge).dx),
+        ["--ly" as string]: Math.sign(screenVector(lunge).dy),
       } as React.CSSProperties)
     : undefined;
 

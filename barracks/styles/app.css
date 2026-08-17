@@ -1626,7 +1626,7 @@
 .token--lunge { animation: tokenLunge 380ms var(--ease-out); }
 @keyframes tokenLunge {
   0%   { transform: translate(0, 0); }
-  45%  { transform: translate(calc(var(--lx, 0) * 34%), calc(var(--ly, 0) * -34%)); }
+  45%  { transform: translate(calc(var(--lx, 0) * 34%), calc(var(--ly, 0) * 34%)); }
   100% { transform: translate(0, 0); }
 }
 
@@ -1731,9 +1731,14 @@
 .fx--tracer {
   width: calc(var(--board-cell) * var(--len));
   height: 2px;
-  transform-origin: calc(var(--board-cell) / 2) 50%;
+  /* Le trait pivote autour de son extrémité gauche, amenée au CENTRE de la
+     case source : c'est de centre à centre qu'une ligne de tir se lit. */
+  transform-origin: 0 50%;
   transform:
-    translate(calc(var(--board-cell) * var(--tx)), calc(var(--board-cell) * var(--ty) + var(--board-cell) / 2))
+    translate(
+      calc(var(--board-cell) * var(--tx) + var(--board-cell) / 2),
+      calc(var(--board-cell) * var(--ty) + var(--board-cell) / 2)
+    )
     rotate(var(--angle));
   background: linear-gradient(90deg, transparent, var(--act-attack-mark));
   animation: tracerFlash 320ms var(--ease-out) forwards;
@@ -1781,6 +1786,7 @@
 .fx--ability-beam::before {
   height: 3px;
   top: 50%;
+  left: 50%;
   width: calc(var(--board-cell) * var(--len, 1));
   background: linear-gradient(90deg, transparent, var(--act-ability-mark));
   transform-origin: 0 50%;
