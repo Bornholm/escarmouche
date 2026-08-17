@@ -315,6 +315,44 @@ sans rien rendre inachetable. À noter : sous ce barème, la doctrine
 mobilité+portée ne tient plus qu'à 3 unités dans 100 points — le kite est
 enfin tarifé à son vrai prix.
 
+## Suite et fin — les escouades par défaut équilibrées
+
+Sous le nouveau barème, les quatre escouades ont été recalibrées (93 à
+100 pts, 5 unités chacune, couverture 12/12 des capacités maintenue). La
+première mesure donnait toujours le Vanguard à 86 % — et une septième
+itération de statistiques a de nouveau AGGRAVÉ l'écart (91,7 %, la Ligne de
+1812 à 11 %). Les retouches de caractéristiques ne convergent pas : le
+paysage est chaotique et chaque mesure de 72 parties porte ±12 points de
+bruit.
+
+Le déblocage est venu d'un **diagnostic causal** : rejouer le même tournoi
+avec toutes les capacités neutralisées. Sans capacités, la Ligne de 1812
+remontait à 50 % et l'écart tombait à 47 points — le déséquilibre ne venait
+pas des statistiques mais de **l'attribution des capacités aux profils**.
+Le Repli Tactique posé sur l'Éclaireur orbital (l'unité la plus rapide du
+jeu) en faisait un preneur d'objectif intouchable ; posé sur un tireur lent,
+c'est un outil défensif honnête.
+
+Correction : échange du Repli Tactique (Éclaireur → Voltigeur, dont la
+citation dit littéralement « Je tire, je disparais ») contre le Tir de
+Précision (Voltigeur → Éclaireur, désignation orbitale). Résultat, 72
+parties :
+
+| Escouade | Avant | Après |
+|---|---|---|
+| Convoi des Rouilleux | 58,3 % | 55,6 % |
+| Compagnie de l'Aube | 27,8 % | 52,8 % |
+| Ligne de 1812 | 36,1 % | 47,2 % |
+| Détachement Vanguard | 86,1 % | 44,4 % |
+
+**Écart premier-dernier : 11 points** — contre 58 avant l'échange, et jamais
+mieux que 45 sur toutes les itérations de statistiques. La leçon vaut
+au-delà des escouades livrées : dans ce système, **une capacité n'a pas un
+prix, elle a un prix × un porteur**. C'est l'appariement capacité-profil
+qui fait l'équilibre, et c'est là que doit porter l'attention de conception
+— une piste future serait de conditionner certaines capacités à des seuils de
+caractéristiques.
+
 ## Note de méthode
 
 Deux erreurs ont été commises et corrigées en cours de route ; elles disent
