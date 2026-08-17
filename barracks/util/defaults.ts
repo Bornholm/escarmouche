@@ -12,8 +12,13 @@ import { BASE_URL } from "./baseUrl";
    post-apocalyptique.
 
    Les compositions ont été vérifiées avec le moteur (`core.Evaluate`) :
-   chacune tient sous les 30 PR et les 6 unités, avec un peu de marge pour que
-   le joueur puisse encore bricoler la sienne.
+   chacune tient sous les 100 points et les 6 unités, avec un peu de marge pour
+   que le joueur puisse encore bricoler la sienne.
+
+   À elles quatre, elles couvrent les 12 capacités du jeu : chaque escouade en
+   porte trois ou quatre, choisies pour leur univers. Découvrir le jeu par les
+   escouades par défaut, c'est donc rencontrer l'intégralité du répertoire
+   tactique, et pas seulement l'attaque et le mouvement.
 
    Les quatre escouades sont intégralement illustrées (style TCG,
    cf. docs/illustration-prompts/) — chacune avec sa palette d'univers :
@@ -21,7 +26,7 @@ import { BASE_URL } from "./baseUrl";
    ========================================================================== */
 
 export const DefaultUnits: Unit[] = [
-  // --- Fantasy · Compagnie de l'Aube ------------------------------- 24 PR --
+  // --- Fantasy · Compagnie de l'Aube ------------------------------ 90 pts --
   {
     id: "knight",
     quote: "« Mon serment est plus vieux que vos murailles. »",
@@ -44,7 +49,7 @@ export const DefaultUnits: Unit[] = [
     name: "Sorcier crépusculaire",
     health: 1, range: 3, move: 2, power: 3,
     imageUrl: `${BASE_URL}/fantasy-mage.webp`,
-    abilities: [],
+    abilities: ["00001-energy-trait"],
   },
   {
     id: "fantasy-warden",
@@ -56,11 +61,11 @@ export const DefaultUnits: Unit[] = [
   },
   {
     id: "fantasy-squire",
-    quote: "« Un jour, on gravera aussi mon nom sur la stèle. »",
+    quote: "« Prenez ma place, messire. Moi, on ne me vise pas encore. »",
     imageUrl: `${BASE_URL}/fantasy-squire.webp`,
     name: "Écuyer",
     health: 2, range: 1, move: 2, power: 1,
-    abilities: [],
+    abilities: ["00007-feint"],
   },
   {
     id: "fantasy-huntress",
@@ -81,7 +86,7 @@ export const DefaultUnits: Unit[] = [
     abilities: [],
   },
 
-  // --- Science-fiction · Détachement Vanguard ---------------------- 28 PR --
+  // --- Science-fiction · Détachement Vanguard --------------------- 78 pts --
   {
     id: "scifi-heavy",
     quote: "« Zone verrouillée. Personne ne traverse mon couloir de tir. »",
@@ -96,7 +101,7 @@ export const DefaultUnits: Unit[] = [
     imageUrl: `${BASE_URL}/scifi-scout.webp`,
     name: "Éclaireur orbital",
     health: 2, range: 2, move: 3, power: 2,
-    abilities: [],
+    abilities: ["00004-tactical-retreat"],
   },
   {
     id: "scifi-tech",
@@ -123,7 +128,7 @@ export const DefaultUnits: Unit[] = [
     abilities: [],
   },
 
-  // --- Historique · Ligne de 1812 ---------------------------------- 26 PR --
+  // --- Historique · Ligne de 1812 --------------------------------- 95 pts --
   {
     id: "hist-grenadier",
     quote: "« La Garde meurt, monsieur. Elle ne recule pas. »",
@@ -138,7 +143,7 @@ export const DefaultUnits: Unit[] = [
     imageUrl: `${BASE_URL}/hist-voltigeur.webp`,
     name: "Voltigeur",
     health: 2, range: 2, move: 1, power: 2,
-    abilities: [],
+    abilities: ["00010-precision-shot"],
   },
   {
     id: "hist-cuirassier",
@@ -162,7 +167,7 @@ export const DefaultUnits: Unit[] = [
     imageUrl: `${BASE_URL}/hist-drummer.webp`,
     name: "Tambour",
     health: 2, range: 1, move: 2, power: 1,
-    abilities: [],
+    abilities: ["00005-command-forward"],
   },
   {
     id: "hist-fusilier",
@@ -173,14 +178,14 @@ export const DefaultUnits: Unit[] = [
     abilities: [],
   },
 
-  // --- Post-apocalyptique · Convoi des Rouilleux ------------------- 28 PR --
+  // --- Post-apocalyptique · Convoi des Rouilleux ------------------ 85 pts --
   {
     id: "apoc-colossus",
     quote: "« Ils m'ont soudé pour durer. Pas pour reculer. »",
     imageUrl: `${BASE_URL}/apoc-colossus.webp`,
     name: "Colosse de fonte",
     health: 5, range: 1, move: 1, power: 2,
-    abilities: [],
+    abilities: ["00006-devastating-strike"],
   },
   {
     id: "apoc-sharpshooter",

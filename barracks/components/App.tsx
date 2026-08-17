@@ -57,14 +57,20 @@ export const App: React.FC = () => {
         return;
       }
 
-      units[index] = { ...u, ...units[index] };
+      // Les unités par défaut sont du contenu éditorial livré par
+      // l'application, pas des créations du joueur : leur définition suit donc
+      // les mises à jour, sinon un joueur installé de longue date reste
+      // indéfiniment sur la version du jour où il est arrivé — et ne voit
+      // jamais les capacités ni les illustrations ajoutées depuis.
+      // Seule une image téléversée par le joueur (data-URI) est conservée.
+      const uploaded = units[index].imageUrl?.startsWith("data:")
+        ? units[index].imageUrl
+        : undefined;
 
-      // L'illustration d'une unité par défaut suit les mises à jour de
-      // l'application : l'URL stockée en localStorage n'est qu'un héritage
-      // d'une version antérieure, pas un choix du joueur. Seule une image
-      // téléversée par le joueur (data-URI) est conservée.
-      if (!units[index].imageUrl?.startsWith("data:")) {
-        units[index].imageUrl = u.imageUrl;
+      units[index] = { ...units[index], ...u };
+
+      if (uploaded) {
+        units[index].imageUrl = uploaded;
       }
     });
     setUnits(units);
