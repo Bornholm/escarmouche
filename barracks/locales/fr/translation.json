@@ -187,7 +187,7 @@
     "skip": "Passer",
     "steps": {
       "battle": {
-        "text": "Testez votre escouade contre l'IA : placez votre obstacle, prenez la zone centrale et tenez-la trois tours.",
+        "text": "Testez votre escouade contre l'IA : placez votre obstacle, disputez la zone centrale — chaque marqueur gagné en retire un à l'adversaire, le premier à cinq l'emporte.",
         "title": "Partez en bataille"
       },
       "budget": {
