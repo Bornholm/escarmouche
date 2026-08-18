@@ -34,6 +34,9 @@ export const BattlePage: React.FC<BattlePageProps> = ({ squads, units }) => {
   // qu'il s'apprête à poser, `previewIndex` celle dont il lit la carte.
   const [deployIndex, setDeployIndex] = useState<number | null>(null);
   const [previewIndex, setPreviewIndex] = useState<number | null>(null);
+  // Index de l'unité ADVERSE survolée pendant le déploiement : sa carte prend
+  // alors la place de lecture, pour jauger ce qui vient d'être posé en face.
+  const [aiPreviewIndex, setAiPreviewIndex] = useState<number | null>(null);
   const [battleState, setBattleState] = useState<BattleState | null>(null);
   const [selectedUnitID, setSelectedUnitID] = useState<number | null>(null);
   const [hoveredAction, setHoveredAction] = useState<ActionDescription | null>(null);
@@ -56,6 +59,14 @@ export const BattlePage: React.FC<BattlePageProps> = ({ squads, units }) => {
   const resumedFor = useRef<BattleState | null>(null);
   const abilityCatalog = useAbilities();
 
+  /** Nom lisible d'une capacité ; à défaut son identifiant, jamais rien. */
+  const abilityName = (id: string | undefined): string =>
+    (id && abilityCatalog?.find((a) => a.id === id)?.label) || id || "";
+
+  /** Description de la capacité, pour l'infobulle du bouton d'action. */
+  const abilityHint = (id: string | undefined): string | undefined =>
+    (id && abilityCatalog?.find((a) => a.id === id)?.description) || undefined;
+
   // L'historique est composé ici plutôt que dans le moteur : il doit être
   // traduit, parler en repères de case ("A2") et nommer les capacités par leur
   // libellé, pas par leur identifiant de fichier.
@@ -77,10 +88,9 @@ export const BattlePage: React.FC<BattlePageProps> = ({ squads, units }) => {
           target: named(entry.targetName, entry.targetID),
         });
       case "ability": {
-        const ability = abilityCatalog?.find((a) => a.id === entry.abilityID);
         return t("battle.logAbility", {
           unit: named(entry.sourceName, entry.sourceID),
-          ability: ability?.label ?? entry.abilityID,
+          ability: abilityName(entry.abilityID),
         });
       }
       default:
@@ -489,12 +499,25 @@ export const BattlePage: React.FC<BattlePageProps> = ({ squads, units }) => {
     deployment.playerPositions.forEach((p, index) => {
       if (p) playerAt.set(`${p.x},${p.y}`, index);
     });
-    const aiAt = new Set(deployment.aiPositions.map((p) => `${p.x},${p.y}`));
+    // Les règles font du déploiement un acte tactique VISIBLE : le joueur doit
+    // voir quelle unité l'adversaire vient de poser, pas un pion anonyme.
+    // aiPositions est ordonné comme l'escouade transmise au moteur.
+    const foes = aiSquad ? resolveSquadUnits(aiSquad) : [];
+    const aiAtIndex = new Map<string, number>();
+    deployment.aiPositions.forEach((p, index) => {
+      aiAtIndex.set(`${p.x},${p.y}`, index);
+    });
     const obstacleSet = new Set(deployment.obstacles.map((o) => `${o.x},${o.y}`));
 
-    // La carte lue : celle survolée, sinon celle qu'on s'apprête à poser.
+    // La carte lue : l'unité adverse survolée d'abord (c'est elle qu'on cherche
+    // à jauger), sinon la sienne survolée, sinon celle qu'on s'apprête à poser.
     const readIndex = previewIndex ?? deployIndex;
-    const readUnit = readIndex !== null ? mine[readIndex] : null;
+    const readUnit =
+      aiPreviewIndex !== null
+        ? foes[aiPreviewIndex] ?? null
+        : readIndex !== null
+        ? mine[readIndex]
+        : null;
 
     return (
       <>
@@ -573,7 +596,8 @@ export const BattlePage: React.FC<BattlePageProps> = ({ squads, units }) => {
                 Array.from({ length: 8 }, (_, x) => {
                   const key = `${x},${y}`;
                   const mineIndex = playerAt.get(key);
-                  const isAi = aiAt.has(key);
+                  const aiIndex = aiAtIndex.get(key);
+                  const isAi = aiIndex !== undefined;
                   const isObjective = x >= 3 && x <= 4 && y >= 3 && y <= 4;
                   const isObstacle = obstacleSet.has(key);
                   const isMyObstacle = obstacle?.x === x && obstacle?.y === y;
@@ -637,11 +661,20 @@ export const BattlePage: React.FC<BattlePageProps> = ({ squads, units }) => {
                         </div>
                       )}
 
-                      {isAi && (
-                        <div className="token token--ai">
+                      {aiIndex !== undefined && (
+                        <div
+                          className="token token--ai"
+                          title={foes[aiIndex]?.name}
+                          onMouseEnter={() => setAiPreviewIndex(aiIndex)}
+                          onMouseLeave={() => setAiPreviewIndex(null)}
+                        >
                           <div className="token__owner" />
                           <div className="token__art">
-                            <span aria-hidden="true">◆</span>
+                            {foes[aiIndex]?.imageUrl ? (
+                              <img src={foes[aiIndex].imageUrl} alt="" />
+                            ) : (
+                              <span aria-hidden="true">◆</span>
+                            )}
                           </div>
                         </div>
                       )}
@@ -859,6 +892,42 @@ export const BattlePage: React.FC<BattlePageProps> = ({ squads, units }) => {
                   </div>
                 ))}
               </div>
+
+              {/* Les capacités de l'unité sont annoncées ici, qu'elles soient
+                  activables ou non : sans cela, une capacité dont les
+                  conditions ne sont pas réunies est indiscernable d'une unité
+                  qui n'en a aucune, et le joueur conclut que le jeu ne les
+                  propose pas. Celles jouables à l'instant sont mises en avant. */}
+              {selectedUnit.abilities?.length > 0 && (
+                <div className="row row--2">
+                  {selectedUnit.abilities.map((id) => {
+                    const usable = unitActions.some(
+                      (a) => a.type === "ability" && a.abilityID === id
+                    );
+                    return (
+                      <div
+                        key={id}
+                        className={`stat-chip ${usable ? "" : "stat-chip--muted"}`}
+                        title={abilityHint(id)}
+                      >
+                        <svg
+                          className="action-btn__glyph"
+                          viewBox="0 0 24 24"
+                          style={{
+                            stroke: usable ? "var(--act-ability-mark)" : "var(--text-faint)",
+                            strokeWidth: 2.4,
+                            width: 11,
+                            height: 11,
+                          }}
+                        >
+                          <path d="M12 4l8 8-8 8-8-8z" />
+                        </svg>
+                        <span>{abilityName(id)}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           )}
 
@@ -885,6 +954,7 @@ export const BattlePage: React.FC<BattlePageProps> = ({ squads, units }) => {
                     onFocus={() => setHoveredAction(action)}
                     onBlur={() => setHoveredAction(null)}
                     disabled={!isHumanTurn}
+                    title={action.type === "ability" ? abilityHint(action.abilityID) : undefined}
                   >
                     {action.type === "move" && (
                       <span className="mark mark--move" style={{ position: "static", transform: "none" }} />
@@ -911,6 +981,8 @@ export const BattlePage: React.FC<BattlePageProps> = ({ squads, units }) => {
                     <span className="grow">
                       {action.type === "move"
                         ? t("battle.moveTo", { cell: cellName(action.targetX, action.targetY) })
+                        : action.type === "ability"
+                        ? abilityName(action.abilityID)
                         : action.label}
                     </span>
 

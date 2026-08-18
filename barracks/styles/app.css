@@ -1585,6 +1585,11 @@
 .iconbtn--xs { width: 28px; height: 28px; }
 .stat-chip { border: var(--stroke-hairline) solid var(--border); }
 
+/* Capacité présente mais pas activable dans l'état courant : elle reste
+   lisible — le joueur doit savoir qu'elle existe — sans se confondre avec
+   celles qu'il peut déclencher tout de suite. */
+.stat-chip--muted { opacity: 0.55; }
+
 /* =============================================================================
    ANIMATIONS DE BATAILLE
 
