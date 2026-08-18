@@ -26,12 +26,12 @@ import { BASE_URL } from "./baseUrl";
    ========================================================================== */
 
 export const DefaultUnits: Unit[] = [
-  // --- Fantasy · Compagnie de l'Aube ------------------------------ 96 pts --
+  // --- Fantasy · Compagnie de l'Aube ------------------------------ 99 pts --
   {
     id: "knight",
     quote: "« Mon serment est plus vieux que vos murailles. »",
     name: "Templier",
-    health: 3, range: 1, move: 2, power: 1,
+    health: 4, range: 1, move: 2, power: 1,
     imageUrl: `${BASE_URL}/fantasy-templar.webp`,
     abilities: [],
   },
@@ -64,7 +64,7 @@ export const DefaultUnits: Unit[] = [
     quote: "« Prenez ma place, messire. Moi, on ne me vise pas encore. »",
     imageUrl: `${BASE_URL}/fantasy-squire.webp`,
     name: "Écuyer",
-    health: 2, range: 1, move: 2, power: 1,
+    health: 3, range: 1, move: 2, power: 1,
     abilities: ["00007-feint"],
   },
   // --- Unités héritées, hors escouade --------------------------------------
@@ -131,13 +131,13 @@ export const DefaultUnits: Unit[] = [
     abilities: [],
   },
 
-  // --- Historique · Ligne de 1812 --------------------------------- 93 pts --
+  // --- Historique · Ligne de 1812 --------------------------------- 99 pts --
   {
     id: "hist-grenadier",
     quote: "« La Garde meurt, monsieur. Elle ne recule pas. »",
     imageUrl: `${BASE_URL}/hist-grenadier.webp`,
     name: "Grenadier de la Garde",
-    health: 5, range: 1, move: 2, power: 2,
+    health: 6, range: 1, move: 2, power: 2,
     abilities: [],
   },
   {
@@ -161,7 +161,7 @@ export const DefaultUnits: Unit[] = [
     quote: "« Tenez la ligne ! La ligne, c'est tout ce qu'on a. »",
     imageUrl: `${BASE_URL}/hist-sergeant.webp`,
     name: "Sergent de compagnie",
-    health: 3, range: 1, move: 1, power: 2,
+    health: 4, range: 1, move: 1, power: 2,
     abilities: ["00002-defensive-stance"],
   },
   {
@@ -169,7 +169,7 @@ export const DefaultUnits: Unit[] = [
     quote: "« Tant que le tambour bat, la compagnie existe. »",
     imageUrl: `${BASE_URL}/hist-drummer.webp`,
     name: "Tambour",
-    health: 2, range: 1, move: 2, power: 1,
+    health: 3, range: 1, move: 2, power: 1,
     abilities: ["00005-command-forward"],
   },
   {
@@ -181,7 +181,7 @@ export const DefaultUnits: Unit[] = [
     abilities: [],
   },
 
-  // --- Post-apocalyptique · Convoi des Rouilleux ----------------- 100 pts --
+  // --- Post-apocalyptique · Convoi des Rouilleux ------------------ 99 pts --
   {
     id: "apoc-colossus",
     quote: "« Ils m'ont soudé pour durer. Pas pour reculer. »",

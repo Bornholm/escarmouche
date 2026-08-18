@@ -453,6 +453,36 @@ contraintes d'accès ; le banc montre qu'il n'en faut (presque) pas :
   suivi d'une re-validation des escouades par défaut, qui portent quatre de
   ces cinq capacités.
 
+## Suite — le re-prix des capacités, appliqué
+
+Les cinq tarifs pointés par le banc ont été corrigés dans les YAML :
+
+| Capacité | Avant | Après |
+|---|---|---|
+| Repli Tactique | 2 | **4** |
+| Posture Défensive | 3 | **2** |
+| Gardien | 4 | **3** |
+| En Avant ! | 5 | **4** |
+| Balayage | 5 | **4** |
+
+Les marges dégagées dans les escouades par défaut ont été réinvesties en
+santé (les quatre escouades jouent à 99-100 pts). Re-validation sur 72
+parties :
+
+| Escouade | Avant re-prix | Après |
+|---|---|---|
+| Convoi des Rouilleux | 55,6 % | 66,7 % |
+| Ligne de 1812 | 47,2 % | 55,6 % |
+| Compagnie de l'Aube | 52,8 % | 38,9 % |
+| Détachement Vanguard | 44,4 % | 38,9 % |
+
+L'écart premier-dernier remonte de 11 à 28 points — un desserrement attendu
+(le Voltigeur paie son Repli Tactique au vrai prix) et acceptable : chaque
+mesure porte ±15 points de bruit, aucune escouade ne domine (max 66,7 %) ni
+n'est écrasée (min 38,9 %). L'arbitrage est assumé : un tarif juste pour
+TOUTES les compositions possibles vaut mieux qu'un équilibre au point près
+entre les quatre escouades livrées, obtenu sur des prix faux.
+
 ## Note de méthode
 
 Deux erreurs ont été commises et corrigées en cours de route ; elles disent
